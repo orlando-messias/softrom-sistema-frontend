@@ -1,26 +1,41 @@
+// AWS
 import { Auth } from 'aws-amplify';
 
-export const LOGIN_SUBMIT = 'LOGIN_SUBMIT';
+// CONSTS
+export const LOGIN_SUCCESS = 'LOGIN_SUCCESS';
 export const LOADING = 'LOADING';
-export const GET_MY_DATA = 'GET_MY_DATA';
+export const GET_LOGIN_DATA = 'GET_MY_DATA';
 export const LOGIN_ERROR = 'LOGIN_ERROR';
+export const IS_FETCHING = 'IS_FETCHING';
 
-export const userLogin = (username, token) => {
+export const loginSuccess = (username, token) => {
   return {
-    type: LOGIN_SUBMIT,
-    user: { username, token }
+    type: LOGIN_SUCCESS,
+    user: { username, token },
+    success: true,
+    isFetching: false
   }
-}
+};
 
 export const loginError = () => {
   return {
     type: LOGIN_ERROR,
-    error: true
+    error: true,
+    isFetching: false
   }
-}
+};
+
+export const isFetching = () => {
+  return {
+    type: IS_FETCHING,
+    isFetching: true
+  }
+};
 
 export const userLoginSubmit = (username, password) => {
   return (dispatch) => {
+    dispatch(isFetching());
+
     Auth.signIn({
       username,
       password
@@ -28,9 +43,8 @@ export const userLoginSubmit = (username, password) => {
       .then(() => {
         Auth.currentSession()
           .then(userSession => {
-            // history.push('/dashboard');
             const token = userSession.idToken.jwtToken;
-            dispatch(userLogin(username, token));
+            dispatch(loginSuccess(username, token));
           })
           .catch((err) => {
             console.log(err);
@@ -45,14 +59,14 @@ export const userLoginSubmit = (username, password) => {
 
 };
 
-export const myData = () => {
+export const loginData = () => {
   return {
-    type: GET_MY_DATA
+    type: GET_LOGIN_DATA
   }
-}
+};
 
-export const getData = () => {
+export const getLoginData = () => {
   return (dispatch) => {
-    return dispatch(myData())
+    return dispatch(loginData())
   }
-}
+};
