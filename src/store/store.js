@@ -3,7 +3,7 @@ import loginReducer from './Login/Login.reducer';
 import thunk from 'redux-thunk';
 
 const rootReducer = combineReducers({
-  loginReducer: loginReducer
+  mylog: loginReducer
 });
 
 const store = createStore(rootReducer, applyMiddleware(thunk));

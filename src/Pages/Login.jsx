@@ -6,9 +6,6 @@ import { useHistory } from 'react-router';
 import { useDispatch } from 'react-redux';
 import { userLoginSubmit } from '../store/Login/Login.action';
 
-// aws
-import { Auth } from 'aws-amplify';
-
 // material-ui
 import {
   TextField,
@@ -33,7 +30,7 @@ export default function Login() {
   const dispatch = useDispatch();
 
   useEffect(() => {
-    if (localStorage.getItem('user')) history.push('/dashboard');
+    // if (localStorage.getItem('user')) history.push('/dashboard');
   }, []);
 
   const classes = styles();
@@ -49,25 +46,8 @@ export default function Login() {
 
   const login = () => {
     const { username, password } = user;
-
-    Auth.signIn({
-      username,
-      password
-    })
-      .then(() => {
-        Auth.currentSession()
-          .then(userSession => {
-            history.push('/dashboard');
-            const user = { username, token: userSession.idToken.jwtToken };
-            dispatch(userLoginSubmit(user));
-          })
-          .catch((err) => {
-            console.log(err);
-          });
-      })
-      .catch((err) => {
-        console.log(err);
-      });
+    dispatch(userLoginSubmit(username, password))
+    history.push('/dashboard')
   };
 
   return (
