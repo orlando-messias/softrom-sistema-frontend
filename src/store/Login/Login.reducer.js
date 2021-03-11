@@ -1,4 +1,9 @@
-import { LOGIN_SUCCESS, GET_LOGIN_DATA, LOGIN_ERROR, IS_FETCHING } from './Login.action';
+import {
+  LOGIN_SUCCESS,
+  LOGIN_ERROR,
+  IS_FETCHING,
+  ERROR_TO_FALSE
+} from './Login.action';
 
 const INITIAL_STATE = {
   user: {},
@@ -27,8 +32,11 @@ const loginReducer = (state = INITIAL_STATE, action) => {
         error: action.error,
         isFetching: action.isFetching
       }
-    case GET_LOGIN_DATA:
-      return state
+    case ERROR_TO_FALSE:
+      return {
+        ...state,
+        error: action.error,
+      }
     default:
       return state
   }

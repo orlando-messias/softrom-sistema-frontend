@@ -1,10 +1,11 @@
 // react
 import React, { useEffect, useState } from 'react';
 import { useHistory } from 'react-router';
+import { toast } from 'react-toastify';
 
 // redux
 import { useDispatch, useSelector } from 'react-redux';
-import { userLoginSubmit } from '../store/Login/Login.action';
+import { userLoginSubmit, errorToFalse } from '../store/Login/Login.action';
 
 // material-ui
 import {
@@ -17,8 +18,12 @@ import {
 } from '@material-ui/core';
 import LockIcon from '@material-ui/icons/Lock';
 
+
 // styles
 import style from './LoginStyles';
+
+// services
+import isLogin from '../services/isLogin';
 
 // LOGIN COMPONENT
 export default function Login() {
@@ -28,20 +33,29 @@ export default function Login() {
   });
 
   const history = useHistory();
-  
+
   // store
   const user = useSelector(state => state.loginReducer.user);
   const success = useSelector(state => state.loginReducer.success);
   const isFetching = useSelector(state => state.loginReducer.isFetching);
+  const error = useSelector(state => state.loginReducer.error);
   const dispatch = useDispatch();
 
   useEffect(() => {
-    if (localStorage.getItem('user')) history.push('/dashboard');
-    if (success) {
+    if (isLogin()) history.push('/dashboard');
+  }, []);
+
+  useEffect(() => {
+    if (success && !isLogin()) {
+      toast.success('Login Efetuado com Sucesso!');
       localStorage.setItem('user', JSON.stringify(user));
       history.push('/dashboard');
     }
-  }, [success, isFetching]);
+    if (error) {
+      toast.error('Dados Inválidos');
+      dispatch(errorToFalse())
+    }
+  }, [success, error]);
 
   const styles = style();
 
@@ -58,7 +72,11 @@ export default function Login() {
     dispatch(userLoginSubmit(username, password))
   };
 
-  if(isFetching) return <div className={styles.progress}><LinearProgress wid /></div>
+  if (isFetching) return (
+    <div className={styles.progress}>
+      <LinearProgress />
+    </div>
+  );
 
   return (
     <Box className={styles.mainContainer}>

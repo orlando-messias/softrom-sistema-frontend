@@ -7,6 +7,7 @@ export const LOADING = 'LOADING';
 export const GET_LOGIN_DATA = 'GET_MY_DATA';
 export const LOGIN_ERROR = 'LOGIN_ERROR';
 export const IS_FETCHING = 'IS_FETCHING';
+export const ERROR_TO_FALSE = 'ERROR_FALSE';
 
 export const loginSuccess = (username, token) => {
   return {
@@ -24,6 +25,13 @@ export const loginError = () => {
     isFetching: false
   }
 };
+
+export const errorToFalse = () => {
+  return {
+    type: ERROR_TO_FALSE,
+    error: false
+  }
+}
 
 export const isFetching = () => {
   return {
@@ -57,16 +65,4 @@ export const userLoginSubmit = (username, password) => {
       });
   }
 
-};
-
-export const loginData = () => {
-  return {
-    type: GET_LOGIN_DATA
-  }
-};
-
-export const getLoginData = () => {
-  return (dispatch) => {
-    return dispatch(loginData())
-  }
 };
