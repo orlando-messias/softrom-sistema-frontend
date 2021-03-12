@@ -1,13 +1,11 @@
 // react
 import React, { useEffect, useState } from 'react';
 import { useHistory } from 'react-router';
+import { toast } from 'react-toastify';
 
 // redux
-import { useDispatch } from 'react-redux';
-import { userLoginSubmit } from '../store/Login/Login.action';
-
-// aws
-import { Auth } from 'aws-amplify';
+import { useDispatch, useSelector } from 'react-redux';
+import { userLoginSubmit, errorToFalse } from '../store/Login/Login.action';
 
 // material-ui
 import {
@@ -15,82 +13,92 @@ import {
   Button,
   Box,
   Paper,
-  Typography
+  Typography,
+  LinearProgress
 } from '@material-ui/core';
 import LockIcon from '@material-ui/icons/Lock';
 
-// styles
-import styles from './LoginStyles';
 
-// Login component
+// styles
+import style from './LoginStyles';
+
+// services
+import isLogin from '../services/isLogin';
+
+// LOGIN COMPONENT
 export default function Login() {
-  const [user, setUser] = useState({
+  const [userLogin, setUserLogin] = useState({
     username: '',
     password: ''
   });
 
   const history = useHistory();
+
+  // store
+  const user = useSelector(state => state.loginReducer.user);
+  const success = useSelector(state => state.loginReducer.success);
+  const isFetching = useSelector(state => state.loginReducer.isFetching);
+  const error = useSelector(state => state.loginReducer.error);
   const dispatch = useDispatch();
 
   useEffect(() => {
-    if (localStorage.getItem('user')) history.push('/dashboard');
+    if (isLogin()) history.push('/dashboard');
   }, []);
 
-  const classes = styles();
+  useEffect(() => {
+    if (success && !isLogin()) {
+      toast.success('Login Efetuado com Sucesso!');
+      localStorage.setItem('user', JSON.stringify(user));
+      history.push('/dashboard');
+    }
+    if (error) {
+      toast.error('Dados Inválidos');
+      dispatch(errorToFalse())
+    }
+  }, [success, error]);
+
+  const styles = style();
 
   const handleInputChange = (e) => {
     let { name, value } = e.target;
-
-    setUser(prevState => ({
+    setUserLogin(prevState => ({
       ...prevState,
       [name]: value
     }))
   };
 
   const login = () => {
-    const { username, password } = user;
-
-    Auth.signIn({
-      username,
-      password
-    })
-      .then(() => {
-        Auth.currentSession()
-          .then(userSession => {
-            history.push('/dashboard');
-            const user = { username, token: userSession.idToken.jwtToken };
-            dispatch(userLoginSubmit(user));
-          })
-          .catch((err) => {
-            console.log(err);
-          });
-      })
-      .catch((err) => {
-        console.log(err);
-      });
+    const { username, password } = userLogin;
+    dispatch(userLoginSubmit(username, password))
   };
 
-  return (
-    <Box className={classes.mainContainer}>
+  if (isFetching) return (
+    <div className={styles.progress}>
+      <LinearProgress />
+    </div>
+  );
 
-      <Paper elevation={2} className={classes.loginContainer}>
-        <div className={classes.iconContainer}>
+  return (
+    <Box className={styles.mainContainer}>
+
+      <Paper elevation={2} className={styles.loginContainer}>
+        <div className={styles.iconContainer}>
           <LockIcon />
         </div>
         <Typography variant="h6">
           Login
         </Typography>
 
-        <Box className={classes.fieldsBox}>
+        <Box className={styles.fieldsBox}>
           <TextField
             name="username"
             label="Usuário"
             autoFocus={true}
             required
-            className={classes.inputForm}
+            className={styles.inputForm}
             onChange={handleInputChange}
             InputLabelProps={{
-              className: classes.floatingLabelFocusStyle
+              className: styles.floatingLabelFocusStyle
             }}
           />
           <TextField
@@ -98,10 +106,10 @@ export default function Login() {
             label="Senha"
             required
             type="password"
-            className={classes.inputForm}
+            className={styles.inputForm}
             onChange={handleInputChange}
             InputLabelProps={{
-              className: classes.floatingLabelFocusStyle
+              className: styles.floatingLabelFocusStyle
             }}
           />
         </Box>
@@ -110,7 +118,7 @@ export default function Login() {
           color="primary"
           variant="contained"
           onClick={login}
-          disabled={!user.username || !(user.password.length >= 3)}
+          disabled={!userLogin.username || !(userLogin.password.length >= 3)}
         >
           ENTRAR
         </Button>

@@ -33,6 +33,11 @@ const styles = makeStyles(() => ({
   floatingLabelFocusStyle: {
     fontSize: 14,
     color: '#c0c0c0'
+  },
+  progress: {
+    // marginTop: 30,
+    width: '50%',
+    margin: '50px auto'
   }
 }));
 

@@ -1,15 +1,42 @@
-import { LOGIN_SUBMIT, LOADING } from './Login.action';
+import {
+  LOGIN_SUCCESS,
+  LOGIN_ERROR,
+  IS_FETCHING,
+  ERROR_TO_FALSE
+} from './Login.action';
 
 const INITIAL_STATE = {
   user: {},
+  success: false,
+  isFetching: false,
+  error: false
 };
 
 const loginReducer = (state = INITIAL_STATE, action) => {
-  const { payload, type } = action;
-
-  switch (type) {
-    case LOGIN_SUBMIT:
-      return { ...state, user: payload, isFetching }
+  switch (action.type) {
+    case LOGIN_SUCCESS:
+      return {
+        ...state,
+        user: action.user,
+        success: action.success,
+        isFetching: action.isFetching
+      }
+    case IS_FETCHING:
+      return {
+        ...state,
+        isFetching: true
+      }
+    case LOGIN_ERROR:
+      return {
+        ...state,
+        error: action.error,
+        isFetching: action.isFetching
+      }
+    case ERROR_TO_FALSE:
+      return {
+        ...state,
+        error: action.error,
+      }
     default:
       return state
   }
