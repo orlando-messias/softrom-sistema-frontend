@@ -2,11 +2,9 @@
 import React, { useEffect, useState } from 'react';
 import { useHistory } from 'react-router';
 import { toast } from 'react-toastify';
-
 // redux
 import { useDispatch, useSelector } from 'react-redux';
 import { userLoginSubmit, errorToFalse } from '../store/Login/Login.action';
-
 // material-ui
 import {
   TextField,
@@ -17,13 +15,11 @@ import {
   LinearProgress
 } from '@material-ui/core';
 import LockIcon from '@material-ui/icons/Lock';
-
-
 // styles
 import style from './LoginStyles';
-
 // services
-import isLogin from '../services/isLogin';
+import { isLogin } from '../services/isLogin';
+
 
 // LOGIN COMPONENT
 export default function Login() {

@@ -8,6 +8,7 @@ export const GET_LOGIN_DATA = 'GET_MY_DATA';
 export const LOGIN_ERROR = 'LOGIN_ERROR';
 export const IS_FETCHING = 'IS_FETCHING';
 export const ERROR_TO_FALSE = 'ERROR_FALSE';
+export const LOGOUT = 'LOGOUT';
 
 export const loginSuccess = (username, token) => {
   return {
@@ -65,4 +66,28 @@ export const userLoginSubmit = (username, password) => {
       });
   }
 
+};
+
+export const userClear = () => {
+  return {
+    type: LOGOUT,
+    user: {},
+    loading: false,
+    success: false,
+    error: false
+  }
+}
+
+export const userLogout = () => {
+  Auth.signOut()
+    .then((data) => {
+      console.log(data);
+    })
+    .catch((err) => {
+      console.log(err);
+    });
+
+  return (dispatch) => {
+    dispatch(userClear());
+  };
 };

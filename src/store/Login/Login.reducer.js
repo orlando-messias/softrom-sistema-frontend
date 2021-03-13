@@ -2,7 +2,8 @@ import {
   LOGIN_SUCCESS,
   LOGIN_ERROR,
   IS_FETCHING,
-  ERROR_TO_FALSE
+  ERROR_TO_FALSE,
+  LOGOUT
 } from './Login.action';
 
 const INITIAL_STATE = {
@@ -36,6 +37,14 @@ const loginReducer = (state = INITIAL_STATE, action) => {
       return {
         ...state,
         error: action.error,
+      }
+    case LOGOUT:
+      return {
+        ...state,
+        user: action.user,
+        loading: action.loading,
+        success: action.success,
+        error: action.error
       }
     default:
       return state

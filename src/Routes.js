@@ -4,7 +4,7 @@ import { BrowserRouter as Router, Route } from 'react-router-dom';
 
 // pages and components
 import Login from './Pages/Login';
-import Dashboard from './components/Dashboard';
+import Dashboard from './Pages/Dashboard';
 
 function Routes() {
   return (
