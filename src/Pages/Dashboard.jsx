@@ -1,12 +1,10 @@
 // react
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import { useHistory } from 'react-router'
 // redux
 import { useSelector } from 'react-redux';
-import { isLogin } from '../services/isLogin';
-// import { AppBar, Box, Button, IconButton, Menu, MenuItem, Toolbar, Typography, useMediaQuery } from '@material-ui/core';
-// import MenuIcon from '@material-ui/icons/Menu';
-
+import { isLogin } from '../services/loginServices';
+// componentes
 import TopBar from '../components/TopBar';
 
 

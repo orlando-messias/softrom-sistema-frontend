@@ -27,7 +27,7 @@ import MenuIcon from '@material-ui/icons/Menu';
 import style from './TopBarStyles';
 import { withStyles } from '@material-ui/core/styles';
 // services
-import { isLogin, loggedUser } from '../services/isLogin';
+import { isLogin, loggedUser } from '../services/loginServices';
 // image
 import logo from '../assets/logo-softrom.png';
 
@@ -51,9 +51,14 @@ const StyledMenu = withStyles({
   />
 ));
 
-const StyledMenuItem = withStyles(() => ({
+const StyledMenuItem = withStyles((theme) => ({
   root: {
-    // width: 150
+    '&:focus': {
+      backgroundColor: theme.palette.primary.main,
+      '& .MuiListItemIcon-root, & .MuiListItemText-primary': {
+        color: theme.palette.common.white,
+      },
+    },
   },
 }))(MenuItem);
 

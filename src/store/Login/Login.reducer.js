@@ -10,6 +10,7 @@ const INITIAL_STATE = {
   user: {},
   success: false,
   isFetching: false,
+  message: '',
   error: false
 };
 
@@ -31,7 +32,8 @@ const loginReducer = (state = INITIAL_STATE, action) => {
       return {
         ...state,
         error: action.error,
-        isFetching: action.isFetching
+        isFetching: action.isFetching,
+        message: action.message
       }
     case ERROR_TO_FALSE:
       return {

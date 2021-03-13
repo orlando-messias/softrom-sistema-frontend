@@ -19,9 +19,10 @@ export const loginSuccess = (username, token) => {
   }
 };
 
-export const loginError = () => {
+export const loginError = (message) => {
   return {
     type: LOGIN_ERROR,
+    message,
     error: true,
     isFetching: false
   }
@@ -57,12 +58,12 @@ export const userLoginSubmit = (username, password) => {
           })
           .catch((err) => {
             console.log(err);
-            dispatch(loginError())
+            dispatch(loginError(err.message))
           });
       })
       .catch((err) => {
         console.log(err);
-        dispatch(loginError())
+        dispatch(loginError(err.message))
       });
   }
 
