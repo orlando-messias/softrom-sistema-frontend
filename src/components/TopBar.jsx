@@ -1,5 +1,6 @@
 // react
 import React, { useState } from 'react';
+import { useHistory } from 'react-router';
 // material-ui
 import {
   AppBar,
@@ -12,19 +13,21 @@ import {
   MenuItem,
   Toolbar,
   Typography,
-  useMediaQuery
+  useMediaQuery,
+  Divider,
 } from '@material-ui/core';
+import MenuIcon from '@material-ui/icons/Menu';
+import AppsIcon from '@material-ui/icons/Apps';
 import { useTheme } from '@material-ui/core/styles';
-import { useHistory } from 'react-router';
+import clsx from 'clsx';
 // redux
 import { userLogout } from '../store/Login/Login.action';
 import { useDispatch } from 'react-redux';
 // icons
 import PersonIcon from '@material-ui/icons/Person';
 import ExitToAppIcon from '@material-ui/icons/ExitToApp';
-import MenuIcon from '@material-ui/icons/Menu';
 // styles
-import style from './TopBarStyles';
+import useStyles from './TopBarStyles';
 import { withStyles } from '@material-ui/core/styles';
 // services
 import { isLogin, loggedUser } from '../services/loginServices';
@@ -64,20 +67,21 @@ const StyledMenuItem = withStyles((theme) => ({
 
 
 // TOPBAR COMPONENT
-export default function TopBar() {
+export default function TopBar({ handleDrawerOpen, open }) {
   const [anchorEl, setAnchorEl] = useState(null);
 
   const history = useHistory();
-  const styles = style();
+  const dispatch = useDispatch();
+
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("xs"));
-  const dispatch = useDispatch();
+  const styles = useStyles();
 
   const username = loggedUser().username.split(' ')[0];
   // uppercase username first letter
   const usernameUppercase = username[0].toUpperCase() + username.slice(1);
 
-  const handleClick = (event) => {
+  const handleUserMenu = (event) => {
     setAnchorEl(event.currentTarget);
   };
 
@@ -92,70 +96,85 @@ export default function TopBar() {
   };
 
   return (
-    <div className={styles.root}>
+    <AppBar
+      position="fixed"
+      className={clsx(styles.appBar, {
+        [styles.appBarShift]: open,
+      })}
+    >
 
-      <AppBar position="static">
+      <Toolbar>
+        <IconButton
+          color="inherit"
+          aria-label="open drawer"
+          onClick={handleDrawerOpen}
+          edge="start"
+          className={clsx(styles.menuButton, {
+            [styles.hide]: open,
+          })}
+        >
+          <AppsIcon />
+        </IconButton>
+        <Box className={styles.title}>
+          <img src={logo} alt="SoftRom Logo" title="SoftRom" />
+        </Box>
 
-        <Toolbar>
+        {isMobile
+          ? (
+            <>
+              <IconButton
+                edge="start"
+                color="inherit"
+                onClick={handleUserMenu}
+                aria-label="open drawer"
+                className={clsx(styles.menuButton, open && styles.hide)}
+              >
+                <MenuIcon />
+              </IconButton>
+              <StyledMenu
+                id="customized-menu"
+                anchorEl={anchorEl}
+                keepMounted
+                open={Boolean(anchorEl)}
+                onClose={handleClose}
+              >
+                <StyledMenuItem>
+                  <ListItemIcon >
+                    <PersonIcon fontSize="small" />
+                  </ListItemIcon>
+                  <ListItemText primary={usernameUppercase} onClick={handleClose} />
+                </StyledMenuItem>
+                <Divider />
+                <StyledMenuItem>
+                  <ListItemIcon>
+                    <ExitToAppIcon fontSize="small" />
+                  </ListItemIcon>
+                  <ListItemText
+                    primary={isLogin ? <span>Logout</span> : <span>Login</span>}
+                    onClick={logout}
+                  />
+                </StyledMenuItem>
 
-          <Box className={styles.title}>
-            <img src={logo} alt="SoftRom Logo" title="SoftRom" />
-          </Box>
+              </StyledMenu>
+            </>
+          )
+          : (
+            <>
+              <Typography className={styles.welcome}>
+                Welcome, <span>{usernameUppercase}</span>
+              </Typography>
+              <Button
+                color="inherit"
+                className={styles.loginLogoutButton}
+                onClick={logout}
+              >
+                {isLogin ? <span>Logout</span> : <span>Login</span>}
+              </Button>
+            </>
+          )}
 
-          {isMobile
-            ? (
-              <>
-                <IconButton
-                  edge="start"
-                  color="inherit"
-                  aria-label="menu"
-                  onClick={handleClick}
-                >
-                  <MenuIcon />
-                </IconButton>
-                <StyledMenu
-                  id="customized-menu"
-                  anchorEl={anchorEl}
-                  keepMounted
-                  open={Boolean(anchorEl)}
-                  onClose={handleClose}
-                >
-                  <StyledMenuItem>
-                    <ListItemIcon >
-                      <PersonIcon fontSize="small" />
-                    </ListItemIcon>
-                    <ListItemText primary={usernameUppercase} onClick={handleClose} />
-                  </StyledMenuItem>
-                  <StyledMenuItem>
-                    <ListItemIcon>
-                      <ExitToAppIcon fontSize="small" />
-                    </ListItemIcon>
-                    <ListItemText
-                      primary={isLogin ? <span>Logout</span> : <span>Login</span>}
-                      onClick={logout}
-                    />
-                  </StyledMenuItem>
+      </Toolbar>
+    </AppBar>
 
-                </StyledMenu>
-              </>
-            )
-            : (
-              <>
-                <Typography className={styles.welcome}>
-                  Welcome, <span>{usernameUppercase}</span>
-                </Typography>
-                <Button
-                  color="inherit"
-                  className={styles.loginLogoutButton}
-                  onClick={logout}
-                >
-                  {isLogin ? <span>Logout</span> : <span>Login</span>}
-                </Button>
-              </>
-            )}
-
-        </Toolbar>
-      </AppBar>
-    </div >
   );
 };

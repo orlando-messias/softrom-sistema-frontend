@@ -70,7 +70,7 @@ export default function Login() {
   };
 
   const handleEnter = (e) => {
-    if(loginValidation(userLogin.username, userLogin.password) && e.key === 'Enter') {
+    if (loginValidation(userLogin.username, userLogin.password) && e.key === 'Enter') {
       login();
     }
   };

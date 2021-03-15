@@ -1,12 +1,8 @@
 import { makeStyles } from '@material-ui/core/styles';
 
-const styles = makeStyles((theme) => ({
-  root: {
-    flexGrow: 1,
-  },
-  menuButton: {
-    marginRight: theme.spacing(2),
-  },
+const drawerWidth = 200;
+
+const useStyles = makeStyles((theme) => ({
   title: {
     flexGrow: 1,
   },
@@ -17,7 +13,28 @@ const styles = makeStyles((theme) => ({
   loginLogoutButton: {
     height: 30,
     fontSize: 12
-  }
+  },
+  appBar: {
+    zIndex: theme.zIndex.drawer + 1,
+    transition: theme.transitions.create(['width', 'margin'], {
+      easing: theme.transitions.easing.sharp,
+      duration: theme.transitions.duration.leavingScreen,
+    }),
+  },
+  appBarShift: {
+    marginLeft: drawerWidth,
+    width: `calc(100% - ${drawerWidth}px)`,
+    transition: theme.transitions.create(['width', 'margin'], {
+      easing: theme.transitions.easing.sharp,
+      duration: theme.transitions.duration.enteringScreen,
+    }),
+  },
+  menuButton: {
+    marginRight: 36,
+    [theme.breakpoints.down('sm')]: {
+      marginRight: 0
+    },
+  },
 }));
 
-export default styles;
+export default useStyles;
