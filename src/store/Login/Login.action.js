@@ -8,6 +8,7 @@ export const GET_LOGIN_DATA = 'GET_MY_DATA';
 export const LOGIN_ERROR = 'LOGIN_ERROR';
 export const IS_FETCHING = 'IS_FETCHING';
 export const ERROR_TO_FALSE = 'ERROR_FALSE';
+export const LOGOUT = 'LOGOUT';
 
 export const loginSuccess = (username, token) => {
   return {
@@ -18,9 +19,10 @@ export const loginSuccess = (username, token) => {
   }
 };
 
-export const loginError = () => {
+export const loginError = (message) => {
   return {
     type: LOGIN_ERROR,
+    message,
     error: true,
     isFetching: false
   }
@@ -56,13 +58,37 @@ export const userLoginSubmit = (username, password) => {
           })
           .catch((err) => {
             console.log(err);
-            dispatch(loginError())
+            dispatch(loginError(err.message))
           });
       })
       .catch((err) => {
         console.log(err);
-        dispatch(loginError())
+        dispatch(loginError(err.message))
       });
   }
 
+};
+
+export const userClear = () => {
+  return {
+    type: LOGOUT,
+    user: {},
+    loading: false,
+    success: false,
+    error: false
+  }
+}
+
+export const userLogout = () => {
+  Auth.signOut()
+    .then((data) => {
+      console.log(data);
+    })
+    .catch((err) => {
+      console.log(err);
+    });
+
+  return (dispatch) => {
+    dispatch(userClear());
+  };
 };

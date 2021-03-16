@@ -2,11 +2,9 @@
 import React, { useEffect, useState } from 'react';
 import { useHistory } from 'react-router';
 import { toast } from 'react-toastify';
-
 // redux
 import { useDispatch, useSelector } from 'react-redux';
 import { userLoginSubmit, errorToFalse } from '../store/Login/Login.action';
-
 // material-ui
 import {
   TextField,
@@ -17,13 +15,11 @@ import {
   LinearProgress
 } from '@material-ui/core';
 import LockIcon from '@material-ui/icons/Lock';
-
-
 // styles
 import style from './LoginStyles';
-
 // services
-import isLogin from '../services/isLogin';
+import { isLogin, loginValidation } from '../services/loginServices';
+
 
 // LOGIN COMPONENT
 export default function Login() {
@@ -39,6 +35,7 @@ export default function Login() {
   const success = useSelector(state => state.loginReducer.success);
   const isFetching = useSelector(state => state.loginReducer.isFetching);
   const error = useSelector(state => state.loginReducer.error);
+  const errorMessage = useSelector(state => state.loginReducer.message);
   const dispatch = useDispatch();
 
   useEffect(() => {
@@ -52,8 +49,8 @@ export default function Login() {
       history.push('/dashboard');
     }
     if (error) {
-      toast.error('Dados Inválidos');
-      dispatch(errorToFalse())
+      toast.error(errorMessage);
+      dispatch(errorToFalse());
     }
   }, [success, error]);
 
@@ -71,6 +68,13 @@ export default function Login() {
     const { username, password } = userLogin;
     dispatch(userLoginSubmit(username, password))
   };
+
+  const handleEnter = (e) => {
+    if (loginValidation(userLogin.username, userLogin.password) && e.key === 'Enter') {
+      login();
+    }
+  };
+
 
   if (isFetching) return (
     <div className={styles.progress}>
@@ -108,6 +112,7 @@ export default function Login() {
             type="password"
             className={styles.inputForm}
             onChange={handleInputChange}
+            onKeyDown={handleEnter}
             InputLabelProps={{
               className: styles.floatingLabelFocusStyle
             }}
@@ -118,7 +123,7 @@ export default function Login() {
           color="primary"
           variant="contained"
           onClick={login}
-          disabled={!userLogin.username || !(userLogin.password.length >= 3)}
+          disabled={!loginValidation(userLogin.username, userLogin.password)}
         >
           ENTRAR
         </Button>

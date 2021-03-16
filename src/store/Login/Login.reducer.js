@@ -2,13 +2,15 @@ import {
   LOGIN_SUCCESS,
   LOGIN_ERROR,
   IS_FETCHING,
-  ERROR_TO_FALSE
+  ERROR_TO_FALSE,
+  LOGOUT
 } from './Login.action';
 
 const INITIAL_STATE = {
   user: {},
   success: false,
   isFetching: false,
+  message: '',
   error: false
 };
 
@@ -30,12 +32,21 @@ const loginReducer = (state = INITIAL_STATE, action) => {
       return {
         ...state,
         error: action.error,
-        isFetching: action.isFetching
+        isFetching: action.isFetching,
+        message: action.message
       }
     case ERROR_TO_FALSE:
       return {
         ...state,
         error: action.error,
+      }
+    case LOGOUT:
+      return {
+        ...state,
+        user: action.user,
+        loading: action.loading,
+        success: action.success,
+        error: action.error
       }
     default:
       return state
