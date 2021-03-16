@@ -40,7 +40,7 @@ export default function Login() {
 
   useEffect(() => {
     if (isLogin()) history.push('/dashboard');
-  }, []);
+  }, [history]);
 
   useEffect(() => {
     if (success && !isLogin()) {
@@ -52,7 +52,7 @@ export default function Login() {
       toast.error(errorMessage);
       dispatch(errorToFalse());
     }
-  }, [success, error]);
+  }, [success, error, dispatch, errorMessage, history, user]);
 
   const styles = style();
 

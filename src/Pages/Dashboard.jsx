@@ -26,7 +26,7 @@ export default function Dashboard() {
 
   useEffect(() => {
     if (!isLogin()) history.push('/');
-  }, []);
+  }, [history]);
 
   if (!isLogin()) return <div></div>
 
