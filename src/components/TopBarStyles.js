@@ -1,6 +1,6 @@
 import { makeStyles } from '@material-ui/core/styles';
 
-const drawerWidth = 200;
+const drawerWidth = 213;
 
 const useStyles = makeStyles((theme) => ({
   title: {
@@ -12,7 +12,12 @@ const useStyles = makeStyles((theme) => ({
   },
   loginLogoutButton: {
     height: 30,
-    fontSize: 12
+    fontSize: 12,
+    color: 'white',
+    // border: '1px solid white',
+    "&:hover": {
+      backgroundColor: 'rgba(255, 255, 255, 0.2)'
+  }
   },
   appBar: {
     zIndex: theme.zIndex.drawer + 1,
