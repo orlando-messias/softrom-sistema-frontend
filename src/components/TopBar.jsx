@@ -164,7 +164,7 @@ export default function TopBar({ handleDrawerOpen, open }) {
                 Welcome, <span>{usernameUppercase}</span>
               </Typography>
               <Button
-                color="inherit"
+                
                 className={styles.loginLogoutButton}
                 onClick={logout}
               >
