@@ -4,14 +4,15 @@ import { useHistory } from 'react-router';
 // material-ui
 import AddIcon from "@material-ui/icons/Add";
 // styles
-import useStyles from './EmpresasStyles'; 
+import useStyles from './EmpresasStyles';
 // components
 import Panel from '../components/Panel';
 import MaterialTable from 'material-table';
 import ModalInsert from '../components/modals/ModalInsert';
 // services
 import { isLogin } from '../services/loginServices';
-import api from '../services/api';
+import api from '../services/apiLocal';
+import ModalEdit from '../components/modals/ModalEdit';
 
 const searchFieldStyle = {
   marginRight: 30
@@ -20,8 +21,10 @@ const searchFieldStyle = {
 
 // DASHBOARD COMPONENT
 export default function Empresas() {
-  const [companies, setCompanies] = useState([]);
+  const [empresas, setEmpresas] = useState([]);
+  const [empresaSelecionada, setEmpresaSelecionada] = useState({});
   const [showModalInsert, setShowModalInsert] = useState(false);
+  const [showModalEdit, setShowModalEdit] = useState(false);
 
   const history = useHistory();
   const styles = useStyles();
@@ -38,18 +41,29 @@ export default function Empresas() {
 
   useEffect(() => {
     api.get('/empresa')
-      .then(response => setCompanies(response.data));
-  }, []);
+      .then(response => setEmpresas(response.data));
+  }, [showModalInsert]);
 
   const selectedCompany = async (rowData, action) => {
-    if (action === 'delete')
+    if (action === 'delete') {
       await api.delete(`/empresa/${rowData.id}`)
-        .then(() => setCompanies(companies.filter(company => company.id !== rowData.id)))
+        .then(() => setEmpresas(empresas.filter(empresa => empresa.id !== rowData.id)))
         .catch((error) => console.log(error))
+    }
+
+    if(action === 'edit') {
+      setEmpresaSelecionada(rowData);
+      setShowModalEdit(!showModalEdit);
+    }
+
   };
 
   const handleModalInsert = () => {
     setShowModalInsert(!showModalInsert);
+  }
+
+  const handleModalEdit = () => {
+    setShowModalEdit(!showModalEdit);
   }
 
   if (!isLogin()) return <div></div>
@@ -61,7 +75,7 @@ export default function Empresas() {
 
       <div className={styles.content}>
         <MaterialTable
-          data={companies}
+          data={empresas}
           columns={columns}
           title="Empresas"
           actions={[
@@ -82,7 +96,7 @@ export default function Empresas() {
           }}
           options={{
             searchFieldStyle: searchFieldStyle,
-        }}
+          }}
           localization={{
             body: {
               emptyDataSourceMessage: "Nenhum registro para exibir",
@@ -105,6 +119,12 @@ export default function Empresas() {
       <ModalInsert
         showModalInsert={showModalInsert}
         handleModalInsert={handleModalInsert}
+      />
+
+      <ModalEdit
+        showModalEdit={showModalEdit}
+        handleModalEdit={handleModalEdit}
+        empresa={empresaSelecionada}
       />
     </div>
   );

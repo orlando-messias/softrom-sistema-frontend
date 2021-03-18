@@ -14,7 +14,7 @@ import {
 // mask
 import { mask } from 'remask';
 // styles
-import useStyles from './ModalInsertStyles';
+import useStyles from './ModalEditStyles';
 
 import api from '../../services/apiLocal';
 import { toast } from 'react-toastify';
@@ -23,8 +23,8 @@ import ListaEndereco from '../Empresas/ListaEndereco';
 import ListaContato from '../Empresas/ListaContato';
 
 
-// MODALINSERT COMPONENT
-const ModalInsert = ({ handleModalInsert, showModalInsert }) => {
+// MODALEDIT COMPONENT
+const ModalEdit = ({ handleModalEdit, showModalEdit, empresa }) => {
   const [companyData, setCompanyData] = useState({
     nome: '',
     tipo_doc: '',
@@ -59,47 +59,33 @@ const ModalInsert = ({ handleModalInsert, showModalInsert }) => {
 
   };
 
-  const insert = async () => {
-    api.post(`/empresa`, { empresa: companyData })
-    // expecting a response
-    .then(function (response) {
-      console.log(response);
-      return true;
-    })
-    .catch(function (error) {
-      console.log(error);
-      return false;
-    });
-    
-    setTimeout(() => {
-      handleModalInsert();
-      setCompanyData({
-        nome: '',
-        tipo_doc: '',
-        documento: '',
-        gerar_nf: false,
-        retem_iss: false,
-        obs: '',
-        agrupar_fatura_contrato: false
-      });
-      toast.success(`${companyData.nome} foi adicionada com sucesso`);
-    }, 1000);
+  const update = () => {
+    handleModalEdit();
+    // api.put('/empresa', { empresa: editCompany });
+
+    // setTimeout(() => {
+    //   setOnEdit(!onEdit);
+    //   toast.success('PLEASE, WAIT! Update in a few seconds');
+    //   setModified(false);
+    // }, 1000);
+
   };
 
   return (
     <Modal
-      open={showModalInsert}
-      onClose={handleModalInsert}
+      open={showModalEdit}
+      onClose={handleModalEdit}
     >
       <div className={classes.modal}>
         <h2>Cadastro de Empresa</h2>
-
+        {console.log(empresa)}
         <Grid container spacing={2}>
           <Grid item sm={12} md={6}>
             <TextField
               label="Nome"
               name="nome"
               autoFocus
+              value={empresa.nome}
               fullWidth
               required
               onChange={handleCompanyDataChange}
@@ -109,9 +95,9 @@ const ModalInsert = ({ handleModalInsert, showModalInsert }) => {
             <TextField
               label="Tipo de Pessoa"
               name="tipo_doc"
+              value={empresa.tipo_doc}
               select
               required
-              value={companyData.tipo_doc}
               onChange={handleCompanyDataChange}
               helperText="Tipo de Documento Jurídica/Física"
             >
@@ -123,10 +109,11 @@ const ModalInsert = ({ handleModalInsert, showModalInsert }) => {
             <TextField
               label="Documento"
               name="documento"
+              value={empresa.documento}
               fullWidth
               required
               onChange={handleCompanyDataChange}
-              value={companyData.documento}
+              value={empresa.documento}
             />
           </Grid>
         </Grid>
@@ -138,6 +125,7 @@ const ModalInsert = ({ handleModalInsert, showModalInsert }) => {
                 <Checkbox
                   name="gerar_nf"
                   color="primary"
+                  checked={empresa.gerar_nf}
                   onChange={handleCompanyDataChange}
                 />
               }
@@ -151,6 +139,7 @@ const ModalInsert = ({ handleModalInsert, showModalInsert }) => {
                 <Checkbox
                   name="retem_iss"
                   color="primary"
+                  checked={empresa.retem_iss}
                   onChange={handleCompanyDataChange}
                 />
               }
@@ -164,6 +153,7 @@ const ModalInsert = ({ handleModalInsert, showModalInsert }) => {
                 <Switch
                   name="agrupar_fatura_contrato"
                   color="primary"
+                  checked={empresa.agrupar_fatura_contrato}
                   onChange={handleCompanyDataChange}
                 />
               }
@@ -175,8 +165,9 @@ const ModalInsert = ({ handleModalInsert, showModalInsert }) => {
 
         <TextField
           name="obs"
-          required
           label="Obs"
+          value={empresa.obs}
+          required
           className={classes.inputModal}
           onChange={handleCompanyDataChange}
         />
@@ -187,15 +178,15 @@ const ModalInsert = ({ handleModalInsert, showModalInsert }) => {
         <div align="right">
           <Button
             color="primary"
-            onClick={insert}
+            onClick={update}
           >
             Gravar
           </Button>
-          <Button onClick={handleModalInsert} color="primary">Cancelar</Button>
+          <Button onClick={handleModalEdit} color="primary">Cancelar</Button>
         </div>
       </div>
     </Modal>
   );
 };
 
-export default ModalInsert;
+export default ModalEdit;
