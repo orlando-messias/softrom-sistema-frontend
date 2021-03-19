@@ -15,9 +15,9 @@ const searchFieldStyle = {
 
 
 // DASHBOARD COMPONENT
-export default function ListaEndereco({ empresaId }) {
+export default function ListaEndereco({ empresaId, endereco, handleEndereco }) {
   // const empresaId = 9;
-  const [empresas, setEmpresas] = useState();
+  const [enderecos, setEnderecos] = useState([]);
   // const [empresaId, setEmpresaId] = useState(empresaI);
 
   // const styles = useStyles();
@@ -26,29 +26,46 @@ export default function ListaEndereco({ empresaId }) {
     { title: "Identificação", field: "identificacao" },
     { title: "Cep", field: "cep" },
     { title: "Principal", field: "principal" },
+    { title: "Modo", field: "modo" },
   ];
 
   useEffect(() => {
     api.get(`/empresa/${empresaId}/endereco`)
-      .then(response => setEmpresas(response.data));
+      .then(response => setEnderecos(response.data));
   }, []);
 
-  const handle = (rowData, action) => {
-    console.log(action);
+  const handle = (rowData, resolve, reject, action) => {
+    setEnderecos([...enderecos, rowData]);
+    handleEndereco([...enderecos, rowData]);
+    // console.log('ENDERECOS ', enderecos)
+    resolve();
   };
+
+  const handleDel = (rowData, resolve, reject, action) => {
+    const newEnderecos = enderecos.filter(endereco => endereco.id !== rowData.id);
+    console.log(newEnderecos);
+    setEnderecos(newEnderecos);
+    handleEndereco(newEnderecos);
+    resolve();
+  }
 
   return (
 
     <div>
-      {console.log(empresas)}
       <MaterialTable
-        data={empresas}
+        data={enderecos}
         columns={columns}
         title="Listagem de Endereços"
         editable={{
-          onRowAdd: (rowData) => handle(rowData, 'add'),
+          onRowAdd: (newData) =>
+            new Promise((resolve, reject) => {
+              handle(newData, resolve, reject);
+            }),
           onRowUpdate: (rowData) => handle(rowData, 'edit'),
-          onRowDelete: (rowData) => handle(rowData, 'delete')
+          onRowDelete: (rowData) =>
+            new Promise((resolve, reject) => {
+              handleDel(rowData, resolve, reject, 'delete');
+            }),
         }}
         options={{
           addRowPosition: "first",

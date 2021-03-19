@@ -35,7 +35,9 @@ const ModalInsert = ({ handleModalInsert, showModalInsert }) => {
     agrupar_fatura_contrato: false
   });
   const [id, setId] = useState(0);
+  const [endereco, setEndereco] = useState([]);
 
+  const contato = [];
   const classes = useStyles();
 
   const handleCompanyDataChange = (e) => {
@@ -60,37 +62,33 @@ const ModalInsert = ({ handleModalInsert, showModalInsert }) => {
   };
 
   const insert = async () => {
-    api.post(`/empresa`, { empresa: companyData })
-    // expecting a response
-    .then(function (response) {
-      console.log(response);
-      return true;
-    })
-    .catch(function (error) {
-      console.log(error);
-      return false;
-    });
-    
-    setTimeout(() => {
-      handleModalInsert();
-      setCompanyData({
-        nome: '',
-        tipo_doc: '',
-        documento: '',
-        gerar_nf: false,
-        retem_iss: false,
-        obs: '',
-        agrupar_fatura_contrato: false
+    console.log({ empresa: { ...companyData }, contato, endereco })
+    await api.post(`/empresa`, { empresa: { ...companyData }, contato, endereco })
+      // expecting a response
+      .then(function (response) {
+        console.log(response);
+        return true;
+      })
+      .catch(function (error) {
+        console.log(error);
+        return false;
       });
-      toast.success(`${companyData.nome} foi adicionada com sucesso`);
-    }, 1000);
+
+    handleModalInsert();
+
+    toast.success(`${companyData.nome} foi adicionada com sucesso`);
   };
+
+  const handleEndereco = (end) => {
+    setEndereco(end)
+  }
 
   return (
     <Modal
       open={showModalInsert}
       onClose={handleModalInsert}
     >
+      {/* {console.log('ENDERECO ', endereco[0])} */}
       <div className={classes.modal}>
         <h2>Cadastro de Empresa</h2>
 
@@ -181,7 +179,7 @@ const ModalInsert = ({ handleModalInsert, showModalInsert }) => {
           onChange={handleCompanyDataChange}
         />
 
-        <ListaEndereco empresaId={id} />
+        <ListaEndereco empresaId={id} handleEndereco={handleEndereco} />
         <ListaContato empresaId={id} />
 
         <div align="right">

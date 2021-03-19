@@ -18,7 +18,7 @@ export default function ListaContato({ empresaId }) {
   ];
 
   useEffect(() => {
-    api.get(`/empresa/${empresaId}/endereco`)
+    api.get(`/empresa/${empresaId}/contato`)
       .then(response => setEmpresas(response.data));
   }, []);
 

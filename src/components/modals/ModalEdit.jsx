@@ -172,7 +172,7 @@ const ModalEdit = ({ handleModalEdit, showModalEdit, empresa }) => {
           onChange={handleCompanyDataChange}
         />
 
-        <ListaEndereco empresaId={id} />
+        <ListaEndereco empresaId={empresa.id} />
         <ListaContato empresaId={id} />
 
         <div align="right">
