@@ -1,32 +1,33 @@
 // react
 import React, { useEffect, useState } from 'react';
-// material-ui
-import AddIcon from "@material-ui/icons/Add";
-// styles
-// import useStyles from './EmpresasStyles';
 // components
 import MaterialTable from 'material-table';
 // services
 import api from '../../services/api';
-
-const searchFieldStyle = {
-  marginRight: 30
-};
+import { FormControl, Input, InputLabel, MenuItem, Select } from '@material-ui/core';
 
 
 // DASHBOARD COMPONENT
-export default function ListaEndereco({ empresaId, endereco, handleEndereco }) {
-  // const empresaId = 9;
+export default function ListaEndereco({ empresaId, handleModified, handleEndereco }) {
   const [enderecos, setEnderecos] = useState([]);
-  // const [empresaId, setEmpresaId] = useState(empresaI);
-
-  // const styles = useStyles();
 
   const columns = [
-    { title: "Identificação", field: "identificacao" },
+    {
+      title: "Identificação",
+      field: "identificacao",
+      editComponent: editProps => (
+        <FormControl style={{ width: 160, margin: 0, padding: 0 }}>
+          <Select
+            onChange={e => editProps.onChange(e.target.value)}
+          >
+            <MenuItem value="Comercial">Comercial</MenuItem>
+            <MenuItem value="Residencial">Residencial</MenuItem>
+          </Select>
+        </FormControl>
+      )
+    },
     { title: "Cep", field: "cep" },
-    { title: "Principal", field: "principal" },
-    { title: "Modo", field: "modo" },
+    { title: "Principal", field: "principal", type: 'boolean', initialEditValue: false }
   ];
 
   useEffect(() => {
@@ -34,20 +35,36 @@ export default function ListaEndereco({ empresaId, endereco, handleEndereco }) {
       .then(response => setEnderecos(response.data));
   }, []);
 
-  const handle = (rowData, resolve, reject, action) => {
-    setEnderecos([...enderecos, rowData]);
-    handleEndereco([...enderecos, rowData]);
-    // console.log('ENDERECOS ', enderecos)
+  const handleNew = (rowData, oldData, resolve, reject, action) => {
+    if (action === 'edit') {
+      const dataUpdate = [...enderecos];
+      const index = oldData.tableData.id;
+      dataUpdate[index] = { ...rowData, modo: action };
+      setEnderecos([...dataUpdate]);
+      handleEndereco([...dataUpdate]);
+    }
+    else {
+      rowData = { ...rowData, modo: action };
+      setEnderecos([...enderecos, rowData]);
+      handleEndereco([...enderecos, rowData]);
+      console.log(rowData);
+    }
+
+    handleModified();
     resolve();
   };
 
-  const handleDel = (rowData, resolve, reject, action) => {
-    const newEnderecos = enderecos.filter(endereco => endereco.id !== rowData.id);
-    console.log(newEnderecos);
-    setEnderecos(newEnderecos);
-    handleEndereco(newEnderecos);
+  const handleDelete = (rowData, resolve, reject, action) => {
+    rowData = { ...rowData, modo: action };
+    const dataDelete = [...enderecos];
+    const index = rowData.tableData.id;
+    dataDelete[index] = rowData;
+    setEnderecos(enderecos.filter(endereco => endereco.id !== rowData.id));
+    handleEndereco([...dataDelete]);
+
+    handleModified();
     resolve();
-  }
+  };
 
   return (
 
@@ -57,14 +74,17 @@ export default function ListaEndereco({ empresaId, endereco, handleEndereco }) {
         columns={columns}
         title="Listagem de Endereços"
         editable={{
-          onRowAdd: (newData) =>
+          onRowAdd: (newData, oldData) =>
             new Promise((resolve, reject) => {
-              handle(newData, resolve, reject);
+              handleNew(newData, oldData, resolve, reject, 'insert');
             }),
-          onRowUpdate: (rowData) => handle(rowData, 'edit'),
+          onRowUpdate: (newData, oldData) =>
+            new Promise((resolve, reject) => {
+              handleNew(newData, oldData, resolve, reject, 'edit');
+            }),
           onRowDelete: (rowData) =>
             new Promise((resolve, reject) => {
-              handleDel(rowData, resolve, reject, 'delete');
+              handleDelete(rowData, resolve, reject, 'delete');
             }),
         }}
         options={{
@@ -75,8 +95,12 @@ export default function ListaEndereco({ empresaId, endereco, handleEndereco }) {
           showTitle: true,
         }}
         localization={{
+          header: { actions: 'Ações' },
           body: {
             emptyDataSourceMessage: "Nenhum registro para exibir",
+            editRow: {
+              deleteText: "Deseja apagar este registro?",
+            },
           },
           toolbar: {
             searchTooltip: "Pesquisar",

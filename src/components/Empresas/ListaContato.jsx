@@ -17,10 +17,10 @@ export default function ListaContato({ empresaId }) {
     { title: "Modo", field: "modo" },
   ];
 
-  useEffect(() => {
-    api.get(`/empresa/${empresaId}/contato`)
-      .then(response => setEmpresas(response.data));
-  }, []);
+  // useEffect(() => {
+  //   api.get(`/empresa/${empresaId}/contato`)
+  //     .then(response => setEmpresas(response.data));
+  // }, []);
 
   const handle = (rowData, action) => {
     console.log(action);
@@ -28,8 +28,8 @@ export default function ListaContato({ empresaId }) {
 
   return (
 
-    <div>
-      {console.log(empresaId)}
+    <div style={{marginTop: 20}}>
+      {/* {console.log(empresaId)} */}
       <MaterialTable
         data={empresas}
         columns={columns}
@@ -47,8 +47,12 @@ export default function ListaContato({ empresaId }) {
           showTitle: true,
         }}
         localization={{
+          header: { actions: 'Ações' },
           body: {
             emptyDataSourceMessage: "Nenhum registro para exibir",
+            editRow: {
+              deleteText: "Deseja apagar este registro?",
+            },
           },
           toolbar: {
             searchTooltip: "Pesquisar",

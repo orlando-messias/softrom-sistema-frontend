@@ -1,5 +1,5 @@
 // react
-import React, { useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { useHistory } from 'react-router';
 // material-ui
 import AddIcon from "@material-ui/icons/Add";
@@ -8,23 +8,23 @@ import useStyles from './EmpresasStyles';
 // components
 import Panel from '../components/Panel';
 import MaterialTable from 'material-table';
-import ModalInsert from '../components/modals/ModalInsert';
+import Modal from '../components/modals/Modal';
 // services
 import { isLogin } from '../services/loginServices';
 import api from '../services/apiLocal';
-import ModalEdit from '../components/modals/ModalEdit';
+import { AppContext } from '../context/AppContext';
 
 const searchFieldStyle = {
   marginRight: 30
 };
 
 
-// DASHBOARD COMPONENT
+// EMPRESAS COMPONENT
 export default function Empresas() {
   const [empresas, setEmpresas] = useState([]);
-  const [empresaSelecionada, setEmpresaSelecionada] = useState({});
-  const [showModalInsert, setShowModalInsert] = useState(false);
-  const [showModalEdit, setShowModalEdit] = useState(false);
+  const { editEmpresa, setEditEmpresa } = useContext(AppContext);
+  const [showModal, setShowModal] = useState(false);
+  const [modo, setModo] = useState('');
 
   const history = useHistory();
   const styles = useStyles();
@@ -42,7 +42,22 @@ export default function Empresas() {
   useEffect(() => {
     api.get('/empresa')
       .then(response => setEmpresas(response.data));
-  }, [showModalInsert]);
+  }, [showModal]);
+
+  const handleModal = (action) => {
+    if (action === 'insert')
+      setEditEmpresa({
+        nome: '',
+        tipo_doc: '',
+        documento: '',
+        gerar_nf: false,
+        retem_iss: false,
+        obs: '',
+        agrupar_fatura_contrato: false
+      });
+    setModo(action);
+    setShowModal(!showModal);
+  };
 
   const selectedCompany = async (rowData, action) => {
     if (action === 'delete') {
@@ -51,20 +66,11 @@ export default function Empresas() {
         .catch((error) => console.log(error))
     }
 
-    if(action === 'edit') {
-      setEmpresaSelecionada(rowData);
-      setShowModalEdit(!showModalEdit);
+    if (action === 'edit') {
+      setEditEmpresa(rowData);
+      handleModal(action);
     }
-
   };
-
-  const handleModalInsert = () => {
-    setShowModalInsert(!showModalInsert);
-  }
-
-  const handleModalEdit = () => {
-    setShowModalEdit(!showModalEdit);
-  }
 
   if (!isLogin()) return <div></div>
 
@@ -83,7 +89,7 @@ export default function Empresas() {
               icon: () => <AddIcon />,
               tooltip: 'Incluir Novo',
               isFreeAction: true,
-              onClick: () => handleModalInsert()
+              onClick: () => handleModal('insert')
             },
             {
               icon: 'edit',
@@ -98,10 +104,11 @@ export default function Empresas() {
             searchFieldStyle: searchFieldStyle,
           }}
           localization={{
+            header: { actions: 'Ações' },
             body: {
               emptyDataSourceMessage: "Nenhum registro para exibir",
               editRow: {
-                deleteText: "Deseja apagar o registro?",
+                deleteText: "Deseja apagar este registro?",
               },
             },
             pagination: {
@@ -116,16 +123,12 @@ export default function Empresas() {
         />
       </div>
 
-      <ModalInsert
-        showModalInsert={showModalInsert}
-        handleModalInsert={handleModalInsert}
+      <Modal
+        showModal={showModal}
+        handleModal={handleModal}
+        modo={modo}
       />
 
-      <ModalEdit
-        showModalEdit={showModalEdit}
-        handleModalEdit={handleModalEdit}
-        empresa={empresaSelecionada}
-      />
     </div>
   );
 };
