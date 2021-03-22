@@ -50,6 +50,7 @@ export default function Login() {
     }
     if (error) {
       toast.error(errorMessage);
+      setUserLogin({username: '', password: ''});
       dispatch(errorToFalse());
     }
   }, [success, error, dispatch, errorMessage, history, user]);
@@ -104,6 +105,7 @@ export default function Login() {
             InputLabelProps={{
               className: styles.floatingLabelFocusStyle
             }}
+            error={!loginValidation(userLogin.username)}
           />
           <TextField
             name="password"
@@ -116,6 +118,7 @@ export default function Login() {
             InputLabelProps={{
               className: styles.floatingLabelFocusStyle
             }}
+            error={!loginValidation(userLogin.password)}
           />
         </Box>
 
@@ -123,7 +126,7 @@ export default function Login() {
           color="primary"
           variant="contained"
           onClick={login}
-          disabled={!loginValidation(userLogin.username, userLogin.password)}
+          disabled={!(loginValidation(userLogin.username) && loginValidation(userLogin.password))}
         >
           ENTRAR
         </Button>

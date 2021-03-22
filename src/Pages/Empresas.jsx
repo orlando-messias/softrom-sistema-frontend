@@ -1,27 +1,30 @@
 // react
-import React, { useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { useHistory } from 'react-router';
 // material-ui
 import AddIcon from "@material-ui/icons/Add";
 // styles
-import useStyles from './EmpresasStyles'; 
+import useStyles from './EmpresasStyles';
 // components
 import Panel from '../components/Panel';
 import MaterialTable from 'material-table';
-import ModalInsert from '../components/modals/ModalInsert';
+import Modal from '../components/modals/Modal';
 // services
 import { isLogin } from '../services/loginServices';
-import api from '../services/api';
+import api from '../services/apiLocal';
+import { AppContext } from '../context/AppContext';
 
 const searchFieldStyle = {
   marginRight: 30
 };
 
 
-// DASHBOARD COMPONENT
+// EMPRESAS COMPONENT
 export default function Empresas() {
-  const [companies, setCompanies] = useState([]);
-  const [showModalInsert, setShowModalInsert] = useState(false);
+  const [empresas, setEmpresas] = useState([]);
+  const { editEmpresa, setEditEmpresa } = useContext(AppContext);
+  const [showModal, setShowModal] = useState(false);
+  const [modo, setModo] = useState('');
 
   const history = useHistory();
   const styles = useStyles();
@@ -38,19 +41,36 @@ export default function Empresas() {
 
   useEffect(() => {
     api.get('/empresa')
-      .then(response => setCompanies(response.data));
-  }, []);
+      .then(response => setEmpresas(response.data));
+  }, [showModal]);
 
-  const selectedCompany = async (rowData, action) => {
-    if (action === 'delete')
-      await api.delete(`/empresa/${rowData.id}`)
-        .then(() => setCompanies(companies.filter(company => company.id !== rowData.id)))
-        .catch((error) => console.log(error))
+  const handleModal = (action) => {
+    if (action === 'insert')
+      setEditEmpresa({
+        nome: '',
+        tipo_doc: '',
+        documento: '',
+        gerar_nf: false,
+        retem_iss: false,
+        obs: '',
+        agrupar_fatura_contrato: false
+      });
+    setModo(action);
+    setShowModal(!showModal);
   };
 
-  const handleModalInsert = () => {
-    setShowModalInsert(!showModalInsert);
-  }
+  const selectedCompany = async (rowData, action) => {
+    if (action === 'delete') {
+      await api.delete(`/empresa/${rowData.id}`)
+        .then(() => setEmpresas(empresas.filter(empresa => empresa.id !== rowData.id)))
+        .catch((error) => console.log(error))
+    }
+
+    if (action === 'edit') {
+      setEditEmpresa(rowData);
+      handleModal(action);
+    }
+  };
 
   if (!isLogin()) return <div></div>
 
@@ -61,7 +81,7 @@ export default function Empresas() {
 
       <div className={styles.content}>
         <MaterialTable
-          data={companies}
+          data={empresas}
           columns={columns}
           title="Empresas"
           actions={[
@@ -69,7 +89,7 @@ export default function Empresas() {
               icon: () => <AddIcon />,
               tooltip: 'Incluir Novo',
               isFreeAction: true,
-              onClick: () => handleModalInsert()
+              onClick: () => handleModal('insert')
             },
             {
               icon: 'edit',
@@ -82,12 +102,13 @@ export default function Empresas() {
           }}
           options={{
             searchFieldStyle: searchFieldStyle,
-        }}
+          }}
           localization={{
+            header: { actions: 'Ações' },
             body: {
               emptyDataSourceMessage: "Nenhum registro para exibir",
               editRow: {
-                deleteText: "Deseja apagar o registro?",
+                deleteText: "Deseja apagar este registro?",
               },
             },
             pagination: {
@@ -102,10 +123,12 @@ export default function Empresas() {
         />
       </div>
 
-      <ModalInsert
-        showModalInsert={showModalInsert}
-        handleModalInsert={handleModalInsert}
+      <Modal
+        showModal={showModal}
+        handleModal={handleModal}
+        modo={modo}
       />
+
     </div>
   );
 };
