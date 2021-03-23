@@ -31,10 +31,10 @@ import validations from '../../services/validations';
 // MODAL COMPONENT
 const ModalIns = ({ handleModal, showModal, modo, empresa }) => {
   const [endereco, setEndereco] = useState([]);
+  const [contato, setContato] = useState([]);
   const { editEmpresa, setEditEmpresa } = useContext(AppContext);
   const [modified, setModified] = useState(false);
 
-  const contato = [];
   const styles = useStyles();
 
   const handleCompanyDataChange = (e) => {
@@ -101,7 +101,11 @@ const ModalIns = ({ handleModal, showModal, modo, empresa }) => {
   };
 
   const handleEndereco = (endereco) => {
-    setEndereco(endereco);
+    setEndereco([...endereco]);
+  }
+
+  const handleContato = (contato) => {
+    setContato(contato);
   }
 
   const handleModified = () => {
@@ -237,8 +241,14 @@ const ModalIns = ({ handleModal, showModal, modo, empresa }) => {
           empresaId={editEmpresa && editEmpresa.id}
           handleEndereco={handleEndereco}
           handleModified={handleModified}
+          modo={modo}
         />
-        <ListaContato empresaId={editEmpresa && editEmpresa.id} />
+        <ListaContato
+          empresaId={editEmpresa && editEmpresa.id}
+          handleContato={handleContato}
+          handleModified={handleModified}
+          modo={modo}
+        />
 
         <div align="right">
           <Button

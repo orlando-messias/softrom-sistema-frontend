@@ -8,7 +8,7 @@ import { FormControl, Input, InputLabel, MenuItem, Select } from '@material-ui/c
 
 
 // DASHBOARD COMPONENT
-export default function ListaEndereco({ empresaId, handleModified, handleEndereco }) {
+export default function ListaEndereco({ empresaId, handleModified, handleEndereco, modo }) {
   const [enderecos, setEnderecos] = useState([]);
 
   const columns = [
@@ -56,11 +56,15 @@ export default function ListaEndereco({ empresaId, handleModified, handleEnderec
 
   const handleDelete = (rowData, resolve, reject, action) => {
     rowData = { ...rowData, modo: action };
-    const dataDelete = [...enderecos];
-    const index = rowData.tableData.id;
-    dataDelete[index] = rowData;
-    setEnderecos(enderecos.filter(endereco => endereco.id !== rowData.id));
-    handleEndereco([...dataDelete]);
+    if ((modo === 'edit' && !rowData.id) || modo === "insert") {
+      setEnderecos(enderecos.filter(endereco => endereco.cep != rowData.cep))
+    }
+    if (modo === 'edit' && rowData.id) {
+      setEnderecos(enderecos.filter(endereco => endereco.cep != rowData.cep))
+    }
+
+    handleEndereco([...enderecos]);
+    handleEndereco([...enderecos]);
 
     handleModified();
     resolve();

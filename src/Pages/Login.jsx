@@ -50,7 +50,7 @@ export default function Login() {
     }
     if (error) {
       toast.error(errorMessage);
-      setUserLogin({username: '', password: ''});
+      setUserLogin({ username: '', password: '' });
       dispatch(errorToFalse());
     }
   }, [success, error, dispatch, errorMessage, history, user]);
@@ -71,9 +71,12 @@ export default function Login() {
   };
 
   const handleEnter = (e) => {
-    if (loginValidation(userLogin.username, userLogin.password) && e.key === 'Enter') {
+    if (
+      loginValidation(userLogin.username) &&
+      loginValidation(userLogin.password) &&
+      e.key === 'Enter'
+    )
       login();
-    }
   };
 
 
