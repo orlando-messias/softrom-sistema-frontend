@@ -61,6 +61,7 @@ const ModalIns = ({ handleModal, showModal, modo, empresa }) => {
 
   const update = async () => {
     const company = { empresa: { ...editEmpresa, modo }, contato, endereco };
+    console.log(company);
     if (modo === 'insert') {
       console.log(company)
       await api.post(`/empresa`, company)
@@ -101,7 +102,7 @@ const ModalIns = ({ handleModal, showModal, modo, empresa }) => {
   };
 
   const handleEndereco = (endereco) => {
-    setEndereco([...endereco]);
+    setEndereco(endereco);
   }
 
   const handleContato = (contato) => {

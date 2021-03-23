@@ -4,13 +4,11 @@ import React, { useEffect, useState } from 'react';
 import MaterialTable from 'material-table';
 // services
 import api from '../../services/api';
-import { FormControl, Input, InputLabel, MenuItem, Select } from '@material-ui/core';
 
 
 // DASHBOARD COMPONENT
 export default function ListaContato({ empresaId, handleModified, handleContato, modo }) {
   const [contatos, setContatos] = useState([]);
-  const [currentAction, setCurrentAction] = useState('');
 
   const columns = [
     { title: "Nome", field: "nome" },
@@ -28,7 +26,6 @@ export default function ListaContato({ empresaId, handleModified, handleContato,
       const dataUpdate = [...contatos];
       const index = oldData.tableData.id;
       dataUpdate[index] = { ...rowData, modo: action };
-      setCurrentAction(action);
       setContatos([...dataUpdate]);
       handleContato([...dataUpdate]);
     }
@@ -45,10 +42,18 @@ export default function ListaContato({ empresaId, handleModified, handleContato,
 
   const handleDelete = (rowData, resolve, reject, action) => {
     rowData = { ...rowData, modo: action };
-    (modo === 'edit' && !rowData.id)
-      ? setContatos(contatos.filter(contato => contato.fone != rowData.fone))
-      : setContatos(contatos.filter(contato => contato.fone !== rowData.fone));
-    handleContato(contatos);
+    if ((modo === 'edit' && !rowData.id) || modo === "insert") {
+      setContatos(contatos.filter(contato => contato.fone != rowData.fone))
+    }
+    if (modo === 'edit' && rowData.id) {
+      setContatos(contatos.filter(contato => contato.id != rowData.id))
+    }
+
+    const dataDelete = [...contatos];
+    const index = rowData.tableData.id;
+    dataDelete[index] = rowData;
+
+    handleContato([...dataDelete]);
 
     handleModified();
     resolve();

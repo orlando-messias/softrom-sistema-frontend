@@ -60,11 +60,14 @@ export default function ListaEndereco({ empresaId, handleModified, handleEnderec
       setEnderecos(enderecos.filter(endereco => endereco.cep != rowData.cep))
     }
     if (modo === 'edit' && rowData.id) {
-      setEnderecos(enderecos.filter(endereco => endereco.cep != rowData.cep))
+      setEnderecos(enderecos.filter(endereco => endereco.id != rowData.id))
     }
 
-    handleEndereco([...enderecos]);
-    handleEndereco([...enderecos]);
+    const dataDelete = [...enderecos];
+    const index = rowData.tableData.id;
+    dataDelete[index] = rowData;
+
+    handleEndereco([...dataDelete]);
 
     handleModified();
     resolve();
