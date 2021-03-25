@@ -7,37 +7,78 @@ import api from '../../services/api';
 
 
 // DASHBOARD COMPONENT
-export default function ListaContato({ empresaId }) {
-  const [empresas, setEmpresas] = useState();
+export default function ListaContato({ empresaId, handleModified, handleContato, modo }) {
+  const [contatos, setContatos] = useState([]);
 
   const columns = [
     { title: "Nome", field: "nome" },
     { title: "Telefone", field: "fone" },
     { title: "Email", field: "email" },
-    { title: "Modo", field: "modo" },
   ];
 
-  // useEffect(() => {
-  //   api.get(`/empresa/${empresaId}/contato`)
-  //     .then(response => setEmpresas(response.data));
-  // }, []);
+  useEffect(() => {
+    api.get(`/empresa/${empresaId}/contato`)
+      .then(response => setContatos(response.data));
+  }, []);
 
-  const handle = (rowData, action) => {
-    console.log(action);
+  const handleNew = (rowData, oldData, resolve, reject, action) => {
+    if (action === 'edit') {
+      const dataUpdate = [...contatos];
+      const index = oldData.tableData.id;
+      dataUpdate[index] = { ...rowData, modo: action };
+      setContatos([...dataUpdate]);
+      handleContato([...dataUpdate]);
+    }
+    else {
+      rowData = { ...rowData, modo: action };
+      setContatos([...contatos, rowData]);
+      handleContato([...contatos, rowData]);
+      console.log(rowData);
+    }
+
+    handleModified();
+    resolve();
+  };
+
+  const handleDelete = (rowData, resolve, reject, action) => {
+    rowData = { ...rowData, modo: action };
+    if ((modo === 'edit' && !rowData.id) || modo === "insert") {
+      setContatos(contatos.filter(contato => contato.fone != rowData.fone))
+    }
+    if (modo === 'edit' && rowData.id) {
+      setContatos(contatos.filter(contato => contato.id != rowData.id))
+    }
+
+    const dataDelete = [...contatos];
+    const index = rowData.tableData.id;
+    dataDelete[index] = rowData;
+
+    handleContato([...dataDelete]);
+
+    handleModified();
+    resolve();
   };
 
   return (
 
-    <div style={{marginTop: 20}}>
-      {/* {console.log(empresaId)} */}
+    <div>
       <MaterialTable
-        data={empresas}
+        data={contatos}
         columns={columns}
         title="Listagem de Contatos"
         editable={{
-          onRowAdd: (rowData) => handle(rowData, 'add'),
-          onRowUpdate: (rowData) => handle(rowData, 'edit'),
-          onRowDelete: (rowData) => handle(rowData, 'delete')
+          onRowAdd: (newData, oldData) =>
+            new Promise((resolve, reject) => {
+              handleNew(newData, oldData, resolve, reject, 'insert');
+            }),
+          onRowUpdate: (newData, oldData) =>
+            new Promise((resolve, reject) => {
+              handleNew(newData, oldData, resolve, reject, 'edit');
+            }),
+          onRowDelete: (rowData) =>
+            new Promise((resolve, reject) => {
+              handleDelete(rowData, resolve, reject, 'delete');
+            }),
         }}
         options={{
           addRowPosition: "first",

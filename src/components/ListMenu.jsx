@@ -140,7 +140,7 @@ export default function ListMenu() {
                   <Typography className={styles.subItem}>Filiais</Typography>
                 </ListItemText>
               </ListItem>
-              <ListItem button>
+              <ListItem button onClick={() => handleLinkClick('bancos')}>
                 <ListItemIcon>
                   <AccountBalanceIcon className={styles.subSubItemIcon} />
                 </ListItemIcon>

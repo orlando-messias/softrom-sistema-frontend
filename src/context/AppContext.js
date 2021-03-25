@@ -13,10 +13,17 @@ export function AppContextProvider(props) {
     obs: '',
     agrupar_fatura_contrato: false
   });
+  const [editBanco, setEditBanco] = useState({
+    id: 0,
+    descricao: '',
+    codigo: ''
+  });
 
   const context = {
     editEmpresa,
     setEditEmpresa,
+    editBanco,
+    setEditBanco
   };
 
   return <AppContext.Provider value={context}>{props.children}</AppContext.Provider>

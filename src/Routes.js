@@ -6,6 +6,7 @@ import { BrowserRouter as Router, Route } from 'react-router-dom';
 import Login from './Pages/Login';
 import Dashboard from './Pages/Dashboard';
 import Empresas from './Pages/Empresas';
+import Bancos from './Pages/Bancos';
 
 function Routes() {
   return (
@@ -13,6 +14,7 @@ function Routes() {
       <Route path="/" exact component={Login} />
       <Route path="/dashboard" component={Dashboard} />
       <Route path="/empresas" component={Empresas} />
+      <Route path="/bancos" component={Bancos} />
     </Router>
   );
 };
