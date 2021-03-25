@@ -9,6 +9,7 @@ export const LOGIN_ERROR = 'LOGIN_ERROR';
 export const IS_FETCHING = 'IS_FETCHING';
 export const ERROR_TO_FALSE = 'ERROR_FALSE';
 export const LOGOUT = 'LOGOUT';
+export const SELECT_COMPANY = 'SELECT_COMPANY';
 
 export const loginSuccess = (username, token) => {
   return {
@@ -39,6 +40,13 @@ export const isFetching = () => {
   return {
     type: IS_FETCHING,
     isFetching: true
+  }
+};
+
+export const selectCompany = (empresa) => {
+  return {
+    type: SELECT_COMPANY,
+    empresaSelecionada: empresa
   }
 };
 
