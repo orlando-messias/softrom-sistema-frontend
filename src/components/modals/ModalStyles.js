@@ -14,7 +14,6 @@ const useStyles = makeStyles((theme) => ({
     overflowY:'scroll',
     display: 'inline-block',
     height:'90%',
-    display:'block',
   },
   "@keyframes myEffect": {
     '0%':{

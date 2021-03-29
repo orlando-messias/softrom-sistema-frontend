@@ -1,5 +1,5 @@
 // react
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useHistory } from 'react-router';
 // material-ui
 import {
@@ -22,7 +22,7 @@ import { useTheme } from '@material-ui/core/styles';
 import clsx from 'clsx';
 // redux
 import { userLogout } from '../store/Login/Login.action';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 // icons
 import PersonIcon from '@material-ui/icons/Person';
 import ExitToAppIcon from '@material-ui/icons/ExitToApp';
@@ -69,6 +69,7 @@ const StyledMenuItem = withStyles((theme) => ({
 // TOPBAR COMPONENT
 export default function TopBar({ handleDrawerOpen, open }) {
   const [anchorEl, setAnchorEl] = useState(null);
+  const [empresa, setEmpresa] = useState('');
 
   const history = useHistory();
   const dispatch = useDispatch();
@@ -80,6 +81,12 @@ export default function TopBar({ handleDrawerOpen, open }) {
   const username = loggedUser().username.split(' ')[0];
   // uppercase username first letter
   const usernameUppercase = username[0].toUpperCase() + username.slice(1);
+
+  const company = useSelector(state => state.loginReducer.empresaSelecionada);
+
+  useEffect(() => {
+    setEmpresa(company);
+  }, [history, company])
 
   const handleUserMenu = (event) => {
     setAnchorEl(event.currentTarget);
@@ -161,10 +168,15 @@ export default function TopBar({ handleDrawerOpen, open }) {
           : (
             <>
               <Typography className={styles.welcome}>
+                {empresa &&
+                  <span>| &nbsp; {empresa.nome} &nbsp; |</span>
+                }
+              </Typography>
+              <Typography className={styles.welcome}>
                 Welcome, <span>{usernameUppercase}</span>
               </Typography>
               <Button
-                
+
                 className={styles.loginLogoutButton}
                 onClick={logout}
               >

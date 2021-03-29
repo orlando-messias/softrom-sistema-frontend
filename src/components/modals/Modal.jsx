@@ -24,12 +24,11 @@ import ListaContato from '../Empresas/ListaContato';
 import { AppContext } from '../../context/AppContext';
 
 import CloseIcon from '@material-ui/icons/Close';
-import HighlightOffIcon from '@material-ui/icons/HighlightOff';
 import validations from '../../services/validations';
 
 
 // MODAL COMPONENT
-const ModalIns = ({ handleModal, showModal, modo, empresa }) => {
+const ModalIns = ({ handleModal, showModal, modo }) => {
   const [endereco, setEndereco] = useState([]);
   const [contato, setContato] = useState([]);
   const { editEmpresa, setEditEmpresa } = useContext(AppContext);

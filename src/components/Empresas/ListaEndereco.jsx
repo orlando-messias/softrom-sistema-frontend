@@ -4,7 +4,7 @@ import React, { useEffect, useState } from 'react';
 import MaterialTable from 'material-table';
 // services
 import api from '../../services/api';
-import { FormControl, Input, InputLabel, MenuItem, Select } from '@material-ui/core';
+import { FormControl, MenuItem, Select } from '@material-ui/core';
 
 
 // DASHBOARD COMPONENT
@@ -33,7 +33,7 @@ export default function ListaEndereco({ empresaId, handleModified, handleEnderec
   useEffect(() => {
     api.get(`/empresa/${empresaId}/endereco`)
       .then(response => setEnderecos(response.data));
-  }, []);
+  }, [empresaId]);
 
   const handleNew = (rowData, oldData, resolve, reject, action) => {
     if (action === 'edit') {
@@ -57,10 +57,10 @@ export default function ListaEndereco({ empresaId, handleModified, handleEnderec
   const handleDelete = (rowData, resolve, reject, action) => {
     rowData = { ...rowData, modo: action };
     if ((modo === 'edit' && !rowData.id) || modo === "insert") {
-      setEnderecos(enderecos.filter(endereco => endereco.cep != rowData.cep))
+      setEnderecos(enderecos.filter(endereco => endereco.cep !== rowData.cep))
     }
     if (modo === 'edit' && rowData.id) {
-      setEnderecos(enderecos.filter(endereco => endereco.id != rowData.id))
+      setEnderecos(enderecos.filter(endereco => endereco.id !== rowData.id))
     }
 
     const dataDelete = [...enderecos];

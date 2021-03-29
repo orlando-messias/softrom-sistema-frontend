@@ -22,7 +22,7 @@ const searchFieldStyle = {
 // EMPRESAS COMPONENT
 export default function Empresas() {
   const [empresas, setEmpresas] = useState([]);
-  const { editEmpresa, setEditEmpresa } = useContext(AppContext);
+  const { setEditEmpresa } = useContext(AppContext);
   const [showModal, setShowModal] = useState(false);
   const [modo, setModo] = useState('');
 

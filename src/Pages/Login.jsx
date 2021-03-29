@@ -46,7 +46,7 @@ export default function Login() {
     if (success && !isLogin()) {
       toast.success('Login Efetuado com Sucesso!');
       localStorage.setItem('user', JSON.stringify(user));
-      history.push('/dashboard');
+      history.push('/select-empresa');
     }
     if (error) {
       toast.error(errorMessage);

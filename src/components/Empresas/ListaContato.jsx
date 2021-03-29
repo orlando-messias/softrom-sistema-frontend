@@ -19,7 +19,7 @@ export default function ListaContato({ empresaId, handleModified, handleContato,
   useEffect(() => {
     api.get(`/empresa/${empresaId}/contato`)
       .then(response => setContatos(response.data));
-  }, []);
+  }, [empresaId]);
 
   const handleNew = (rowData, oldData, resolve, reject, action) => {
     if (action === 'edit') {
@@ -43,10 +43,10 @@ export default function ListaContato({ empresaId, handleModified, handleContato,
   const handleDelete = (rowData, resolve, reject, action) => {
     rowData = { ...rowData, modo: action };
     if ((modo === 'edit' && !rowData.id) || modo === "insert") {
-      setContatos(contatos.filter(contato => contato.fone != rowData.fone))
+      setContatos(contatos.filter(contato => contato.fone !== rowData.fone))
     }
     if (modo === 'edit' && rowData.id) {
-      setContatos(contatos.filter(contato => contato.id != rowData.id))
+      setContatos(contatos.filter(contato => contato.id !== rowData.id))
     }
 
     const dataDelete = [...contatos];

@@ -7,6 +7,7 @@ import { makeStyles, Typography } from '@material-ui/core';
 import { isLogin } from '../services/loginServices';
 // components
 import Panel from '../components/Panel';
+import { useSelector } from 'react-redux';
 
 const useStyles = makeStyles((theme) => ({
   container: {
@@ -23,6 +24,7 @@ export default function Dashboard() {
 
   const history = useHistory();
   const styles = useStyles();
+  const empr = useSelector(state => state.loginReducer.empresaSelecionada);
 
   useEffect(() => {
     if (!isLogin()) history.push('/');
@@ -32,7 +34,7 @@ export default function Dashboard() {
 
   return (
     <div className={styles.container}>
-
+      {console.log(empr)}
       <Panel />
 
       <div className={styles.content}>
