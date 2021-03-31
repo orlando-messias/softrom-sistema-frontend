@@ -11,7 +11,7 @@ import MaterialTable from 'material-table';
 import Modal from '../components/modals/Modal';
 // services
 import { isLogin } from '../services/loginServices';
-import api from '../services/apiLocal';
+import api from '../services/api';
 import { AppContext } from '../context/AppContext';
 
 const searchFieldStyle = {
@@ -35,14 +35,36 @@ export default function Empresas() {
     { title: "Documento", field: "documento" }
   ];
 
+  const loadData = (resolve, reject, query) => {
+    const params = {
+      limit: query.pageSize,
+      page: query.page + 1
+    };
+
+    api.get('/origem/1/empresa', {
+      params
+    })
+      .then((response) => {
+        resolve({
+          data: response.data.result.data,
+          page: response.data.result.page - 1,
+          totalCount: response.data.result.totalCount
+        });
+      });
+  };
+
   useEffect(() => {
     if (!isLogin()) history.push('/');
   }, [history]);
 
-  useEffect(() => {
-    api.get('/empresa')
-      .then(response => setEmpresas(response.data));
-  }, [showModal]);
+  // useEffect(() => {
+  //   const params = {
+  //     limit: 5,
+  //     page: 1
+  //   };
+  //   api.get('/origem/1/empresa')
+  //     .then(response => setEmpresas(response.data.result.data));
+  // }, [showModal]);
 
   const handleModal = (action) => {
     if (action === 'insert')
@@ -81,7 +103,10 @@ export default function Empresas() {
 
       <div className={styles.content}>
         <MaterialTable
-          data={empresas}
+          data={(query) =>
+            new Promise((resolve, reject) => {
+              loadData(resolve, reject, query);
+            })}
           columns={columns}
           title="Empresas"
           actions={[

@@ -1,5 +1,5 @@
 // react
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useHistory } from 'react-router';
 // material
 import { Button, Grid, TextField } from '@material-ui/core';
@@ -14,15 +14,11 @@ import TopBar from '../components/TopBar';
 // images
 import logo from '../assets/logo-softrom-completa.png';
 
-const data = [
-  { id: 2, nome: 'Trybe' },
-  { id: 3, nome: 'Novatec' },
-  { id: 6, nome: 'Niponic' },
-];
 
 // SELECAOEMPRESA COMPONENT
 export default function SelecaoEmpresa() {
   const [empresa, setEmpresa] = useState('');
+  const [data, setData] = useState([]);
 
   const styles = useStyles();
   const history = useHistory();
@@ -32,16 +28,22 @@ export default function SelecaoEmpresa() {
     dispatch(selectCompany(empresa));
     let userData = JSON.parse(localStorage.getItem('user'));
     userData = { ...userData, empresa };
-    console.log(userData);
     localStorage.setItem('user', JSON.stringify(userData));
     history.push('/dashboard');
   };
 
+  useEffect(() => {
+      const userData = JSON.parse(localStorage.getItem('user'));
+      const token = JSON.parse(atob(userData.token.split('.')[1]));
+      const dados = JSON.parse(token.dados);
+      const companies = dados.origem;
+      setData(companies); 
+  }, []);
+
   return (
     <div className={styles.container}>
-
       <TopBar />
-
+      {console.log(data)}
       <div className={styles.side}>
         <div>
           <img src={logo} className={styles.img} alt="Logo" />

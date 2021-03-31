@@ -16,7 +16,7 @@ import { mask } from 'remask';
 // styles
 import useStyles from './ModalStyles';
 
-import api from '../../services/apiLocal';
+import api from '../../services/api';
 import { toast } from 'react-toastify';
 
 import ListaEndereco from '../Empresas/ListaEndereco';
@@ -59,11 +59,11 @@ const ModalIns = ({ handleModal, showModal, modo }) => {
   };
 
   const update = async () => {
-    const company = { empresa: { ...editEmpresa, modo }, contato, endereco };
+    const company = { empresa: { ...editEmpresa, modo } };
     console.log(company);
     if (modo === 'insert') {
       console.log(company)
-      await api.post(`/empresa`, company)
+      await api.post(`/origem/1/empresa`, company)
         .then(response => console.log(response))
         .catch(error => console.log(error));
 
@@ -118,159 +118,162 @@ const ModalIns = ({ handleModal, showModal, modo }) => {
       onClose={handleModal}
     >
       <div className={styles.modal}>
-        <div className={styles.modalTitle}>
-          {modo === 'insert'
-            ? <h2>CADASTRO DE EMPRESA</h2>
-            : <h2>ATUALIZAR EMPRESA</h2>
-          }
-          <CloseIcon className={styles.closeButton} onClick={handleCancel} />
-        </div>
 
-        <Grid container spacing={2}>
-          <Grid item sm={12} md={6}>
-            <TextField
-              label="Nome"
-              name="nome"
-              autoFocus={editEmpresa && true}
-              fullWidth
-              required
-              onChange={handleCompanyDataChange}
-              value={editEmpresa && editEmpresa.nome}
-              error={!validations.fieldRequired(editEmpresa.nome)}
-              InputLabelProps={{
-                className: styles.inputModal,
-              }}
-            />
-          </Grid>
-          <Grid item sm={6} md={3}>
-            <TextField
-              label="Tipo de Pessoa"
-              name="tipo_doc"
-              select
-              required
-              value={editEmpresa && editEmpresa.tipo_doc}
-              onChange={handleCompanyDataChange}
-              helperText="Jurídica / Física"
-              error={!validations.fieldRequired(editEmpresa.tipo_doc)}
-              InputLabelProps={{
-                className: styles.inputModal,
-              }}
-              className={styles.fullWidth}
-            >
-              <MenuItem value="Jurídica">Jurídica</MenuItem>
-              <MenuItem value="Física">Física</MenuItem>
-            </TextField>
-          </Grid>
-          <Grid item sm={6} md={3}>
-            <TextField
-              label="Documento"
-              name="documento"
-              fullWidth
-              required
-              onChange={handleCompanyDataChange}
-              value={editEmpresa && editEmpresa.documento}
-              error={!validations.cnpj(editEmpresa.documento)}
-              InputLabelProps={{
-                className: styles.inputModal,
-              }}
-            />
-          </Grid>
-        </Grid>
-        <Grid container spacing={2}>
-
-          <Grid item xs={6} sm={4}>
-            <FormControlLabel
-              control={
-                <Checkbox
-                  name="gerar_nf"
-                  color="primary"
-                  onChange={handleCompanyDataChange}
-                  checked={editEmpresa && editEmpresa.gerar_nf}
-                />
-              }
-              label="Gerar NF"
-            />
-          </Grid>
-          <Grid item xs={6} sm={4}>
-            <FormControlLabel
-              control={
-                <Checkbox
-                  name="retem_iss"
-                  color="primary"
-                  onChange={handleCompanyDataChange}
-                  checked={editEmpresa && editEmpresa.retem_iss}
-                />
-              }
-              label="Retém ISS"
-            />
-          </Grid>
-          <Grid item xs={12} sm={4}>
-            <FormControlLabel
-              control={
-                <Switch
-                  name="agrupar_fatura_contrato"
-                  color="primary"
-                  onChange={handleCompanyDataChange}
-                  checked={editEmpresa && editEmpresa.agrupar_fatura_contrato}
-                />
-              }
-              label="Agrupar Fatura por Contrato"
-            />
-          </Grid>
-        </Grid>
-
-        <Grid container spacing={2}>
-          <Grid item lg={12}>
-            <TextField
-              name="obs"
-              required
-              label="Obs"
-              onChange={handleCompanyDataChange}
-              value={editEmpresa && editEmpresa.obs}
-              error={!validations.fieldRequired(editEmpresa.obs)}
-              InputLabelProps={{
-                className: styles.inputModal,
-              }}
-              className={styles.fullWidthSpace}
-            />
-          </Grid>
-
-        </Grid>
-
-        <ListaEndereco
-          empresaId={editEmpresa && editEmpresa.id}
-          handleEndereco={handleEndereco}
-          handleModified={handleModified}
-          modo={modo}
-        />
-        <ListaContato
-          empresaId={editEmpresa && editEmpresa.id}
-          handleContato={handleContato}
-          handleModified={handleModified}
-          modo={modo}
-        />
-
-        <div align="right">
-          <Button
-            onClick={update}
-            className={styles.buttonGravar}
-            disabled={!
-              (validations.fieldRequired(editEmpresa.nome) &&
-                (validations.fieldRequired(editEmpresa.documento)) &&
-                (validations.fieldRequired(editEmpresa.tipo_doc)) &&
-                (validations.fieldRequired(editEmpresa.obs)) &&
-                (validations.cnpj(editEmpresa.documento)) &&
-                modified)
+        <div className={styles.modalContainer}>
+          <div className={styles.modalTitle}>
+            {modo === 'insert'
+              ? <h2>CADASTRO DE EMPRESA</h2>
+              : <h2>ATUALIZAR EMPRESA</h2>
             }
-          >
-            Gravar
+            {/* <CloseIcon className={styles.closeButton} onClick={handleCancel} /> */}
+          </div>
+
+          <Grid container spacing={2}>
+            <Grid item sm={12} md={6}>
+              <TextField
+                label="Nome"
+                name="nome"
+                autoFocus={editEmpresa && true}
+                fullWidth
+                required
+                onChange={handleCompanyDataChange}
+                value={editEmpresa && editEmpresa.nome}
+                error={!validations.fieldRequired(editEmpresa.nome)}
+                InputLabelProps={{
+                  className: styles.inputModal,
+                }}
+              />
+            </Grid>
+            <Grid item sm={6} md={3}>
+              <TextField
+                label="Tipo de Pessoa"
+                name="tipo_doc"
+                select
+                required
+                value={editEmpresa && editEmpresa.tipo_doc}
+                onChange={handleCompanyDataChange}
+                helperText="Jurídica / Física"
+                error={!validations.fieldRequired(editEmpresa.tipo_doc)}
+                InputLabelProps={{
+                  className: styles.inputModal,
+                }}
+                className={styles.fullWidth}
+              >
+                <MenuItem value="Jurídica">Jurídica</MenuItem>
+                <MenuItem value="Física">Física</MenuItem>
+              </TextField>
+            </Grid>
+            <Grid item sm={6} md={3}>
+              <TextField
+                label="Documento"
+                name="documento"
+                fullWidth
+                required
+                onChange={handleCompanyDataChange}
+                value={editEmpresa && editEmpresa.documento}
+                error={!validations.cnpj(editEmpresa.documento)}
+                InputLabelProps={{
+                  className: styles.inputModal,
+                }}
+              />
+            </Grid>
+          </Grid>
+          <Grid container spacing={2}>
+
+            <Grid item xs={6} sm={4}>
+              <FormControlLabel
+                control={
+                  <Checkbox
+                    name="gerar_nf"
+                    color="primary"
+                    onChange={handleCompanyDataChange}
+                    checked={editEmpresa && editEmpresa.gerar_nf}
+                  />
+                }
+                label="Gerar NF"
+              />
+            </Grid>
+            <Grid item xs={6} sm={4}>
+              <FormControlLabel
+                control={
+                  <Checkbox
+                    name="retem_iss"
+                    color="primary"
+                    onChange={handleCompanyDataChange}
+                    checked={editEmpresa && editEmpresa.retem_iss}
+                  />
+                }
+                label="Retém ISS"
+              />
+            </Grid>
+            <Grid item xs={12} sm={4}>
+              <FormControlLabel
+                control={
+                  <Switch
+                    name="agrupar_fatura_contrato"
+                    color="primary"
+                    onChange={handleCompanyDataChange}
+                    checked={editEmpresa && editEmpresa.agrupar_fatura_contrato}
+                  />
+                }
+                label="Agrupar Fatura por Contrato"
+              />
+            </Grid>
+          </Grid>
+
+          <Grid container spacing={2}>
+            <Grid item lg={12}>
+              <TextField
+                name="obs"
+                required
+                label="Obs"
+                onChange={handleCompanyDataChange}
+                value={editEmpresa && editEmpresa.obs}
+                error={!validations.fieldRequired(editEmpresa.obs)}
+                InputLabelProps={{
+                  className: styles.inputModal,
+                }}
+                className={styles.fullWidthSpace}
+              />
+            </Grid>
+
+          </Grid>
+
+          <ListaEndereco
+            empresaId={editEmpresa && editEmpresa.id}
+            handleEndereco={handleEndereco}
+            handleModified={handleModified}
+            modo={modo}
+          />
+          <ListaContato
+            empresaId={editEmpresa && editEmpresa.id}
+            handleContato={handleContato}
+            handleModified={handleModified}
+            modo={modo}
+          />
+
+          <div align="right">
+            <Button
+              onClick={update}
+              className={styles.buttonGravar}
+              disabled={!
+                (validations.fieldRequired(editEmpresa.nome) &&
+                  (validations.fieldRequired(editEmpresa.documento)) &&
+                  (validations.fieldRequired(editEmpresa.tipo_doc)) &&
+                  (validations.fieldRequired(editEmpresa.obs)) &&
+                  (validations.cnpj(editEmpresa.documento)) &&
+                  modified)
+              }
+            >
+              Gravar
           </Button>
-          <Button
-            onClick={handleCancel}
-            className={styles.buttonCancelar}
-          >
-            Cancelar
+            <Button
+              onClick={handleCancel}
+              className={styles.buttonCancelar}
+            >
+              Cancelar
           </Button>
+          </div>
         </div>
       </div>
     </Modal>
