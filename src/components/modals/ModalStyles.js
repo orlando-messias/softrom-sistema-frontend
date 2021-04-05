@@ -2,6 +2,17 @@ import { makeStyles } from '@material-ui/core/styles';
 
 const useStyles = makeStyles((theme) => ({
   modal: {
+    backgroundColor: 'rgba(0, 0, 0, 0.8)',
+    width: '100vw',
+    height: '100vh',
+    position: 'fixed',
+    top: 0,
+    left: 0,
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center'
+  },
+  modalContainer: {
     padding: '10px 30px 10px 30px',
     position: 'absolute',
     width: 1100,
