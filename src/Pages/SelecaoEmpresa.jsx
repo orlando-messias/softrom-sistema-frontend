@@ -38,14 +38,11 @@ export default function SelecaoEmpresa() {
     const dados = JSON.parse(token.dados);
     console.log(dados.origem[0].empresa);
     setData(dados.origem[0].empresa);
-    // const companies = dados.origem;
-    // setData(companies); 
   }, []);
 
   return (
     <div className={styles.container}>
       <TopBar />
-      {/* {console.log(data.origem)} */}
       <div className={styles.side}>
         <div>
           <img src={logo} className={styles.img} alt="Logo" />

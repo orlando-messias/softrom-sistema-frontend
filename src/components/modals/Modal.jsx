@@ -61,7 +61,6 @@ const ModalIns = ({ handleModal, showModal, modo }) => {
   const update = async () => {
     const company = { empresa: { ...editEmpresa, modo } };
     const headers = { 'Content-Type': 'application/json' };
-    console.log(company);
     if (modo === 'insert') {
       console.log(company)
       await api.post(`/origem/1/empresa`, company, { headers: headers })
