@@ -25,26 +25,45 @@ export default function Empresas() {
   const { setEditEmpresa } = useContext(AppContext);
   const [showModal, setShowModal] = useState(false);
   const [modo, setModo] = useState('');
+  const [page, setPage] = useState(0);
 
   const history = useHistory();
   const styles = useStyles();
 
   const columns = [
     { title: "Id", field: "id" },
-    { title: "Nome", field: "nome" },
+    { title: "Nome", field: "nome", defaultSort: "asc" },
     { title: "Documento", field: "documento" }
   ];
 
   const loadData = (resolve, reject, query) => {
+    console.log(query);
+    const search = query.search;
+    let orderBy = "";
+    let direction = "";
+
+    if (query.orderDirection === "desc") {
+      direction = "-";
+    }
+    if (query.orderBy) {
+      orderBy = direction + query.orderBy.field;
+    }
+
     const params = {
       limit: query.pageSize,
-      page: query.page + 1
+      page: query.page + 1,
+      search,
+      orderBy,
     };
+
+    // console.log(params);
+    setPage(params.page);
 
     api.get('/origem/1/empresa', {
       params
     })
       .then((response) => {
+        // setEmpresas(response.data.result.data)
         resolve({
           data: response.data.result.data,
           page: response.data.result.page - 1,
@@ -59,11 +78,42 @@ export default function Empresas() {
 
   // useEffect(() => {
   //   const params = {
-  //     limit: 5,
-  //     page: 1
+  //     limit: 10,
+  //     page: 14
   //   };
-  //   api.get('/origem/1/empresa')
-  //     .then(response => setEmpresas(response.data.result.data));
+  //   console.log('useEffect here')
+  //   api.get('/origem/1/empresa', { params })
+  //     .then(response => ({
+  //       data: response.data.result.data,
+  //       page: response.data.result.page - 1,
+  //       totalCount: response.data.result.totalCount
+  //     }));
+  //   new Promise((resolve, reject) => {
+  //     loadData(resolve, reject, {
+  //       error: false,
+  //       filters: [],
+  //       page: 3,
+  //       pageSize: 5,
+  //       totalCount: 17,
+  //       orderDirection: "asc",
+  //       search: "", 
+  //       orderBy: {
+  //         defaultSort: "asc",
+  //         field: "nome",
+  //         title: "Nome",
+  //         tableData: {
+  //           additionalWidth: 0,
+  //           columnOrder: 1,
+  //           filterValue: undefined,
+  //           groupOrder: undefined,
+  //           groupSort: "asc",
+  //           id: 1,
+  //           initialWidth: "calc((100% - (0px)) / 3)",
+  //           width: "calc((100% - (0px)) / 3)",
+  //         }
+  //       }
+  //     })
+  //   })
   // }, [showModal]);
 
   const handleModal = (action) => {
@@ -83,8 +133,9 @@ export default function Empresas() {
 
   const selectedCompany = async (rowData, action) => {
     if (action === 'delete') {
-      await api.delete(`/empresa/${rowData.id}`)
-        .then(() => setEmpresas(empresas.filter(empresa => empresa.id !== rowData.id)))
+      const headers = { 'Content-Type': 'application/json' };
+      await api.delete(`/origem/1/empresa/${rowData.id}`, { headers: headers })
+        .then(() => console.log('deleted'))
         .catch((error) => console.log(error))
     }
 
@@ -98,6 +149,7 @@ export default function Empresas() {
 
   return (
     <div className={styles.container}>
+      {console.log(page)}
 
       <Panel />
 

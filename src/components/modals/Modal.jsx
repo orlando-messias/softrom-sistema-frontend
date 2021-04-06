@@ -62,18 +62,18 @@ const ModalIns = ({ handleModal, showModal, modo }) => {
     const company = { empresa: { ...editEmpresa, modo } };
     const headers = { 'Content-Type': 'application/json' };
     if (modo === 'insert') {
-      console.log(company)
+      // console.log(company)
       await api.post(`/origem/1/empresa`, company, { headers: headers })
-        .then(response => console.log(response))
+        .then(response => console.log('inserted'))
         .catch(error => console.log(error));
 
       toast.success(`${editEmpresa.nome} foi adicionada com sucesso`);
     }
     if (modo === 'edit') {
       console.log('EDIT');
-      console.log(company);
-      await api.put('/empresa', company)
-        .then(response => console.log(response))
+      console.log('EDIT');
+      await api.put(`/origem/1/empresa`, company, { headers: headers })
+        .then(response => console.log('EDIT'))
         .catch(error => console.log(error));
 
       toast.success(`${editEmpresa.nome} atualizada com sucesso`);
