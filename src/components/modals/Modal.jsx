@@ -1,5 +1,5 @@
 // react
-import React, { useContext, useState } from 'react';
+import React, { useContext, useState, useEffect } from 'react';
 // material-ui
 import {
   Modal,
@@ -28,13 +28,33 @@ import validations from '../../services/validations';
 
 
 // MODAL COMPONENT
-const ModalIns = ({ handleModal, showModal, modo }) => {
+const ModalIns = ({ handleModal, showModal, idEmpresa, modo }) => {
   const [endereco, setEndereco] = useState([]);
   const [contato, setContato] = useState([]);
   const { editEmpresa, setEditEmpresa } = useContext(AppContext);
+  const [empr, setEmpr] = useState({
+    nome: '',
+    tipo_doc: '',
+    documento: '',
+    gerar_nf: false,
+    retem_iss: false,
+    obs: '',
+    agrupar_fatura_contrato: false
+  });
+  const [newEmpr, setNewEmpr] = useState({});
   const [modified, setModified] = useState(false);
 
   const styles = useStyles();
+
+  useEffect(() => {
+    if (modo === 'edit') {
+      console.log('id ', idEmpresa);
+      const headers = { 'Content-Type': 'application/json' };
+      api.get(`/origem/1/empresa/${idEmpresa}`, { headers: headers })
+        .then(response => setEmpr(response.data.result[0]))
+        .catch(e => console.log(e));
+    }
+  }, [idEmpresa]);
 
   const handleCompanyDataChange = (e) => {
     let { name, value, checked } = e.target;
@@ -50,7 +70,7 @@ const ModalIns = ({ handleModal, showModal, modo }) => {
       value = mask(value, ['99.999.999/9999-99']);
     };
 
-    setEditEmpresa(prevState => ({
+    setEmpr(prevState => ({
       ...prevState,
       [name]: value
     }));
@@ -59,7 +79,7 @@ const ModalIns = ({ handleModal, showModal, modo }) => {
   };
 
   const update = async () => {
-    const company = { empresa: { ...editEmpresa, modo, contato, endereco } };
+    const company = { empresa: { ...empr, modo, contato, endereco } };
     const headers = { 'Content-Type': 'application/json' };
     if (modo === 'insert') {
       console.log(company)
@@ -67,16 +87,14 @@ const ModalIns = ({ handleModal, showModal, modo }) => {
         .then(response => console.log('inserted'))
         .catch(error => console.log(error));
 
-      toast.success(`${editEmpresa.nome} foi adicionada com sucesso`);
+      toast.success(`${empr.nome} foi adicionada com sucesso`);
     }
     if (modo === 'edit') {
-      console.log('EDIT');
-      console.log('EDIT');
       await api.put(`/origem/1/empresa`, company, { headers: headers })
         .then(response => console.log('EDIT'))
         .catch(error => console.log(error));
 
-      toast.success(`${editEmpresa.nome} atualizada com sucesso`);
+      toast.success(`${empr.nome} atualizada com sucesso`);
     }
 
     handleModal();
@@ -86,8 +104,8 @@ const ModalIns = ({ handleModal, showModal, modo }) => {
   };
 
   const handleCancel = () => {
-    setEditEmpresa({
-      id: 0,
+    setEmpr({
+      // id: 0,
       nome: '',
       tipo_doc: '',
       documento: '',
@@ -118,7 +136,7 @@ const ModalIns = ({ handleModal, showModal, modo }) => {
       onClose={handleModal}
     >
       <div className={styles.modal}>
-
+        {console.log(empr)}
         <div className={styles.modalContainer}>
           <div className={styles.modalTitle}>
             {modo === 'insert'
@@ -133,12 +151,12 @@ const ModalIns = ({ handleModal, showModal, modo }) => {
               <TextField
                 label="Nome"
                 name="nome"
-                autoFocus={editEmpresa && true}
+                autoFocus
                 fullWidth
                 required
                 onChange={handleCompanyDataChange}
-                value={editEmpresa && editEmpresa.nome}
-                error={!validations.fieldRequired(editEmpresa.nome)}
+                value={empr.nome}
+                error={!validations.fieldRequired(empr && empr.nome)}
                 InputLabelProps={{
                   className: styles.inputModal,
                 }}
@@ -150,10 +168,10 @@ const ModalIns = ({ handleModal, showModal, modo }) => {
                 name="tipo_doc"
                 select
                 required
-                value={editEmpresa && editEmpresa.tipo_doc}
+                value={empr.tipo_doc}
                 onChange={handleCompanyDataChange}
                 helperText="Jurídica / Física"
-                error={!validations.fieldRequired(editEmpresa.tipo_doc)}
+                error={!validations.fieldRequired(empr.tipo_doc)}
                 InputLabelProps={{
                   className: styles.inputModal,
                 }}
@@ -170,8 +188,8 @@ const ModalIns = ({ handleModal, showModal, modo }) => {
                 fullWidth
                 required
                 onChange={handleCompanyDataChange}
-                value={editEmpresa && editEmpresa.documento}
-                error={!validations.cnpj(editEmpresa.documento)}
+                value={empr.documento}
+                error={!validations.cnpj(empr.documento)}
                 InputLabelProps={{
                   className: styles.inputModal,
                 }}
@@ -187,7 +205,7 @@ const ModalIns = ({ handleModal, showModal, modo }) => {
                     name="gerar_nf"
                     color="primary"
                     onChange={handleCompanyDataChange}
-                    checked={editEmpresa && editEmpresa.gerar_nf}
+                    checked={empr.gerar_nf}
                   />
                 }
                 label="Gerar NF"
@@ -200,7 +218,7 @@ const ModalIns = ({ handleModal, showModal, modo }) => {
                     name="retem_iss"
                     color="primary"
                     onChange={handleCompanyDataChange}
-                    checked={editEmpresa && editEmpresa.retem_iss}
+                    checked={empr.retem_iss}
                   />
                 }
                 label="Retém ISS"
@@ -213,7 +231,7 @@ const ModalIns = ({ handleModal, showModal, modo }) => {
                     name="agrupar_fatura_contrato"
                     color="primary"
                     onChange={handleCompanyDataChange}
-                    checked={editEmpresa && editEmpresa.agrupar_fatura_contrato}
+                    checked={empr.agrupar_fatura_contrato}
                   />
                 }
                 label="Agrupar Fatura por Contrato"
@@ -228,8 +246,8 @@ const ModalIns = ({ handleModal, showModal, modo }) => {
                 required
                 label="Obs"
                 onChange={handleCompanyDataChange}
-                value={editEmpresa && editEmpresa.obs}
-                error={!validations.fieldRequired(editEmpresa.obs)}
+                value={empr.obs}
+                error={!validations.fieldRequired(empr.obs)}
                 InputLabelProps={{
                   className: styles.inputModal,
                 }}
@@ -240,28 +258,28 @@ const ModalIns = ({ handleModal, showModal, modo }) => {
           </Grid>
 
           <ListaEndereco
-          empresaId={editEmpresa && editEmpresa.id}
-          handleEndereco={handleEndereco}
-          handleModified={handleModified}
-          modo={modo}
-        />
-        <ListaContato
-          empresaId={editEmpresa && editEmpresa.id}
-          handleContato={handleContato}
-          handleModified={handleModified}
-          modo={modo}
-        />
+            empresaId={empr.id}
+            handleEndereco={handleEndereco}
+            handleModified={handleModified}
+            modo={modo}
+          />
+          <ListaContato
+            empresaId={empr.id}
+            handleContato={handleContato}
+            handleModified={handleModified}
+            modo={modo}
+          />
 
           <div align="right">
             <Button
               onClick={update}
               className={styles.buttonGravar}
               disabled={!
-                (validations.fieldRequired(editEmpresa.nome) &&
-                  (validations.fieldRequired(editEmpresa.documento)) &&
-                  (validations.fieldRequired(editEmpresa.tipo_doc)) &&
-                  (validations.fieldRequired(editEmpresa.obs)) &&
-                  (validations.cnpj(editEmpresa.documento)) &&
+                (validations.fieldRequired(empr.nome) &&
+                  (validations.fieldRequired(empr.documento)) &&
+                  (validations.fieldRequired(empr.tipo_doc)) &&
+                  (validations.fieldRequired(empr.obs)) &&
+                  (validations.cnpj(empr.documento)) &&
                   modified)
               }
             >

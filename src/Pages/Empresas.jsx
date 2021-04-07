@@ -22,6 +22,7 @@ const searchFieldStyle = {
 // EMPRESAS COMPONENT
 export default function Empresas() {
   const [empresas, setEmpresas] = useState([]);
+  const [idEmpresa, setIdEmpresa] = useState(0);
   const { setEditEmpresa } = useContext(AppContext);
   const [showModal, setShowModal] = useState(false);
   const [modo, setModo] = useState('');
@@ -85,16 +86,16 @@ export default function Empresas() {
 
 
   const handleModal = (action) => {
-    if (action === 'insert')
-      setEditEmpresa({
-        nome: '',
-        tipo_doc: '',
-        documento: '',
-        gerar_nf: false,
-        retem_iss: false,
-        obs: '',
-        agrupar_fatura_contrato: false
-      });
+    // if (action === 'insert')
+    //   setEditEmpresa({
+    //     nome: '',
+    //     tipo_doc: '',
+    //     documento: '',
+    //     gerar_nf: false,
+    //     retem_iss: false,
+    //     obs: '',
+    //     agrupar_fatura_contrato: false
+    //   });
     setModo(action);
     setShowModal(!showModal);
   };
@@ -108,7 +109,8 @@ export default function Empresas() {
     }
 
     if (action === 'edit') {
-      setEditEmpresa(rowData);
+      // setEditEmpresa(rowData);
+      setIdEmpresa(rowData.id);
       handleModal(action);
     }
   };
@@ -176,6 +178,7 @@ export default function Empresas() {
       <Modal
         showModal={showModal}
         handleModal={handleModal}
+        idEmpresa={idEmpresa}
         modo={modo}
       />
 
