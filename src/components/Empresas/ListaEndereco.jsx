@@ -31,7 +31,7 @@ export default function ListaEndereco({ empresaId, handleModified, handleEnderec
   ];
 
   useEffect(() => {
-    api.get(`/empresa/${empresaId}/endereco`)
+    api.get(`/origem/1/empresa/${empresaId}/endereco`)
       .then(response => setEnderecos(response.data));
   }, [empresaId]);
 
