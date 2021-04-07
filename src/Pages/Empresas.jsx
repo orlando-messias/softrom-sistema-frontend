@@ -1,5 +1,5 @@
 // react
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState, useRef } from 'react';
 import { useHistory } from 'react-router';
 // material-ui
 import AddIcon from "@material-ui/icons/Add";
@@ -25,10 +25,11 @@ export default function Empresas() {
   const { setEditEmpresa } = useContext(AppContext);
   const [showModal, setShowModal] = useState(false);
   const [modo, setModo] = useState('');
-  const [page, setPage] = useState(0);
 
   const history = useHistory();
   const styles = useStyles();
+
+  const tableRef = useRef();
 
   const columns = [
     { title: "Id", field: "id" },
@@ -37,7 +38,7 @@ export default function Empresas() {
   ];
 
   const loadData = (resolve, reject, query) => {
-    console.log(query);
+    // console.log(query);
     const search = query.search;
     let orderBy = "";
     let direction = "";
@@ -56,8 +57,6 @@ export default function Empresas() {
       orderBy,
     };
 
-    // console.log(params);
-    setPage(params.page);
 
     api.get('/origem/1/empresa', {
       params
@@ -76,45 +75,14 @@ export default function Empresas() {
     if (!isLogin()) history.push('/');
   }, [history]);
 
-  // useEffect(() => {
-  //   const params = {
-  //     limit: 10,
-  //     page: 14
-  //   };
-  //   console.log('useEffect here')
-  //   api.get('/origem/1/empresa', { params })
-  //     .then(response => ({
-  //       data: response.data.result.data,
-  //       page: response.data.result.page - 1,
-  //       totalCount: response.data.result.totalCount
-  //     }));
-  //   new Promise((resolve, reject) => {
-  //     loadData(resolve, reject, {
-  //       error: false,
-  //       filters: [],
-  //       page: 3,
-  //       pageSize: 5,
-  //       totalCount: 17,
-  //       orderDirection: "asc",
-  //       search: "", 
-  //       orderBy: {
-  //         defaultSort: "asc",
-  //         field: "nome",
-  //         title: "Nome",
-  //         tableData: {
-  //           additionalWidth: 0,
-  //           columnOrder: 1,
-  //           filterValue: undefined,
-  //           groupOrder: undefined,
-  //           groupSort: "asc",
-  //           id: 1,
-  //           initialWidth: "calc((100% - (0px)) / 3)",
-  //           width: "calc((100% - (0px)) / 3)",
-  //         }
-  //       }
-  //     })
-  //   })
-  // }, [showModal]);
+  const refreshTable = async () => {
+    tableRef.current.onQueryChange();
+  }
+
+  useEffect(() => {
+    refreshTable();
+  }, [showModal]);
+
 
   const handleModal = (action) => {
     if (action === 'insert')
@@ -149,12 +117,12 @@ export default function Empresas() {
 
   return (
     <div className={styles.container}>
-      {console.log(page)}
 
       <Panel />
 
       <div className={styles.content}>
         <MaterialTable
+          tableRef={tableRef}
           data={(query) =>
             new Promise((resolve, reject) => {
               loadData(resolve, reject, query);
@@ -198,6 +166,11 @@ export default function Empresas() {
             },
           }}
         />
+        <button
+          onClick={() => tableRef.current.onQueryChange()}
+        >
+          refresh material-tablez
+          </button>
       </div>
 
       <Modal

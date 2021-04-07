@@ -59,10 +59,10 @@ const ModalIns = ({ handleModal, showModal, modo }) => {
   };
 
   const update = async () => {
-    const company = { empresa: { ...editEmpresa, modo } };
+    const company = { empresa: { ...editEmpresa, modo, contato, endereco } };
     const headers = { 'Content-Type': 'application/json' };
     if (modo === 'insert') {
-      // console.log(company)
+      console.log(company)
       await api.post(`/origem/1/empresa`, company, { headers: headers })
         .then(response => console.log('inserted'))
         .catch(error => console.log(error));
@@ -239,7 +239,7 @@ const ModalIns = ({ handleModal, showModal, modo }) => {
 
           </Grid>
 
-          {/* <ListaEndereco
+          <ListaEndereco
           empresaId={editEmpresa && editEmpresa.id}
           handleEndereco={handleEndereco}
           handleModified={handleModified}
@@ -250,7 +250,7 @@ const ModalIns = ({ handleModal, showModal, modo }) => {
           handleContato={handleContato}
           handleModified={handleModified}
           modo={modo}
-        /> */}
+        />
 
           <div align="right">
             <Button
