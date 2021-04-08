@@ -179,6 +179,7 @@ export default function Empresas() {
         showModal={showModal}
         handleModal={handleModal}
         idEmpresa={idEmpresa}
+        setIdEmpresa={setIdEmpresa}
         modo={modo}
       />
 

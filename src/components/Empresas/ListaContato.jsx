@@ -33,7 +33,7 @@ export default function ListaContato({ empresaId, handleModified, handleContato,
       rowData = { ...rowData, modo: action };
       setContatos([...contatos, rowData]);
       handleContato([...contatos, rowData]);
-      console.log('Contatos ', rowData);
+      // console.log('Contatos ', rowData);
     }
 
     handleModified();

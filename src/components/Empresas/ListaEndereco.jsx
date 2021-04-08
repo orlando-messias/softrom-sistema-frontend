@@ -3,7 +3,7 @@ import React, { useEffect, useState } from 'react';
 // components
 import MaterialTable from 'material-table';
 // services
-import api from '../../services/api';
+import api from '../../services/apiEnderecos';
 import { FormControl, MenuItem, Select } from '@material-ui/core';
 
 
@@ -31,8 +31,12 @@ export default function ListaEndereco({ empresaId, handleModified, handleEnderec
   ];
 
   useEffect(() => {
-    api.get(`/origem/1/empresa/${empresaId}/endereco`)
-      .then(response => setEnderecos(response.data));
+    if (modo === 'edit') {
+      const user = JSON.parse(localStorage.getItem('user'));
+      console.log(user.token);
+      api.get(`/origem/1/empresa/${empresaId}/endereco`, { headers: { Authorization: `Bearer ${user.token}` } })
+        .then(response => setEnderecos(response.data.result.data));
+    }
   }, [empresaId]);
 
   const handleNew = (rowData, oldData, resolve, reject, action) => {
@@ -40,14 +44,14 @@ export default function ListaEndereco({ empresaId, handleModified, handleEnderec
       const dataUpdate = [...enderecos];
       const index = oldData.tableData.id;
       dataUpdate[index] = { ...rowData, modo: action };
-      setEnderecos([...dataUpdate]);
-      handleEndereco([...dataUpdate]);
+      setEnderecos(dataUpdate);
+      handleEndereco(dataUpdate);
     }
     else {
       rowData = { ...rowData, modo: action };
       setEnderecos([...enderecos, rowData]);
       handleEndereco([...enderecos, rowData]);
-      console.log(rowData);
+      console.log('END ', rowData);
     }
 
     handleModified();
@@ -76,6 +80,7 @@ export default function ListaEndereco({ empresaId, handleModified, handleEnderec
   return (
 
     <div>
+      {/* {console.log('END ', enderecos)} */}
       <MaterialTable
         data={enderecos}
         columns={columns}
