@@ -1,5 +1,6 @@
 // react
 import React, { useState, useEffect } from 'react';
+import { useSelector } from 'react-redux';
 // material-ui
 import {
   Modal,
@@ -16,7 +17,7 @@ import { mask } from 'remask';
 // styles
 import useStyles from './ModalStyles';
 
-import api from '../../services/apiEnderecos';
+import api from '../../services/api';
 import { toast } from 'react-toastify';
 
 import ListaEndereco from '../Empresas/ListaEndereco';
@@ -41,12 +42,14 @@ const ModalIns = ({ handleModal, showModal, idEmpresa, setIdEmpresa, modo }) => 
   const [modified, setModified] = useState(false);
 
   const styles = useStyles();
+  const user = useSelector(state => state.loginReducer.user);
+  const headers = { Authorization: `Bearer ${user.token}` };
 
   useEffect(() => {
     if (modo === 'edit') {
-      const user = JSON.parse(localStorage.getItem('user'));
+      // const user = JSON.parse(localStorage.getItem('user'));
       // console.log('id ', idEmpresa);
-      api.get(`/origem/1/empresa/${idEmpresa}`, { headers: { Authorization: `Bearer ${user.token}` } })
+      api.get(`/origem/1/empresa/${idEmpresa}`, { headers })
         .then(response => setEmpr(response.data.result[0]))
         .catch(e => console.log(e));
     }
@@ -78,16 +81,16 @@ const ModalIns = ({ handleModal, showModal, idEmpresa, setIdEmpresa, modo }) => 
     const company = { empresa: { ...empr, modo, contato, endereco } };
     const user = JSON.parse(localStorage.getItem('user'));
     if (modo === 'insert') {
-      await api.post(`/origem/1/empresa`, company, { headers: { Authorization: `Bearer ${user.token}` } })
-      .then(() => {
-        toast.success(`${empr.nome} foi adicionada com sucesso`);
-      })
-      .catch(error => console.log(error));
+      await api.post(`/origem/1/empresa`, company, { headers })
+        .then(() => {
+          toast.success(`${empr.nome} foi adicionada com sucesso`);
+        })
+        .catch(error => console.log(error));
     }
-    
+
     if (modo === 'edit') {
       console.log('company ', company);
-      await api.put(`/origem/1/empresa`, company, { headers: { Authorization: `Bearer ${user.token}` } })
+      await api.put(`/origem/1/empresa`, company, { headers })
         .then(() => {
           toast.success(`${empr.nome} atualizada com sucesso`);
         })

@@ -1,15 +1,19 @@
 // react
 import React, { useEffect, useState } from 'react';
+import { useSelector } from 'react-redux';
 // components
 import MaterialTable from 'material-table';
 // services
-import api from '../../services/apiEnderecos';
+import api from '../../services/api';
 import { FormControl, MenuItem, Select } from '@material-ui/core';
 
 
 // DASHBOARD COMPONENT
 export default function ListaEndereco({ empresaId, handleModified, handleEndereco, modo }) {
   const [enderecos, setEnderecos] = useState([]);
+
+  const user = useSelector(state => state.loginReducer.user);
+  const headers = { Authorization: `Bearer ${user.token}` };
 
   const columns = [
     {
@@ -32,9 +36,7 @@ export default function ListaEndereco({ empresaId, handleModified, handleEnderec
 
   useEffect(() => {
     if (modo === 'edit') {
-      const user = JSON.parse(localStorage.getItem('user'));
-      // console.log(user.token);
-      api.get(`/origem/1/empresa/${empresaId}/endereco`, { headers: { Authorization: `Bearer ${user.token}` } })
+      api.get(`/origem/1/empresa/${empresaId}/endereco`, { headers })
         .then(response => setEnderecos(response.data.result.data));
     }
   }, [empresaId, modo]);
