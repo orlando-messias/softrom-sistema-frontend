@@ -1,5 +1,5 @@
 // react
-import React, { useContext, useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { useHistory } from 'react-router';
 // material-ui
 import AddIcon from "@material-ui/icons/Add";
@@ -12,7 +12,6 @@ import Modal from '../components/modals/Modal';
 // services
 import { isLogin } from '../services/loginServices';
 import api from '../services/api';
-import { AppContext } from '../context/AppContext';
 
 const searchFieldStyle = {
   marginRight: 30
@@ -21,9 +20,7 @@ const searchFieldStyle = {
 
 // EMPRESAS COMPONENT
 export default function Empresas() {
-  const [empresas, setEmpresas] = useState([]);
   const [idEmpresa, setIdEmpresa] = useState(0);
-  const { setEditEmpresa } = useContext(AppContext);
   const [showModal, setShowModal] = useState(false);
   const [modo, setModo] = useState('');
 
@@ -39,7 +36,6 @@ export default function Empresas() {
   ];
 
   const loadData = (resolve, reject, query) => {
-    // console.log(query);
     const search = query.search;
     let orderBy = "";
     let direction = "";
@@ -63,7 +59,6 @@ export default function Empresas() {
       params
     })
       .then((response) => {
-        // setEmpresas(response.data.result.data)
         resolve({
           data: response.data.result.data,
           page: response.data.result.page - 1,
@@ -86,16 +81,6 @@ export default function Empresas() {
 
 
   const handleModal = (action) => {
-    // if (action === 'insert')
-    //   setEditEmpresa({
-    //     nome: '',
-    //     tipo_doc: '',
-    //     documento: '',
-    //     gerar_nf: false,
-    //     retem_iss: false,
-    //     obs: '',
-    //     agrupar_fatura_contrato: false
-    //   });
     setModo(action);
     setShowModal(!showModal);
   };
@@ -109,7 +94,6 @@ export default function Empresas() {
     }
 
     if (action === 'edit') {
-      // setEditEmpresa(rowData);
       setIdEmpresa(rowData.id);
       handleModal(action);
     }

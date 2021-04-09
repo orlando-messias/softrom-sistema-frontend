@@ -1,5 +1,5 @@
 // react
-import React, { useContext, useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 // material-ui
 import {
   Modal,
@@ -20,18 +20,15 @@ import api from '../../services/apiEnderecos';
 import { toast } from 'react-toastify';
 
 import ListaEndereco from '../Empresas/ListaEndereco';
-import ListaContato from '../Empresas/ListaContato';
-import { AppContext } from '../../context/AppContext';
+// import ListaContato from '../Empresas/ListaContato';
 
-import CloseIcon from '@material-ui/icons/Close';
 import validations from '../../services/validations';
 
 
 // MODAL COMPONENT
 const ModalIns = ({ handleModal, showModal, idEmpresa, setIdEmpresa, modo }) => {
   const [endereco, setEndereco] = useState([]);
-  const [contato, setContato] = useState([]);
-  const { editEmpresa, setEditEmpresa } = useContext(AppContext);
+  const [contato] = useState([]);
   const [empr, setEmpr] = useState({
     nome: '',
     tipo_doc: '',
@@ -41,7 +38,6 @@ const ModalIns = ({ handleModal, showModal, idEmpresa, setIdEmpresa, modo }) => 
     obs: '',
     agrupar_fatura_contrato: false
   });
-  const [newEmpr, setNewEmpr] = useState({});
   const [modified, setModified] = useState(false);
 
   const styles = useStyles();
@@ -50,12 +46,11 @@ const ModalIns = ({ handleModal, showModal, idEmpresa, setIdEmpresa, modo }) => 
     if (modo === 'edit') {
       const user = JSON.parse(localStorage.getItem('user'));
       // console.log('id ', idEmpresa);
-      // const headers = { 'Content-Type': 'application/json' };
       api.get(`/origem/1/empresa/${idEmpresa}`, { headers: { Authorization: `Bearer ${user.token}` } })
         .then(response => setEmpr(response.data.result[0]))
         .catch(e => console.log(e));
     }
-  }, [idEmpresa]);
+  }, [idEmpresa, modo]);
 
   const handleCompanyDataChange = (e) => {
     let { name, value, checked } = e.target;
@@ -82,12 +77,9 @@ const ModalIns = ({ handleModal, showModal, idEmpresa, setIdEmpresa, modo }) => 
   const update = async () => {
     const company = { empresa: { ...empr, modo, contato, endereco } };
     const user = JSON.parse(localStorage.getItem('user'));
-    // const headers = { 'Content-Type': 'application/json' };
     if (modo === 'insert') {
-      // console.log(company)
       await api.post(`/origem/1/empresa`, company, { headers: { Authorization: `Bearer ${user.token}` } })
       .then(() => {
-        // console.log('inserted');
         toast.success(`${empr.nome} foi adicionada com sucesso`);
       })
       .catch(error => console.log(error));
@@ -97,7 +89,6 @@ const ModalIns = ({ handleModal, showModal, idEmpresa, setIdEmpresa, modo }) => 
       console.log('company ', company);
       await api.put(`/origem/1/empresa`, company, { headers: { Authorization: `Bearer ${user.token}` } })
         .then(() => {
-          // console.log('EDIT');
           toast.success(`${empr.nome} atualizada com sucesso`);
         })
         .catch(error => console.log(error));
@@ -129,9 +120,9 @@ const ModalIns = ({ handleModal, showModal, idEmpresa, setIdEmpresa, modo }) => 
     setEndereco(endereco);
   }
 
-  const handleContato = (contato) => {
-    setContato(contato);
-  }
+  // const handleContato = (contato) => {
+  //   setContato(contato);
+  // }
 
   const handleModified = () => {
     setModified(true);
@@ -143,7 +134,6 @@ const ModalIns = ({ handleModal, showModal, idEmpresa, setIdEmpresa, modo }) => 
       onClose={handleModal}
     >
       <div className={styles.modal}>
-        {/* {console.log(empr)} */}
         <div className={styles.modalContainer}>
           <div className={styles.modalTitle}>
             {modo === 'insert'

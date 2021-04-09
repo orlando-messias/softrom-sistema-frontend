@@ -33,11 +33,11 @@ export default function ListaEndereco({ empresaId, handleModified, handleEnderec
   useEffect(() => {
     if (modo === 'edit') {
       const user = JSON.parse(localStorage.getItem('user'));
-      console.log(user.token);
+      // console.log(user.token);
       api.get(`/origem/1/empresa/${empresaId}/endereco`, { headers: { Authorization: `Bearer ${user.token}` } })
         .then(response => setEnderecos(response.data.result.data));
     }
-  }, [empresaId]);
+  }, [empresaId, modo]);
 
   const handleNew = (rowData, oldData, resolve, reject, action) => {
     if (action === 'edit') {
@@ -80,7 +80,6 @@ export default function ListaEndereco({ empresaId, handleModified, handleEnderec
   return (
 
     <div>
-      {/* {console.log('END ', enderecos)} */}
       <MaterialTable
         data={enderecos}
         columns={columns}
