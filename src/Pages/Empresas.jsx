@@ -134,6 +134,7 @@ export default function Empresas() {
           }}
           options={{
             searchFieldStyle: searchFieldStyle,
+            debounceInterval: 600
           }}
           localization={{
             header: { actions: 'Ações' },

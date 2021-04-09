@@ -1,12 +1,13 @@
 // react
 import React, { useEffect, useState } from 'react';
+import { useSelector } from 'react-redux';
 // components
 import MaterialTable from 'material-table';
 // services
 import api from '../../services/api';
 
 
-// DASHBOARD COMPONENT
+// LISTACONTATO COMPONENT
 export default function ListaContato({ empresaId, handleModified, handleContato, modo }) {
   const [contatos, setContatos] = useState([]);
 
@@ -16,24 +17,29 @@ export default function ListaContato({ empresaId, handleModified, handleContato,
     { title: "Email", field: "email" },
   ];
 
+  const user = useSelector(state => state.loginReducer.user);
+
   useEffect(() => {
-    api.get(`/empresa/${empresaId}/contato`)
-      .then(response => setContatos(response.data));
-  }, [empresaId]);
+    if (modo === 'edit') {
+      api(user.token).get(`/origem/1/empresa/${empresaId}/contato`)
+        .then(response => setContatos(response.data.result.data));
+    }
+  }, [empresaId, modo, user.token]);
 
   const handleNew = (rowData, oldData, resolve, reject, action) => {
     if (action === 'edit') {
       const dataUpdate = [...contatos];
       const index = oldData.tableData.id;
       dataUpdate[index] = { ...rowData, modo: action };
-      setContatos([...dataUpdate]);
-      handleContato([...dataUpdate]);
+      setContatos(dataUpdate);
+      handleContato(dataUpdate);
+      console.log('Contatos', contatos)
     }
     else {
       rowData = { ...rowData, modo: action };
       setContatos([...contatos, rowData]);
       handleContato([...contatos, rowData]);
-      // console.log('Contatos ', rowData);
+      console.log('Contatos ', contatos);
     }
 
     handleModified();

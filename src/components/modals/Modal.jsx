@@ -21,7 +21,7 @@ import api from '../../services/api';
 import { toast } from 'react-toastify';
 
 import ListaEndereco from '../Empresas/ListaEndereco';
-// import ListaContato from '../Empresas/ListaContato';
+import ListaContato from '../Empresas/ListaContato';
 
 import validations from '../../services/validations';
 
@@ -29,7 +29,7 @@ import validations from '../../services/validations';
 // MODAL COMPONENT
 const ModalIns = ({ handleModal, showModal, idEmpresa, setIdEmpresa, modo }) => {
   const [endereco, setEndereco] = useState([]);
-  const [contato] = useState([]);
+  const [contato, setContato] = useState([]);
   const [empr, setEmpr] = useState({
     nome: '',
     tipo_doc: '',
@@ -43,17 +43,16 @@ const ModalIns = ({ handleModal, showModal, idEmpresa, setIdEmpresa, modo }) => 
 
   const styles = useStyles();
   const user = useSelector(state => state.loginReducer.user);
-  const headers = { Authorization: `Bearer ${user.token}` };
 
   useEffect(() => {
     if (modo === 'edit') {
       // const user = JSON.parse(localStorage.getItem('user'));
       // console.log('id ', idEmpresa);
-      api.get(`/origem/1/empresa/${idEmpresa}`, { headers })
+      api(user.token).get(`/origem/1/empresa/${idEmpresa}`)
         .then(response => setEmpr(response.data.result[0]))
         .catch(e => console.log(e));
     }
-  }, [idEmpresa, modo]);
+  }, [idEmpresa, modo, user.token]);
 
   const handleCompanyDataChange = (e) => {
     let { name, value, checked } = e.target;
@@ -79,20 +78,45 @@ const ModalIns = ({ handleModal, showModal, idEmpresa, setIdEmpresa, modo }) => 
 
   const update = async () => {
     const company = { empresa: { ...empr, modo, contato, endereco } };
-    const user = JSON.parse(localStorage.getItem('user'));
+    // const user = JSON.parse(localStorage.getItem('user'));
     if (modo === 'insert') {
-      await api.post(`/origem/1/empresa`, company, { headers })
+      console.log('company ', company);
+      await api(user.token).post(`/origem/1/empresa`, company)
         .then(() => {
           toast.success(`${empr.nome} foi adicionada com sucesso`);
+          setEmpr({
+            id: 0,
+            nome: '',
+            tipo_doc: '',
+            documento: '',
+            gerar_nf: false,
+            retem_iss: false,
+            obs: '',
+            agrupar_fatura_contrato: false
+          });
+          setContato([]);
+          setEndereco([]);
         })
         .catch(error => console.log(error));
     }
 
     if (modo === 'edit') {
       console.log('company ', company);
-      await api.put(`/origem/1/empresa`, company, { headers })
+      await api(user.token).put(`/origem/1/empresa`, company)
         .then(() => {
           toast.success(`${empr.nome} atualizada com sucesso`);
+          setEmpr({
+            id: 0,
+            nome: '',
+            tipo_doc: '',
+            documento: '',
+            gerar_nf: false,
+            retem_iss: false,
+            obs: '',
+            agrupar_fatura_contrato: false
+          });
+          setContato([]);
+          setEndereco([]);
         })
         .catch(error => console.log(error));
     }
@@ -123,9 +147,9 @@ const ModalIns = ({ handleModal, showModal, idEmpresa, setIdEmpresa, modo }) => 
     setEndereco(endereco);
   }
 
-  // const handleContato = (contato) => {
-  //   setContato(contato);
-  // }
+  const handleContato = (contato) => {
+    setContato(contato);
+  }
 
   const handleModified = () => {
     setModified(true);
@@ -262,12 +286,12 @@ const ModalIns = ({ handleModal, showModal, idEmpresa, setIdEmpresa, modo }) => 
             handleModified={handleModified}
             modo={modo}
           />
-          {/* <ListaContato
+          <ListaContato
             empresaId={empr.id}
             handleContato={handleContato}
             handleModified={handleModified}
             modo={modo}
-          /> */}
+          />
 
           <div align="right">
             <Button
