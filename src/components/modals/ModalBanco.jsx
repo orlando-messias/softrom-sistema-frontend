@@ -12,7 +12,7 @@ import CloseIcon from '@material-ui/icons/Close';
 // styles
 import useStyles from './ModalBancoStyles';
 // services
-import api from '../../services/apiLocal';
+import api from '../../services/api';
 import validations from '../../services/validations';
 // context
 import { AppContext } from '../../context/AppContext';

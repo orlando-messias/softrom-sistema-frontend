@@ -11,7 +11,8 @@ import MaterialTable from 'material-table';
 import Modal from '../components/modals/Modal';
 // services
 import { isLogin } from '../services/loginServices';
-import api from '../services/api';
+import api from '../services/apiOld';
+
 
 const searchFieldStyle = {
   marginRight: 30
@@ -133,6 +134,7 @@ export default function Empresas() {
           }}
           options={{
             searchFieldStyle: searchFieldStyle,
+            debounceInterval: 600
           }}
           localization={{
             header: { actions: 'Ações' },

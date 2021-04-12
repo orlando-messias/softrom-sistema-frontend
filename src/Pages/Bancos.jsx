@@ -11,7 +11,7 @@ import MaterialTable from 'material-table';
 import Modal from '../components/modals/ModalBanco';
 // services
 import { isLogin } from '../services/loginServices';
-import api from '../services/apiLocal';
+import api from '../services/api';
 // context
 import { AppContext } from '../context/AppContext';
 

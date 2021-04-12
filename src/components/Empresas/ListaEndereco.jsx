@@ -1,43 +1,31 @@
 // react
 import React, { useEffect, useState } from 'react';
+import { useSelector } from 'react-redux';
 // components
 import MaterialTable from 'material-table';
 // services
-import api from '../../services/apiEnderecos';
-import { FormControl, MenuItem, Select } from '@material-ui/core';
+import api from '../../services/api';
+// import { FormControl, MenuItem, Select } from '@material-ui/core';
 
 
-// DASHBOARD COMPONENT
+// LISTAENDERECO COMPONENT
 export default function ListaEndereco({ empresaId, handleModified, handleEndereco, modo }) {
   const [enderecos, setEnderecos] = useState([]);
 
+  const user = useSelector(state => state.loginReducer.user);
+
   const columns = [
-    {
-      title: "Identificação",
-      field: "identificacao",
-      editComponent: editProps => (
-        <FormControl style={{ width: 160, margin: 0, padding: 0 }}>
-          <Select
-            onChange={e => editProps.onChange(e.target.value)}
-          >
-            <MenuItem value="Comercial">Comercial</MenuItem>
-            <MenuItem value="Residencial">Residencial</MenuItem>
-          </Select>
-        </FormControl>
-      )
-    },
+    { title: "Identificação", field: "identificacao" },
     { title: "Cep", field: "cep" },
     { title: "Principal", field: "principal", type: 'boolean', initialEditValue: false }
   ];
 
   useEffect(() => {
     if (modo === 'edit') {
-      const user = JSON.parse(localStorage.getItem('user'));
-      // console.log(user.token);
-      api.get(`/origem/1/empresa/${empresaId}/endereco`, { headers: { Authorization: `Bearer ${user.token}` } })
+      api(user.token).get(`/origem/1/empresa/${empresaId}/endereco`)
         .then(response => setEnderecos(response.data.result.data));
     }
-  }, [empresaId, modo]);
+  }, [empresaId, modo, user.token]);
 
   const handleNew = (rowData, oldData, resolve, reject, action) => {
     if (action === 'edit') {
@@ -51,7 +39,6 @@ export default function ListaEndereco({ empresaId, handleModified, handleEnderec
       rowData = { ...rowData, modo: action };
       setEnderecos([...enderecos, rowData]);
       handleEndereco([...enderecos, rowData]);
-      console.log('END ', rowData);
     }
 
     handleModified();
