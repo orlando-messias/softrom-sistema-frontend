@@ -12,7 +12,7 @@ import MaterialTable from 'material-table';
 import ModalEmpresas from '../components/modals/ModalEmpresas';
 // services
 import { isLogin } from '../services/loginServices';
-import api from '../services/apiOld';
+import api from '../services/api';
 
 
 const searchFieldStyle = {
@@ -26,6 +26,7 @@ export default function Empresas() {
   const [showModal, setShowModal] = useState(false);
   const [modo, setModo] = useState('');
 
+  const user = useSelector(state => state.loginReducer.user);
   const origin_id = useSelector(state => state.loginReducer.origin);
   const history = useHistory();
   const styles = useStyles();
@@ -38,44 +39,43 @@ export default function Empresas() {
     { title: "Documento", field: "documento" }
   ];
 
-  // const loadData = (resolve, reject, query) => {
-  //   const search = query.search;
-  //   let orderBy = "";
-  //   let direction = "";
+  const loadData = (resolve, reject, query) => {
+    const search = query.search;
+    let orderBy = "";
+    let direction = "";
 
-  //   if (query.orderDirection === "desc") {
-  //     direction = "-";
-  //   }
-  //   if (query.orderBy) {
-  //     orderBy = direction + query.orderBy.field;
-  //   }
+    if (query.orderDirection === "desc") {
+      direction = "-";
+    }
+    if (query.orderBy) {
+      orderBy = direction + query.orderBy.field;
+    }
 
-  //   const params = {
-  //     limit: query.pageSize,
-  //     page: query.page + 1,
-  //     search,
-  //     orderBy,
-  //   };
+    const params = {
+      limit: query.pageSize,
+      page: query.page + 1,
+      search,
+      orderBy,
+    };
 
-
-  //   api.get('/origem/1/empresa', {
-  //     params
-  //   })
-  //     .then((response) => {
-  //       resolve({
-  //         data: response.data.result.data,
-  //         page: response.data.result.page - 1,
-  //         totalCount: response.data.result.totalCount
-  //       });
-  //     });
-  // };
+    api(user.token).get(`/origem/${origin_id}/empresa`, {
+      params
+    })
+      .then((response) => {
+        resolve({
+          data: response.data.result.data,
+          page: response.data.result.page - 1,
+          totalCount: response.data.result.totalCount
+        });
+      });
+  };
 
   useEffect(() => {
     if (!isLogin()) history.push('/');
   }, [history]);
 
   const refreshTable = async () => {
-    // tableRef.current.onQueryChange();
+    tableRef.current.onQueryChange();
   }
 
   useEffect(() => {
@@ -91,7 +91,8 @@ export default function Empresas() {
   const selectedCompany = async (rowData, action) => {
     if (action === 'delete') {
       const headers = { 'Content-Type': 'application/json' };
-      await api.delete(`/origem/${origin_id}/empresa/${rowData.id}`, { headers: headers })
+      console.log('deleting');
+      await api(user.token).delete(`/origem/${origin_id}/empresa/${rowData.id}`, { headers: headers })
         .then(() => console.log('deleted'))
         .catch((error) => console.log(error))
     }
@@ -112,7 +113,10 @@ export default function Empresas() {
       <div className={styles.content}>
         <MaterialTable
           tableRef={tableRef}
-          data={[]}
+          data={(query) =>
+            new Promise((resolve, reject) => {
+              loadData(resolve, reject, query);
+            })}
           columns={columns}
           title="Empresas"
           actions={[

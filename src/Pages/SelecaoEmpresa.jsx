@@ -39,7 +39,7 @@ export default function SelecaoEmpresa() {
     dispatch(setOrigin(dados.origem[0].id));
     console.log(dados.origem[0].id);
     setData(dados.origem[0].empresa);
-  }, []);
+  }, [dispatch]);
 
   return (
     <div className={styles.container}>

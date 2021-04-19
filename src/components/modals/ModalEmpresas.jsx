@@ -53,7 +53,7 @@ const ModalEmpresas = ({ handleModal, showModal, idEmpresa, setIdEmpresa, modo }
         .then(response => setEmpr(response.data.result[0]))
         .catch(e => console.log(e));
     }
-  }, [idEmpresa, modo, user.token]);
+  }, [idEmpresa, modo, user.token, origin_id]);
 
   const handleCompanyDataChange = (e) => {
     let { name, value, checked } = e.target;

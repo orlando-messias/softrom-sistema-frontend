@@ -77,13 +77,13 @@ export default function Servico() {
     if (!isLogin()) history.push('/');
   }, [history]);
 
-  const refreshTable = async () => {
-    tableRef.current.onQueryChange();
-  }
+  // const refreshTable = async () => {
+  //   tableRef.current.onQueryChange();
+  // }
 
-  useEffect(() => {
-    // refreshTable();
-  }, [showModal]);
+  // useEffect(() => {
+  //   refreshTable();
+  // }, [showModal]);
 
 
   const handleModal = (action) => {

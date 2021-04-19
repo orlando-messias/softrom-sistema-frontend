@@ -43,7 +43,7 @@ const ModalFilial = ({ handleModal, showModal, idFilial, setIdFilial, modo }) =>
 
   useEffect(() => {
     console.log('filial ', origin_id);
-  }, []);
+  }, [origin_id]);
 
   const handleFilialDataChange = (e) => {
     let { name, value } = e.target;
