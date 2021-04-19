@@ -5,14 +5,14 @@ import { useSelector } from 'react-redux';
 // material-ui
 import AddIcon from "@material-ui/icons/Add";
 // styles
-import useStyles from './EmpresasStyles';
+import useStyles from './GruposStyles';
 // components
 import Panel from '../components/Panel';
 import MaterialTable from 'material-table';
-import ModalEmpresas from '../components/modals/ModalEmpresas';
+import ModalGrupo from '../components/modals/ModalGrupo';
 // services
 import { isLogin } from '../services/loginServices';
-import api from '../services/apiOld';
+import api from '../services/api';
 
 
 const searchFieldStyle = {
@@ -20,23 +20,35 @@ const searchFieldStyle = {
 };
 
 
-// EMPRESAS COMPONENT
-export default function Empresas() {
-  const [idEmpresa, setIdEmpresa] = useState(0);
+// GRUPOS COMPONENT
+export default function Grupos() {
+  const [idGrupo, setIdGrupo] = useState(0);
   const [showModal, setShowModal] = useState(false);
   const [modo, setModo] = useState('');
 
+  const user = useSelector(state => state.loginReducer.user);
   const origin_id = useSelector(state => state.loginReducer.origin);
   const history = useHistory();
   const styles = useStyles();
+
 
   const tableRef = useRef();
 
   const columns = [
     { title: "Id", field: "id" },
-    { title: "Nome", field: "nome", defaultSort: "asc" },
-    { title: "Documento", field: "documento" }
+    { title: "Descrição", field: "descricao" }
   ];
+
+  // useEffect(() => {
+  //   const params = {
+  //     limit: 1,
+  //     page: 1,
+  //     orderBy: '',
+  //     search: '',
+  //   };
+  //   api(user.token).get('/origem/1/grupo', { params })
+  //     .then(response => console.log(response.data))
+  // }, [])
 
   // const loadData = (resolve, reject, query) => {
   //   const search = query.search;
@@ -58,7 +70,8 @@ export default function Empresas() {
   //   };
 
 
-  //   api.get('/origem/1/empresa', {
+
+  //   api.get('/origem/1/grupo', {
   //     params
   //   })
   //     .then((response) => {
@@ -75,11 +88,11 @@ export default function Empresas() {
   }, [history]);
 
   const refreshTable = async () => {
-    // tableRef.current.onQueryChange();
+    tableRef.current.onQueryChange();
   }
 
   useEffect(() => {
-    refreshTable();
+    // refreshTable();
   }, [showModal]);
 
 
@@ -90,14 +103,14 @@ export default function Empresas() {
 
   const selectedCompany = async (rowData, action) => {
     if (action === 'delete') {
-      const headers = { 'Content-Type': 'application/json' };
-      await api.delete(`/origem/${origin_id}/empresa/${rowData.id}`, { headers: headers })
+      console.log(action);
+      await api(user.token).delete(`/origem/${origin_id}/grupos/${rowData.id}`)
         .then(() => console.log('deleted'))
         .catch((error) => console.log(error))
     }
 
     if (action === 'edit') {
-      setIdEmpresa(rowData.id);
+      setIdGrupo(rowData.id);
       handleModal(action);
     }
   };
@@ -112,13 +125,17 @@ export default function Empresas() {
       <div className={styles.content}>
         <MaterialTable
           tableRef={tableRef}
-          data={[]}
+          data={[{id: 1, descricao: 'Descrição do Grupo'}]}
+          // data={(query) =>
+          //   new Promise((resolve, reject) => {
+          //     loadData(resolve, reject, query);
+          //   })}
           columns={columns}
-          title="Empresas"
+          title="Grupo"
           actions={[
             {
               icon: () => <AddIcon />,
-              tooltip: 'Incluir Novo',
+              tooltip: 'Incluir Nova',
               isFreeAction: true,
               onClick: () => handleModal('insert')
             },
@@ -153,18 +170,13 @@ export default function Empresas() {
             },
           }}
         />
-        <button
-          onClick={() => tableRef.current.onQueryChange()}
-        >
-          refresh material-tablez
-          </button>
       </div>
 
-      <ModalEmpresas
+      <ModalGrupo
         showModal={showModal}
         handleModal={handleModal}
-        idEmpresa={idEmpresa}
-        setIdEmpresa={setIdEmpresa}
+        idGrupo={idGrupo}
+        setIdGrupo={setIdGrupo}
         modo={modo}
       />
 

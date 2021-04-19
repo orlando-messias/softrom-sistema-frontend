@@ -10,6 +10,7 @@ export const IS_FETCHING = 'IS_FETCHING';
 export const ERROR_TO_FALSE = 'ERROR_FALSE';
 export const LOGOUT = 'LOGOUT';
 export const SELECT_COMPANY = 'SELECT_COMPANY';
+export const SET_ORIGIN = 'SET_ORIGIN';
 
 export const loginSuccess = (username, token) => {
   return {
@@ -47,6 +48,13 @@ export const selectCompany = (empresa) => {
   return {
     type: SELECT_COMPANY,
     empresaSelecionada: empresa
+  }
+};
+
+export const setOrigin = (origin) => {
+  return {
+    type: SET_ORIGIN,
+    origin
   }
 };
 

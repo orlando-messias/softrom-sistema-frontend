@@ -7,6 +7,9 @@ import Login from './Pages/Login';
 import Dashboard from './Pages/Dashboard';
 import Empresas from './Pages/Empresas';
 import Bancos from './Pages/Bancos';
+import Filiais from './Pages/Filiais';
+import Grupos from './Pages/Grupos';
+import Servico from './Pages/Servico';
 import SelecaoEmpresa from './Pages/SelecaoEmpresa';
 
 function Routes() {
@@ -17,6 +20,9 @@ function Routes() {
       <Route path="/dashboard" component={Dashboard} />
       <Route path="/empresas" component={Empresas} />
       <Route path="/bancos" component={Bancos} />
+      <Route path="/filiais" component={Filiais} />
+      <Route path="/grupos" component={Grupos} />
+      <Route path="/servico" component={Servico} />
     </Router>
   );
 };

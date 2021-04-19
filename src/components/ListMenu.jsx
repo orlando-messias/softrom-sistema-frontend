@@ -132,7 +132,7 @@ export default function ListMenu() {
                   <Typography className={styles.subItem}>Atividades</Typography>
                 </ListItemText>
               </ListItem>
-              <ListItem button>
+              <ListItem button onClick={() => handleLinkClick('filiais')}>
                 <ListItemIcon>
                   <BusinessIcon className={styles.subSubItemIcon} />
                 </ListItemIcon>
@@ -188,7 +188,7 @@ export default function ListMenu() {
                   <Typography className={styles.subItem}>Cta Bco Transferência</Typography>
                 </ListItemText>
               </ListItem>
-              <ListItem button>
+              <ListItem button onClick={() => handleLinkClick('grupos')}>
                 <ListItemIcon>
                   <SupervisedUserCircleIcon className={styles.subSubItemIcon} />
                 </ListItemIcon>
@@ -228,7 +228,7 @@ export default function ListMenu() {
                   <Typography className={styles.subItem}>Vendedor</Typography>
                 </ListItemText>
               </ListItem>
-              <ListItem button>
+              <ListItem button onClick={() => handleLinkClick("servico")}>
                 <ListItemIcon>
                   <BusinessIcon className={styles.subSubItemIcon} />
                 </ListItemIcon>

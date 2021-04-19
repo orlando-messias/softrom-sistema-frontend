@@ -4,7 +4,8 @@ import {
   IS_FETCHING,
   ERROR_TO_FALSE,
   LOGOUT,
-  SELECT_COMPANY
+  SELECT_COMPANY,
+  SET_ORIGIN
 } from './Login.action';
 
 const INITIAL_STATE = {
@@ -13,7 +14,8 @@ const INITIAL_STATE = {
   isFetching: false,
   message: '',
   error: false,
-  empresaSelecionada: ''
+  empresaSelecionada: '',
+  origin: 0
 };
 
 const loginReducer = (state = INITIAL_STATE, action) => {
@@ -54,6 +56,11 @@ const loginReducer = (state = INITIAL_STATE, action) => {
       return {
         ...state,
         empresaSelecionada: action.empresaSelecionada
+      }
+    case SET_ORIGIN:
+      return {
+        ...state,
+        origin: action.origin
       }
     default:
       return state

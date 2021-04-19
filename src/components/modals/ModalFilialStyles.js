@@ -38,8 +38,7 @@ const useStyles = makeStyles((theme) => ({
   },
   modalTitle: {
     display: 'flex',
-    justifyContent: 'space-between',
-    marginBottom: 20
+    justifyContent: 'space-between'
   },
   inputModal: {
       fontSize: 12

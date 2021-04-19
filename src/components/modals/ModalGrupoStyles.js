@@ -15,15 +15,15 @@ const useStyles = makeStyles((theme) => ({
   modalContainer: {
     padding: '10px 30px 10px 30px',
     position: 'absolute',
-    width: 1100,
+    width: 1000,
     backgroundColor: theme.palette.background.paper,
     border: '2px solid #000',
     verticalAlign: 'middle',
     animation: `$myEffect 600ms ${theme.transitions.easing.easeInOut}`,
     left: '50%',
-    marginLeft: -550,
+    marginLeft: -500,
     display: 'inline-block',
-    height:'280px',
+    height:220,
   },
   "@keyframes myEffect": {
     '0%':{
@@ -39,7 +39,6 @@ const useStyles = makeStyles((theme) => ({
   modalTitle: {
     display: 'flex',
     justifyContent: 'space-between',
-    marginBottom: 20
   },
   inputModal: {
       fontSize: 12
@@ -56,7 +55,7 @@ const useStyles = makeStyles((theme) => ({
   },
   buttonGravar: {
     border: '1px solid blue',
-    margin: '35px 5px',
+    margin: '20px 5px',
     color: 'blue',
     "&:hover": {
       backgroundColor: 'rgba(0, 0, 255, 0.1)'
@@ -67,7 +66,7 @@ const useStyles = makeStyles((theme) => ({
   },
   buttonCancelar: {
     border: '1px solid rgb(161, 7, 7)',
-    margin: '35px 5px',
+    margin: '20px 5px',
     color: '#d10d0d',
     "&:hover": {
       backgroundColor: '#fdefef'

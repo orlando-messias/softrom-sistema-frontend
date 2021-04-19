@@ -23,7 +23,7 @@ const useStyles = makeStyles((theme) => ({
     left: '50%',
     marginLeft: -550,
     display: 'inline-block',
-    height:'280px',
+    height:'320px',
   },
   "@keyframes myEffect": {
     '0%':{
