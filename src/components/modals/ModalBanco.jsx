@@ -1,6 +1,6 @@
 // react
-import React, { useContext, useState } from 'react';
-import { toast } from 'react-toastify';
+import React, { useState } from 'react';
+import { useSelector } from 'react-redux';
 // material-ui
 import {
   Modal,
@@ -8,27 +8,39 @@ import {
   Button,
   Grid,
 } from '@material-ui/core';
-import CloseIcon from '@material-ui/icons/Close';
 // styles
 import useStyles from './ModalBancoStyles';
 // services
 import api from '../../services/api';
 import validations from '../../services/validations';
-// context
-import { AppContext } from '../../context/AppContext';
+
+import { toast } from 'react-toastify';
 
 
-// MODAL COMPONENT
-const ModalBanco = ({ handleModal, showModal, modo }) => {
-  const { editBanco, setEditBanco } = useContext(AppContext);
+// MODALBANCO COMPONENT
+const ModalBanco = ({ handleModal, showModal, idBanco, setidBanco, modo }) => {
+  const [banco, setBanco] = useState({
+    descricao: '',
+    codigo: '',
+  });
   const [modified, setModified] = useState(false);
 
   const styles = useStyles();
+  const user = useSelector(state => state.loginReducer.user);
+  const origin_id = useSelector(state => state.loginReducer.origin);
 
-  const handleDataChange = (e, field) => {
+  // useEffect(() => {
+  //   if (modo === 'edit') {
+  //     api(user.token).get(`/origem/${origin_id}/banco/${idBanco}`)
+  //       .then(response => setEmpr(response.data.result[0]))
+  //       .catch(e => console.log(e));
+  //   }
+  // }, [idBanco, modo, user.token]);
+
+  const handleBancoDataChange = (e) => {
     let { name, value } = e.target;
 
-    setEditBanco(prevState => ({
+    setBanco(prevState => ({
       ...prevState,
       [name]: value
     }));
@@ -37,35 +49,51 @@ const ModalBanco = ({ handleModal, showModal, modo }) => {
   };
 
   const update = async () => {
-    const bank = { banco: { ...editBanco, modo } };
+    const bancoData = { ...banco, modo };
     if (modo === 'insert') {
-      await api.post(`/banco`, bank)
-        .then(response => console.log(response))
+      await api(user.token).post(`/origem/${origin_id}/banco`, bancoData)
+        .then(() => {
+          toast.success(`${banco.descricao} foi adicionado com sucesso`);
+          setBanco({
+            id: 0,
+            descricao: '',
+            codigo: '',
+          });
+        })
         .catch(error => console.log(error));
-
-      toast.success(`${editBanco.descricao} foi adicionado com sucesso`);
     }
-    if (modo === 'edit') {
-      await api.put('/banco', bank)
-        .then(response => console.log(response))
-        .catch(error => console.log(error));
 
-      toast.success(`${editBanco.descricao} atualizado com sucesso`);
+    if (modo === 'edit') {
+      await api(user.token).put(`/origem/${origin_id}/banco`, bancoData)
+        .then(() => {
+          toast.success(`${banco.descricao} atualizado com sucesso`);
+          setBanco({
+            id: 0,
+            descricao: '',
+            codigo: '',
+          });
+        })
+        .catch(error => console.log(error));
     }
 
     handleModal();
-
     setModified(false);
   };
 
   const handleCancel = () => {
-    setEditBanco({
+    setBanco({
+      id: 0,
+      conta_contabil: '',
       descricao: '',
-      codigo: ''
+      valor: '',
+      motivo_ticket: '',
+      motivo_ticket_financeiro: ''
     });
+    setidBanco(0);
     handleModal();
     setModified(false);
   };
+
 
   return (
     <Modal
@@ -73,65 +101,64 @@ const ModalBanco = ({ handleModal, showModal, modo }) => {
       onClose={handleModal}
     >
       <div className={styles.modal}>
-        <div className={styles.modalTitle}>
-          {modo === 'insert'
-            ? <h2>CADASTRO DE BANCO</h2>
-            : <h2>ATUALIZAR BANCO</h2>
-          }
-          <CloseIcon className={styles.closeButton} onClick={handleCancel} />
-        </div>
-
-        <Grid container spacing={2}>
-          <Grid item sm={12} md={8}>
-            <TextField
-              label="Descrição"
-              name="descricao"
-              autoFocus={editBanco && true}
-              fullWidth
-              required
-              onChange={handleDataChange}
-              value={editBanco && editBanco.descricao}
-              error={!validations.fieldRequired(editBanco.descricao)}
-              InputLabelProps={{
-                className: styles.inputModal,
-              }}
-            />
-          </Grid>
-          <Grid item sm={4} md={4}>
-            <TextField
-              label="Código"
-              name="codigo"
-              fullWidth
-              required
-              value={editBanco && editBanco.codigo}
-              onChange={(e) => handleDataChange(e, 'codigo')}
-              error={!validations.fieldRequired(editBanco.codigo)}
-              InputLabelProps={{
-                className: styles.inputModal,
-              }}
-              inputProps={{ maxLength: 5 }}
-            />
-          </Grid>
-        </Grid>
-
-        <div align="right">
-          <Button
-            onClick={update}
-            className={styles.buttonGravar}
-            disabled={!
-              (validations.fieldRequired(editBanco.descricao) &&
-                (validations.fieldRequired(editBanco.codigo)) &&
-                modified)
+        <div className={styles.modalContainer}>
+          <div className={styles.modalTitle}>
+            {modo === 'insert'
+              ? <h2>NOVO BANCO</h2>
+              : <h2>ATUALIZAR BANCO</h2>
             }
-          >
-            Gravar
+          </div>
+
+          <Grid container spacing={2}>
+            <Grid item sm={6} md={8}>
+              <TextField
+                label="Descrição"
+                name="descricao"
+                fullWidth
+                required
+                onChange={handleBancoDataChange}
+                value={banco.descricao}
+                error={!validations.fieldRequired(banco && banco.descricao)}
+                InputLabelProps={{
+                  className: styles.inputModal,
+                }}
+              />
+            </Grid>
+            <Grid item sm={12} md={4}>
+              <TextField
+                label="Código"
+                name="codigo"
+                fullWidth
+                required
+                onChange={handleBancoDataChange}
+                value={banco.codigo}
+                error={!validations.fieldRequired(banco && banco.valor)}
+                InputLabelProps={{
+                  className: styles.inputModal,
+                }}
+              />
+            </Grid>
+          </Grid>
+
+          <div align="right">
+            <Button
+              onClick={update}
+              className={styles.buttonGravar}
+              disabled={!
+                (validations.fieldRequired(banco.descricao) &&
+                  (validations.fieldRequired(banco.codigo)) &&
+                  modified)
+              }
+            >
+              Gravar
           </Button>
-          <Button
-            onClick={handleCancel}
-            className={styles.buttonCancelar}
-          >
-            Cancelar
+            <Button
+              onClick={handleCancel}
+              className={styles.buttonCancelar}
+            >
+              Cancelar
           </Button>
+          </div>
         </div>
       </div>
     </Modal>

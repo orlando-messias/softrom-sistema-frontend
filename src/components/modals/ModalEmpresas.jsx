@@ -15,7 +15,7 @@ import {
 // mask
 import { mask } from 'remask';
 // styles
-import useStyles from './ModalStyles';
+import useStyles from './ModalEmpresasStyles';
 
 import api from '../../services/api';
 import { toast } from 'react-toastify';
@@ -26,8 +26,8 @@ import ListaContato from '../Empresas/ListaContato';
 import validations from '../../services/validations';
 
 
-// MODAL COMPONENT
-const ModalIns = ({ handleModal, showModal, idEmpresa, setIdEmpresa, modo }) => {
+// MODALEMPRESAS COMPONENT
+const ModalEmpresas = ({ handleModal, showModal, idEmpresa, setIdEmpresa, modo }) => {
   const [endereco, setEndereco] = useState([]);
   const [contato, setContato] = useState([]);
   const [empr, setEmpr] = useState({
@@ -43,16 +43,17 @@ const ModalIns = ({ handleModal, showModal, idEmpresa, setIdEmpresa, modo }) => 
 
   const styles = useStyles();
   const user = useSelector(state => state.loginReducer.user);
+  const origin_id = useSelector(state => state.loginReducer.origin);
 
   useEffect(() => {
     if (modo === 'edit') {
       // const user = JSON.parse(localStorage.getItem('user'));
       // console.log('id ', idEmpresa);
-      api(user.token).get(`/origem/1/empresa/${idEmpresa}`)
+      api(user.token).get(`/origem/${origin_id}/empresa/${idEmpresa}`)
         .then(response => setEmpr(response.data.result[0]))
         .catch(e => console.log(e));
     }
-  }, [idEmpresa, modo, user.token]);
+  }, [idEmpresa, modo, user.token, origin_id]);
 
   const handleCompanyDataChange = (e) => {
     let { name, value, checked } = e.target;
@@ -81,7 +82,7 @@ const ModalIns = ({ handleModal, showModal, idEmpresa, setIdEmpresa, modo }) => 
     // const user = JSON.parse(localStorage.getItem('user'));
     if (modo === 'insert') {
       console.log('company ', company);
-      await api(user.token).post(`/origem/1/empresa`, company)
+      await api(user.token).post(`/origem/${origin_id}/empresa`, company)
         .then(() => {
           toast.success(`${empr.nome} foi adicionada com sucesso`);
           setEmpr({
@@ -102,7 +103,7 @@ const ModalIns = ({ handleModal, showModal, idEmpresa, setIdEmpresa, modo }) => 
 
     if (modo === 'edit') {
       console.log('company ', company);
-      await api(user.token).put(`/origem/1/empresa`, company)
+      await api(user.token).put(`/origem/${origin_id}/empresa`, company)
         .then(() => {
           toast.success(`${empr.nome} atualizada com sucesso`);
           setEmpr({
@@ -321,4 +322,4 @@ const ModalIns = ({ handleModal, showModal, idEmpresa, setIdEmpresa, modo }) => 
   );
 };
 
-export default ModalIns;
+export default ModalEmpresas;

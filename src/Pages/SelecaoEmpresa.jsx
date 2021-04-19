@@ -6,7 +6,7 @@ import { Button, Grid, TextField } from '@material-ui/core';
 import Autocomplete from "@material-ui/lab/Autocomplete";
 // redux
 import { useDispatch } from 'react-redux';
-import { selectCompany } from '../store/Login/Login.action';
+import { selectCompany, setOrigin } from '../store/Login/Login.action';
 // styles
 import useStyles from './SelecaoEmpresaStyles';
 // components
@@ -36,9 +36,10 @@ export default function SelecaoEmpresa() {
     const userData = JSON.parse(localStorage.getItem('user'));
     const token = JSON.parse(atob(userData.token.split('.')[1]));
     const dados = JSON.parse(token.dados);
-    console.log(dados.origem[0].empresa);
+    dispatch(setOrigin(dados.origem[0].id));
+    console.log(dados.origem[0].id);
     setData(dados.origem[0].empresa);
-  }, []);
+  }, [dispatch]);
 
   return (
     <div className={styles.container}>
