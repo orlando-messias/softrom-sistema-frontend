@@ -1,5 +1,5 @@
 // react
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useSelector } from 'react-redux';
 // material-ui
 import {
@@ -29,13 +29,13 @@ const ModalBanco = ({ handleModal, showModal, idBanco, setidBanco, modo }) => {
   const user = useSelector(state => state.loginReducer.user);
   const origin_id = useSelector(state => state.loginReducer.origin);
 
-  // useEffect(() => {
-  //   if (modo === 'edit') {
-  //     api(user.token).get(`/origem/${origin_id}/banco/${idBanco}`)
-  //       .then(response => setEmpr(response.data.result[0]))
-  //       .catch(e => console.log(e));
-  //   }
-  // }, [idBanco, modo, user.token]);
+  useEffect(() => {
+    if (modo === 'edit') {
+      api(user.token).get(`/origem/${origin_id}/banco/${idBanco}`)
+        .then(response => setBanco(response.data.result[0]))
+        .catch(e => console.log(e));
+    }
+  }, [idBanco, modo, user.token]);
 
   const handleBancoDataChange = (e) => {
     let { name, value } = e.target;

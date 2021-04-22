@@ -39,61 +39,48 @@ export default function Grupos() {
     { title: "Descrição", field: "descricao" }
   ];
 
-  // useEffect(() => {
-  //   const params = {
-  //     limit: 1,
-  //     page: 1,
-  //     orderBy: '',
-  //     search: '',
-  //   };
-  //   api(user.token).get('/origem/1/grupo', { params })
-  //     .then(response => console.log(response.data))
-  // }, [])
+  const loadData = (resolve, reject, query) => {
+    const search = query.search;
+    let orderBy = "";
+    let direction = "";
 
-  // const loadData = (resolve, reject, query) => {
-  //   const search = query.search;
-  //   let orderBy = "";
-  //   let direction = "";
+    if (query.orderDirection === "desc") {
+      direction = "-";
+    }
+    if (query.orderBy) {
+      orderBy = direction + query.orderBy.field;
+    }
 
-  //   if (query.orderDirection === "desc") {
-  //     direction = "-";
-  //   }
-  //   if (query.orderBy) {
-  //     orderBy = direction + query.orderBy.field;
-  //   }
+    const params = {
+      limit: query.pageSize,
+      page: query.page + 1,
+      search,
+      orderBy,
+    };
 
-  //   const params = {
-  //     limit: query.pageSize,
-  //     page: query.page + 1,
-  //     search,
-  //     orderBy,
-  //   };
-
-
-
-  //   api.get('/origem/1/grupo', {
-  //     params
-  //   })
-  //     .then((response) => {
-  //       resolve({
-  //         data: response.data.result.data,
-  //         page: response.data.result.page - 1,
-  //         totalCount: response.data.result.totalCount
-  //       });
-  //     });
-  // };
+    api(user.token).get(`/origem/${origin_id}/grupo`, {
+      params
+    })
+      .then((response) => {
+        resolve({
+          data: response.data.result.data,
+          page: response.data.result.page - 1,
+          totalCount: response.data.result.totalCount
+        });
+      });
+  };
 
   useEffect(() => {
     if (!isLogin()) history.push('/');
   }, [history]);
 
-  // const refreshTable = async () => {
-  //   tableRef.current.onQueryChange();
-  // }
+  const refreshTable = async () => {
+    tableRef.current.onQueryChange();
+  }
 
-  // useEffect(() => {
-  //   refreshTable();
-  // }, [showModal]);
+  useEffect(() => {
+    refreshTable();
+  }, [showModal]);
 
 
   const handleModal = (action) => {
@@ -104,7 +91,7 @@ export default function Grupos() {
   const selectedCompany = async (rowData, action) => {
     if (action === 'delete') {
       console.log(action);
-      await api(user.token).delete(`/origem/${origin_id}/grupos/${rowData.id}`)
+      await api(user.token).delete(`/origem/${origin_id}/grupo/${rowData.id}`)
         .then(() => console.log('deleted'))
         .catch((error) => console.log(error))
     }
@@ -126,10 +113,10 @@ export default function Grupos() {
         <MaterialTable
           tableRef={tableRef}
           data={[{id: 1, descricao: 'Descrição do Grupo'}]}
-          // data={(query) =>
-          //   new Promise((resolve, reject) => {
-          //     loadData(resolve, reject, query);
-          //   })}
+          data={(query) =>
+            new Promise((resolve, reject) => {
+              loadData(resolve, reject, query);
+            })}
           columns={columns}
           title="Grupo"
           actions={[
