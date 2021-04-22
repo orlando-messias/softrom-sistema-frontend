@@ -101,7 +101,7 @@ export default function ListMenu() {
               <Typography className={styles.subItem}>Participantes</Typography>
             </ListItemText>
           </ListItem>
-          <ListItem button>
+          <ListItem button onClick={() => handleLinkClick("contrato")}>
             <ListItemIcon>
               <AssignmentIcon className={styles.subItemIcon} />
             </ListItemIcon>

@@ -11,6 +11,7 @@ import Filiais from './Pages/Filiais';
 import Grupos from './Pages/Grupos';
 import Servico from './Pages/Servico';
 import SelecaoEmpresa from './Pages/SelecaoEmpresa';
+import Contrato from './Pages/Contrato';
 
 function Routes() {
   return (
@@ -23,6 +24,7 @@ function Routes() {
       <Route path="/filiais" component={Filiais} />
       <Route path="/grupos" component={Grupos} />
       <Route path="/servico" component={Servico} />
+      <Route path="/contrato" component={Contrato} />
     </Router>
   );
 };
