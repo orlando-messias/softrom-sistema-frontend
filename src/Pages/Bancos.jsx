@@ -39,48 +39,48 @@ export default function Bancos() {
     { title: "Código", field: "codigo" },
   ];
 
-  // const loadData = (resolve, reject, query) => {
-  //   const search = query.search;
-  //   let orderBy = "";
-  //   let direction = "";
+  const loadData = (resolve, reject, query) => {
+    const search = query.search;
+    let orderBy = "";
+    let direction = "";
 
-  //   if (query.orderDirection === "desc") {
-  //     direction = "-";
-  //   }
-  //   if (query.orderBy) {
-  //     orderBy = direction + query.orderBy.field;
-  //   }
+    if (query.orderDirection === "desc") {
+      direction = "-";
+    }
+    if (query.orderBy) {
+      orderBy = direction + query.orderBy.field;
+    }
 
-  //   const params = {
-  //     limit: query.pageSize,
-  //     page: query.page + 1,
-  //     search,
-  //     orderBy,
-  //   };
+    const params = {
+      limit: query.pageSize,
+      page: query.page + 1,
+      search,
+      orderBy,
+    };
 
+    api(user.token).get(`/origem/${origin_id}/banco`, {
+      params
+    })
+      .then((response) => {
+        resolve({
+          data: response.data.result.data,
+          page: response.data.result.page - 1,
+          totalCount: response.data.result.totalCount
+        });
+      });
+  };
 
-  //   api.get('/origem/1/servico', {
-  //     params
-  //   })
-  //     .then((response) => {
-  //       resolve({
-  //         data: response.data.result.data,
-  //         page: response.data.result.page - 1,
-  //         totalCount: response.data.result.totalCount
-  //       });
-  //     });
-  // };
   useEffect(() => {
     if (!isLogin()) history.push('/');
   }, [history]);
 
-  // const refreshTable = async () => {
-  //   tableRef.current.onQueryChange();
-  // }
+  const refreshTable = async () => {
+    tableRef.current.onQueryChange();
+  }
 
-  // useEffect(() => {
-  //   refreshTable();
-  // }, [showModal]);
+  useEffect(() => {
+    refreshTable();
+  }, [showModal]);
 
 
   const handleModal = (action) => {
@@ -111,7 +111,10 @@ export default function Bancos() {
       <div className={styles.content}>
         <MaterialTable
           tableRef={tableRef}
-          data={[{ id: 1, descricao: 'Santander', codigo: 128 }, { id: 2, descricao: 'Itaú', codigo: 320 }]}
+          data={(query) =>
+            new Promise((resolve, reject) => {
+              loadData(resolve, reject, query);
+            })}
           columns={columns}
           title="Bancos"
           actions={[

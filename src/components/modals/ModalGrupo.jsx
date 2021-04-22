@@ -1,5 +1,5 @@
 // react
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useSelector } from 'react-redux';
 // material-ui
 import {
@@ -28,13 +28,13 @@ const ModalGrupo = ({ handleModal, showModal, idGrupo, setIdGrupo, modo }) => {
   const user = useSelector(state => state.loginReducer.user);
   const origin_id = useSelector(state => state.loginReducer.origin);
 
-  // useEffect(() => {
-  //   if (modo === 'edit') {
-  //     api(user.token).get(`/origem/1/grupo/${idGrupo}`)
-  //       .then(response => setEmpr(response.data.result[0]))
-  //       .catch(e => console.log(e));
-  //   }
-  // }, [idGrupo, modo, user.token]);
+  useEffect(() => {
+    if (modo === 'edit') {
+      api(user.token).get(`/origem/${origin_id}/grupo/${idGrupo}`)
+        .then(response => setGrupo(response.data.result[0]))
+        .catch(e => console.log(e));
+    }
+  }, [idGrupo, modo, user.token]);
 
   const handleGrupoDataChange = (e) => {
     let { name, value } = e.target;
