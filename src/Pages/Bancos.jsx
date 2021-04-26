@@ -36,7 +36,6 @@ export default function Bancos() {
   const columns = [
     { title: "Id", field: "id" },
     { title: "Descrição", field: "descricao" },
-    { title: "Código", field: "codigo" },
   ];
 
   const loadData = (resolve, reject, query) => {

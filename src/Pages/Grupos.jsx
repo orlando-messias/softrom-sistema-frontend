@@ -112,7 +112,6 @@ export default function Grupos() {
       <div className={styles.content}>
         <MaterialTable
           tableRef={tableRef}
-          data={[{id: 1, descricao: 'Descrição do Grupo'}]}
           data={(query) =>
             new Promise((resolve, reject) => {
               loadData(resolve, reject, query);

@@ -21,7 +21,6 @@ import { toast } from 'react-toastify';
 const ModalBanco = ({ handleModal, showModal, idBanco, setidBanco, modo }) => {
   const [banco, setBanco] = useState({
     descricao: '',
-    codigo: '',
   });
   const [modified, setModified] = useState(false);
 
@@ -35,7 +34,7 @@ const ModalBanco = ({ handleModal, showModal, idBanco, setidBanco, modo }) => {
         .then(response => setBanco(response.data.result[0]))
         .catch(e => console.log(e));
     }
-  }, [idBanco, modo, user.token]);
+  }, [idBanco, modo, user.token, origin_id]);
 
   const handleBancoDataChange = (e) => {
     let { name, value } = e.target;
@@ -56,8 +55,7 @@ const ModalBanco = ({ handleModal, showModal, idBanco, setidBanco, modo }) => {
           toast.success(`${banco.descricao} foi adicionado com sucesso`);
           setBanco({
             id: 0,
-            descricao: '',
-            codigo: '',
+            descricao: ''
           });
         })
         .catch(error => console.log(error));
@@ -69,8 +67,7 @@ const ModalBanco = ({ handleModal, showModal, idBanco, setidBanco, modo }) => {
           toast.success(`${banco.descricao} atualizado com sucesso`);
           setBanco({
             id: 0,
-            descricao: '',
-            codigo: '',
+            descricao: ''
           });
         })
         .catch(error => console.log(error));
@@ -83,11 +80,7 @@ const ModalBanco = ({ handleModal, showModal, idBanco, setidBanco, modo }) => {
   const handleCancel = () => {
     setBanco({
       id: 0,
-      conta_contabil: '',
       descricao: '',
-      valor: '',
-      motivo_ticket: '',
-      motivo_ticket_financeiro: ''
     });
     setidBanco(0);
     handleModal();
@@ -124,20 +117,6 @@ const ModalBanco = ({ handleModal, showModal, idBanco, setidBanco, modo }) => {
                 }}
               />
             </Grid>
-            <Grid item sm={12} md={4}>
-              <TextField
-                label="Código"
-                name="codigo"
-                fullWidth
-                required
-                onChange={handleBancoDataChange}
-                value={banco.codigo}
-                error={!validations.fieldRequired(banco && banco.valor)}
-                InputLabelProps={{
-                  className: styles.inputModal,
-                }}
-              />
-            </Grid>
           </Grid>
 
           <div align="right">
@@ -146,7 +125,6 @@ const ModalBanco = ({ handleModal, showModal, idBanco, setidBanco, modo }) => {
               className={styles.buttonGravar}
               disabled={!
                 (validations.fieldRequired(banco.descricao) &&
-                  (validations.fieldRequired(banco.codigo)) &&
                   modified)
               }
             >

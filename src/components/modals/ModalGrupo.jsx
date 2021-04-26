@@ -34,7 +34,7 @@ const ModalGrupo = ({ handleModal, showModal, idGrupo, setIdGrupo, modo }) => {
         .then(response => setGrupo(response.data.result[0]))
         .catch(e => console.log(e));
     }
-  }, [idGrupo, modo, user.token]);
+  }, [idGrupo, modo, user.token, origin_id]);
 
   const handleGrupoDataChange = (e) => {
     let { name, value } = e.target;

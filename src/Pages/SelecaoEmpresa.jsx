@@ -25,6 +25,8 @@ export default function SelecaoEmpresa() {
   const dispatch = useDispatch();
 
   const handleAcessar = () => {
+    const axa = data.find(empr => empr.nome === empresa);
+    console.log('achei ', axa);
     dispatch(selectCompany(empresa));
     let userData = JSON.parse(localStorage.getItem('user'));
     userData = { ...userData, empresa };
@@ -39,6 +41,7 @@ export default function SelecaoEmpresa() {
     dispatch(setOrigin(dados.origem[0].id));
     console.log(dados.origem[0].id);
     setData(dados.origem[0].empresa);
+    console.log('empresa ', dados.origem[0].empresa);
   }, [dispatch]);
 
   return (

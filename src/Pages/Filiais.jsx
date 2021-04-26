@@ -28,6 +28,7 @@ export default function Filiais() {
 
   const user = useSelector(state => state.loginReducer.user);
   const origin_id = useSelector(state => state.loginReducer.origin);
+  const empresa_id = useSelector(state => state.loginReducer.empresaSelecionada.id);
   const history = useHistory();
   const styles = useStyles();
 
@@ -40,49 +41,48 @@ export default function Filiais() {
     { title: "Tipo Documento", field: "tipo_doc" }
   ];
 
-  // const loadData = (resolve, reject, query) => {
-  //   const search = query.search;
-  //   let orderBy = "";
-  //   let direction = "";
+  const loadData = (resolve, reject, query) => {
+    const search = query.search;
+    let orderBy = "";
+    let direction = "";
 
-  //   if (query.orderDirection === "desc") {
-  //     direction = "-";
-  //   }
-  //   if (query.orderBy) {
-  //     orderBy = direction + query.orderBy.field;
-  //   }
+    if (query.orderDirection === "desc") {
+      direction = "-";
+    }
+    if (query.orderBy) {
+      orderBy = direction + query.orderBy.field;
+    }
 
-  //   const params = {
-  //     limit: query.pageSize,
-  //     page: query.page + 1,
-  //     search,
-  //     orderBy,
-  //   };
-
-
-  //   api.get('/origem/1/empresa', {
-  //     params
-  //   })
-  //     .then((response) => {
-  //       resolve({
-  //         data: response.data.result.data,
-  //         page: response.data.result.page - 1,
-  //         totalCount: response.data.result.totalCount
-  //       });
-  //     });
-  // };
+    const params = {
+      limit: query.pageSize,
+      page: query.page + 1,
+      search,
+      orderBy,
+    };
+    
+    api(user.token).get(`/origem/${origin_id}/empresa/${empresa_id}/filial`, {
+      params
+    })
+      .then((response) => {
+        resolve({
+          data: response.data.result.data,
+          page: response.data.result.page - 1,
+          totalCount: response.data.result.totalCount
+        });
+      });
+  };
 
   useEffect(() => {
     if (!isLogin()) history.push('/');
   }, [history]);
 
-  // const refreshTable = async () => {
-  //   tableRef.current.onQueryChange();
-  // }
+  const refreshTable = async () => {
+    tableRef.current.onQueryChange();
+  }
 
-  // useEffect(() => {
-  //   refreshTable();
-  // }, [showModal]);
+  useEffect(() => {
+    refreshTable();
+  }, [showModal]);
 
 
   const handleModal = (action) => {
@@ -113,7 +113,10 @@ export default function Filiais() {
       <div className={styles.content}>
         <MaterialTable
           tableRef={tableRef}
-          data={[{id: 3, nome_fantasia: 'Mercearia Ponto Certo', documento: 'Jurídica', tipo_doc: '32.036.948/0001-03'}]}
+          data={(query) =>
+            new Promise((resolve, reject) => {
+              loadData(resolve, reject, query);
+            })}
           columns={columns}
           title="Filiais"
           actions={[

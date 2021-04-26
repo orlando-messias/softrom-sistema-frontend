@@ -28,6 +28,7 @@ export default function Servico() {
 
   const user = useSelector(state => state.loginReducer.user);
   const origin_id = useSelector(state => state.loginReducer.origin);
+  const empresa_id = Number(useSelector(state => state.loginReducer.empresaSelecionada.id));
   const history = useHistory();
   const styles = useStyles();
 
@@ -35,55 +36,61 @@ export default function Servico() {
   
   const columns = [
     { title: "Id", field: "id" },
-    { title: "Conta Contábil", field: "conta_contabil", defaultSort: "asc" },
+    { title: "Conta Contábil", field: "conta_contabil_id", defaultSort: "asc" },
     { title: "Descricao", field: "descricao" },
     { title: "Valor", field: "valor" },
-    { title: "Motivo Ticket", field: "motivo_ticket" },
-    { title: "Motivo Ticket Financeiro", field: "motivo_ticket_financeiro" },
+    { title: "Motivo Ticket", field: "motivo_ticket_id" },
+    { title: "Motivo Ticket Financeiro", field: "motivo_ticket_financeiro_id" },
   ];
 
-  // const loadData = (resolve, reject, query) => {
-  //   const search = query.search;
-  //   let orderBy = "";
-  //   let direction = "";
+  useEffect(() => {
+    api(user.token).get(`/origem/${origin_id}/empresa/${empresa_id}/servico`)
+      .then(response => console.log(response.data.result.data))
+  })
 
-  //   if (query.orderDirection === "desc") {
-  //     direction = "-";
-  //   }
-  //   if (query.orderBy) {
-  //     orderBy = direction + query.orderBy.field;
-  //   }
+  const loadData = (resolve, reject, query) => {
+    const search = query.search;
+    let orderBy = "";
+    let direction = "";
 
-  //   const params = {
-  //     limit: query.pageSize,
-  //     page: query.page + 1,
-  //     search,
-  //     orderBy,
-  //   };
+    if (query.orderDirection === "desc") {
+      direction = "-";
+    }
+    if (query.orderBy) {
+      orderBy = direction + query.orderBy.field;
+    }
 
+    const params = {
+      limit: query.pageSize,
+      page: query.page + 1,
+      search,
+      orderBy,
+    };
 
-  //   api.get('/origem/1/servico', {
-  //     params
-  //   })
-  //     .then((response) => {
-  //       resolve({
-  //         data: response.data.result.data,
-  //         page: response.data.result.page - 1,
-  //         totalCount: response.data.result.totalCount
-  //       });
-  //     });
-  // };
+    
+    api(user.token).get(`/origem/${origin_id}/empresa/${empresa_id}/servico`, {
+      params
+    })
+      .then((response) => {
+        resolve({
+          data: response.data.result.data,
+          page: response.data.result.page - 1,
+          totalCount: response.data.result.totalCount
+        });
+      });
+  };
+
   useEffect(() => {
     if (!isLogin()) history.push('/');
   }, [history]);
 
-  // const refreshTable = async () => {
-  //   tableRef.current.onQueryChange();
-  // }
+  const refreshTable = async () => {
+    tableRef.current.onQueryChange();
+  }
 
-  // useEffect(() => {
-  //   refreshTable();
-  // }, [showModal]);
+  useEffect(() => {
+    refreshTable();
+  }, [showModal]);
 
 
   const handleModal = (action) => {
@@ -93,7 +100,7 @@ export default function Servico() {
 
   const selectedService = async (rowData, action) => {
     if (action === 'delete') {
-      await api(user.token).delete(`/origem/${origin_id}/servico/${rowData.id}`)
+      await api(user.token).delete(`/origem/${origin_id}/empresa/${empresa_id}/servico/${rowData.id}`)
         .then(() => console.log('deleted'))
         .catch((error) => console.log(error))
     }
@@ -114,7 +121,10 @@ export default function Servico() {
       <div className={styles.content}>
         <MaterialTable
           tableRef={tableRef}
-          data={[{id: null, conta_contabil: '', descricao: '', valor: '', motivo_ticket: '', motivo_ticket_financeiro: ''}]}
+          data={(query) =>
+            new Promise((resolve, reject) => {
+              loadData(resolve, reject, query);
+            })}
           columns={columns}
           title="Serviços"
           actions={[

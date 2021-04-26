@@ -25,21 +25,24 @@ const ModalFilial = ({ handleModal, showModal, idFilial, setIdFilial, modo }) =>
   const [filial, setFilial] = useState({
     nome_fantasia: '',
     tipo_doc: '',
-    documento: ''
+    documento: '',
+    origem_id: 0,
+    empresa_id: 0
   });
   const [modified, setModified] = useState(false);
 
   const styles = useStyles();
   const user = useSelector(state => state.loginReducer.user);
   const origin_id = useSelector(state => state.loginReducer.origin);
+  const empresa_id = Number(useSelector(state => state.loginReducer.empresaSelecionada.id));
 
-  // useEffect(() => {
-  //   if (modo === 'edit') {
-  //     api(user.token).get(`/origem/1/empresa/${idFilial}`)
-  //       .then(response => setEmpr(response.data.result[0]))
-  //       .catch(e => console.log(e));
-  //   }
-  // }, [idFilial, modo, user.token]);
+  useEffect(() => {
+    if (modo === 'edit') {
+      api(user.token).get(`/origem/${origin_id}/empresa/${empresa_id}/filial/${idFilial}`)
+        .then(response => setFilial(response.data.result[0]))
+        .catch(e => console.log(e));
+    }
+  }, [idFilial, modo, user.token, empresa_id, origin_id]);
 
   useEffect(() => {
     console.log('filial ', origin_id);
@@ -62,9 +65,10 @@ const ModalFilial = ({ handleModal, showModal, idFilial, setIdFilial, modo }) =>
   };
 
   const update = async () => {
-    const filialData = { ...filial, modo };
+    const filialData = { ...filial, origem_id: origin_id, empresa_id, modo };
+    console.log('filialData ', filialData);
     if (modo === 'insert') {
-      await api(user.token).post(`/origem/${origin_id}/filial`, filialData)
+      await api(user.token).post(`/origem/${origin_id}/empresa/${empresa_id}/filial`, filialData)
         .then(() => {
           toast.success(`${filial.nome_fantasia} foi adicionada com sucesso`);
           setFilial({
@@ -72,13 +76,15 @@ const ModalFilial = ({ handleModal, showModal, idFilial, setIdFilial, modo }) =>
             nome_fantasia: '',
             tipo_doc: '',
             documento: '',
+            origem_id: 0,
+            empresa_id: 0
           });
         })
         .catch(error => console.log(error));
     }
 
     if (modo === 'edit') {
-      await api(user.token).put(`/origem/${origin_id}/filial`, filialData)
+      await api(user.token).put(`/origem/${origin_id}/empresa/${empresa_id}/filial`, filialData)
         .then(() => {
           toast.success(`${filial.nome_fantasia} atualizada com sucesso`);
           setFilial({
@@ -86,6 +92,8 @@ const ModalFilial = ({ handleModal, showModal, idFilial, setIdFilial, modo }) =>
             nome_fantasia: '',
             tipo_doc: '',
             documento: '',
+            origem_id: 0,
+            empresa_id: 0
           });
         })
         .catch(error => console.log(error));
@@ -101,6 +109,8 @@ const ModalFilial = ({ handleModal, showModal, idFilial, setIdFilial, modo }) =>
       nome_fantasia: '',
       tipo_doc: '',
       documento: '',
+      origem_id: 0,
+      empresa_id: 0
     });
     setIdFilial(0);  // CHECKS
     handleModal();
@@ -131,7 +141,7 @@ const ModalFilial = ({ handleModal, showModal, idFilial, setIdFilial, modo }) =>
                 fullWidth
                 required
                 onChange={handleFilialDataChange}
-                value={filial.nome_fantasia}
+                value={filial && filial.nome_fantasia}
                 error={!validations.fieldRequired(filial && filial.nome_fantasia)}
                 InputLabelProps={{
                   className: styles.inputModal,
@@ -144,10 +154,10 @@ const ModalFilial = ({ handleModal, showModal, idFilial, setIdFilial, modo }) =>
                 name="tipo_doc"
                 select
                 required
-                value={filial.tipo_doc}
+                value={filial && filial.tipo_doc}
                 onChange={handleFilialDataChange}
                 helperText="Jurídica / Física"
-                error={!validations.fieldRequired(filial.tipo_doc)}
+                error={!validations.fieldRequired(filial && filial.tipo_doc)}
                 InputLabelProps={{
                   className: styles.inputModal,
                 }}
@@ -164,8 +174,8 @@ const ModalFilial = ({ handleModal, showModal, idFilial, setIdFilial, modo }) =>
                 fullWidth
                 required
                 onChange={handleFilialDataChange}
-                value={filial.documento}
-                error={!validations.cnpj(filial.documento)}
+                value={filial && filial.documento}
+                error={!validations.cnpj(filial && filial.documento)}
                 InputLabelProps={{
                   className: styles.inputModal,
                 }}
@@ -178,9 +188,9 @@ const ModalFilial = ({ handleModal, showModal, idFilial, setIdFilial, modo }) =>
               onClick={update}
               className={styles.buttonGravar}
               disabled={!
-                (validations.fieldRequired(filial.nome_fantasia) &&
-                  (validations.fieldRequired(filial.documento)) &&
-                  (validations.fieldRequired(filial.tipo_doc)) &&
+                (validations.fieldRequired(filial && filial.nome_fantasia) &&
+                  (validations.fieldRequired(filial && filial.documento)) &&
+                  (validations.fieldRequired(filial && filial.tipo_doc)) &&
                   modified)
               }
             >

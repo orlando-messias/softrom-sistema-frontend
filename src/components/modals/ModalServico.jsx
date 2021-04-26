@@ -1,5 +1,5 @@
 // react
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useSelector } from 'react-redux';
 // material-ui
 import {
@@ -21,25 +21,29 @@ import { toast } from 'react-toastify';
 // MODALSERVICO COMPONENT
 const ModalServico = ({ handleModal, showModal, idServico, setIdServico, modo }) => {
   const [servico, setServico] = useState({
-    conta_contabil: '',
+    origem_id: 0,
+    empresa_id: 0,
+    conta_contabil_id: 0,
+    motivo_ticket_id: 0,
+    motivo_ticket_financeiro_id: 0,
     descricao: '',
-    valor: '',
-    motivo_ticket: '',
-    motivo_ticket_financeiro: ''
+    valor: 0,
+    documento: ''
   });
   const [modified, setModified] = useState(false);
 
   const styles = useStyles();
   const user = useSelector(state => state.loginReducer.user);
   const origin_id = useSelector(state => state.loginReducer.origin);
+  const empresa_id = Number(useSelector(state => state.loginReducer.empresaSelecionada.id));
 
-  // useEffect(() => {
-  //   if (modo === 'edit') {
-  //     api(user.token).get(`/origem/1/empresa/${idServico}`)
-  //       .then(response => setEmpr(response.data.result[0]))
-  //       .catch(e => console.log(e));
-  //   }
-  // }, [idServico, modo, user.token]);
+  useEffect(() => {
+    if (modo === 'edit') {
+      api(user.token).get(`/origem/${origin_id}/empresa/${empresa_id}/servico/${idServico}`)
+        .then(response => setServico(response.data.result[0]))
+        .catch(e => console.log(e));
+    }
+  }, [idServico, modo, user.token, empresa_id, origin_id]);
 
   const handleServicoDataChange = (e) => {
     let { name, value } = e.target;
@@ -55,32 +59,38 @@ const ModalServico = ({ handleModal, showModal, idServico, setIdServico, modo })
   const update = async () => {
     const servicoData = { ...servico, modo };
     if (modo === 'insert') {
-      await api(user.token).post(`/origem/${origin_id}/servico`, servicoData)
+      await api(user.token).post(`/origem/${origin_id}/empresa/${empresa_id}/servico`, servicoData)
         .then(() => {
           toast.success(`${servico.nome_fantasia} foi adicionado com sucesso`);
           setServico({
             id: 0,
-            conta_contabil: '',
+            origem_id: 0,
+            empresa_id: 0,
+            conta_contabil_id: 0,
+            motivo_ticket_id: 0,
+            motivo_ticket_financeiro_id: 0,
             descricao: '',
-            valor: '',
-            motivo_ticket: '',
-            motivo_ticket_financeiro: ''
+            valor: 0,
+            documento: ''
           });
         })
         .catch(error => console.log(error));
     }
 
     if (modo === 'edit') {
-      await api(user.token).put(`/origem/${origin_id}/servico`, servicoData)
+      await api(user.token).put(`/origem/${origin_id}/empresa/${empresa_id}/servico`, servicoData)
         .then(() => {
           toast.success(`${servico.nome_fantasia} atualizado com sucesso`);
           setServico({
             id: 0,
-            conta_contabil: '',
+            origem_id: 0,
+            empresa_id: 0,
+            conta_contabil_id: 0,
+            motivo_ticket_id: 0,
+            motivo_ticket_financeiro_id: 0,
             descricao: '',
-            valor: '',
-            motivo_ticket: '',
-            motivo_ticket_financeiro: ''
+            valor: 0,
+            documento: ''
           });
         })
         .catch(error => console.log(error));
@@ -93,11 +103,14 @@ const ModalServico = ({ handleModal, showModal, idServico, setIdServico, modo })
   const handleCancel = () => {
     setServico({
       id: 0,
-      conta_contabil: '',
+      origem_id: 0,
+      empresa_id: 0,
+      conta_contabil_id: 0,
+      motivo_ticket_id: 0,
+      motivo_ticket_financeiro_id: 0,
       descricao: '',
-      valor: '',
-      motivo_ticket: '',
-      motivo_ticket_financeiro: ''
+      valor: 0,
+      documento: ''
     });
     setIdServico(0);
     handleModal();
@@ -112,6 +125,7 @@ const ModalServico = ({ handleModal, showModal, idServico, setIdServico, modo })
     >
       <div className={styles.modal}>
         <div className={styles.modalContainer}>
+          {console.log('servico here ', servico)}
           <div className={styles.modalTitle}>
             {modo === 'insert'
               ? <h2>CADASTRO DE SERVIÇO</h2>
@@ -142,7 +156,7 @@ const ModalServico = ({ handleModal, showModal, idServico, setIdServico, modo })
                 fullWidth
                 required
                 onChange={handleServicoDataChange}
-                value={servico.descricao}
+                value={servico && servico.descricao}
                 error={!validations.fieldRequired(servico && servico.descricao)}
                 InputLabelProps={{
                   className: styles.inputModal,
@@ -156,7 +170,7 @@ const ModalServico = ({ handleModal, showModal, idServico, setIdServico, modo })
                 fullWidth
                 required
                 onChange={handleServicoDataChange}
-                value={servico.valor}
+                value={servico && servico.valor}
                 error={!validations.fieldRequired(servico && servico.valor)}
                 InputLabelProps={{
                   className: styles.inputModal,
@@ -174,7 +188,7 @@ const ModalServico = ({ handleModal, showModal, idServico, setIdServico, modo })
                 fullWidth
                 required
                 onChange={handleServicoDataChange}
-                value={servico.motivo_ticket}
+                value={servico && servico.motivo_ticket}
                 error={!validations.fieldRequired(servico && servico.motivo_ticket)}
                 InputLabelProps={{
                   className: styles.inputModal,
@@ -188,7 +202,7 @@ const ModalServico = ({ handleModal, showModal, idServico, setIdServico, modo })
                 fullWidth
                 required
                 onChange={handleServicoDataChange}
-                value={servico.motivo_ticket_financeiro}
+                value={servico && servico.motivo_ticket_financeiro}
                 error={!validations.fieldRequired(servico && servico.motivo_ticket_financeiro)}
                 InputLabelProps={{
                   className: styles.inputModal,
@@ -202,9 +216,9 @@ const ModalServico = ({ handleModal, showModal, idServico, setIdServico, modo })
               onClick={update}
               className={styles.buttonGravar}
               disabled={!
-                (validations.fieldRequired(servico.conta_contabil) &&
-                  (validations.fieldRequired(servico.descricao)) &&
-                  (validations.fieldRequired(servico.valor)) &&
+                (validations.fieldRequired(servico && servico.conta_contabil) &&
+                  (validations.fieldRequired(servico && servico.descricao)) &&
+                  (validations.fieldRequired(servico && servico.valor)) &&
                   modified)
               }
             >
