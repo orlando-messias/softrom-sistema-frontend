@@ -3,3 +3,65 @@ body {
   margin: 0;
   background-color: #fafafa;
 }
+
+.file {
+  display: none;
+}
+
+.file-input {
+  margin-top: 10px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.active {
+  background-color: #1769aa;
+  color: white!important;
+}
+
+.file-input .textButton {
+  width: 80px;
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+}
+
+.file-input .labelFile {
+  display: block;
+  position: relative;
+  width: 200px;
+  /* height: 30px; */
+  border-radius: 5px;
+  border: 1px solid #1769aa;
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  justify-content: flex-start;
+  color: #1769aa;
+  font-weight: bold;
+  cursor: pointer;
+  transition: 0.5s ease-out;
+  padding: 3px 0;
+}
+
+input:hover + label,
+input:focus + label {
+  background-color: #1769aa;
+  color: white!important;
+}
+
+.file-name {
+  font-size: 11px;
+  color: #555;
+  text-align: center;
+  font-weight: bold;
+}
+
+.file-error {
+  font-size: 11px;
+  padding: 0;
+  margin-top: -6px;
+  text-align: center;
+  color: red;
+}

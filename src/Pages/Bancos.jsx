@@ -1,69 +1,101 @@
 // react
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { useHistory } from 'react-router';
+import { useSelector } from 'react-redux';
 // material-ui
 import AddIcon from "@material-ui/icons/Add";
 // styles
-import useStyles from './BancosStyles';
+import useStyles from './ServicoStyles';
 // components
 import Panel from '../components/Panel';
 import MaterialTable from 'material-table';
-import Modal from '../components/modals/ModalBanco';
+import ModalBanco from '../components/modals/ModalBanco';
 // services
 import { isLogin } from '../services/loginServices';
 import api from '../services/api';
-// context
-import { AppContext } from '../context/AppContext';
+
 
 const searchFieldStyle = {
   marginRight: 30
 };
 
 
-// EMPRESAS COMPONENT
-export default function Empresas() {
-  const { setEditBanco } = useContext(AppContext);
-  const [bancos, setBancos] = useState([]);
+// BANCOS COMPONENT
+export default function Bancos() {
+  const [idBanco, setidBanco] = useState(0);
   const [showModal, setShowModal] = useState(false);
   const [modo, setModo] = useState('');
 
+  const user = useSelector(state => state.loginReducer.user);
+  const origin_id = useSelector(state => state.loginReducer.origin);
   const history = useHistory();
   const styles = useStyles();
+
+  const tableRef = useRef();
 
   const columns = [
     { title: "Id", field: "id" },
     { title: "Descrição", field: "descricao" },
-    { title: "Código", field: "codigo" }
   ];
+
+  const loadData = (resolve, reject, query) => {
+    const search = query.search;
+    let orderBy = "";
+    let direction = "";
+
+    if (query.orderDirection === "desc") {
+      direction = "-";
+    }
+    if (query.orderBy) {
+      orderBy = direction + query.orderBy.field;
+    }
+
+    const params = {
+      limit: query.pageSize,
+      page: query.page + 1,
+      search,
+      orderBy,
+    };
+
+    api(user.token).get(`/origem/${origin_id}/banco`, {
+      params
+    })
+      .then((response) => {
+        resolve({
+          data: response.data.result.data,
+          page: response.data.result.page - 1,
+          totalCount: response.data.result.totalCount
+        });
+      });
+  };
 
   useEffect(() => {
     if (!isLogin()) history.push('/');
   }, [history]);
 
+  const refreshTable = async () => {
+    tableRef.current.onQueryChange();
+  }
+
   useEffect(() => {
-    api.get('/banco')
-      .then(response => setBancos(response.data));
+    refreshTable();
   }, [showModal]);
 
+
   const handleModal = (action) => {
-    if (action === 'insert')
-      setEditBanco({
-        descricao: '',
-        codigo: '',
-      });
     setModo(action);
     setShowModal(!showModal);
   };
 
-  const selectedData = async (rowData, action) => {
+  const selectedService = async (rowData, action) => {
     if (action === 'delete') {
-      await api.delete(`/banco/${rowData.id}`)
-        .then(() => setBancos(bancos.filter(banco => banco.id !== rowData.id)))
-        .catch((error) => console.log(error));
+      await api(user.token).delete(`/origem/${origin_id}/banco/${rowData.id}`)
+        .then(() => console.log('deleted'))
+        .catch((error) => console.log(error))
     }
 
     if (action === 'edit') {
-      setEditBanco(rowData);
+      setidBanco(rowData.id);
       handleModal(action);
     }
   };
@@ -77,7 +109,11 @@ export default function Empresas() {
 
       <div className={styles.content}>
         <MaterialTable
-          data={bancos}
+          tableRef={tableRef}
+          data={(query) =>
+            new Promise((resolve, reject) => {
+              loadData(resolve, reject, query);
+            })}
           columns={columns}
           title="Bancos"
           actions={[
@@ -90,14 +126,15 @@ export default function Empresas() {
             {
               icon: 'edit',
               tooltip: 'Editar',
-              onClick: (e, rowData) => selectedData(rowData, 'edit')
+              onClick: (e, rowData) => selectedService(rowData, 'edit')
             }
           ]}
           editable={{
-            onRowDelete: (rowData) => selectedData(rowData, 'delete')
+            onRowDelete: (rowData) => selectedService(rowData, 'delete')
           }}
           options={{
             searchFieldStyle: searchFieldStyle,
+            debounceInterval: 600
           }}
           localization={{
             header: { actions: 'Ações' },
@@ -117,11 +154,18 @@ export default function Empresas() {
             },
           }}
         />
+        <button
+          onClick={() => tableRef.current.onQueryChange()}
+        >
+          refresh material-tablez
+          </button>
       </div>
 
-      <Modal
+      <ModalBanco
         showModal={showModal}
         handleModal={handleModal}
+        idBanco={idBanco}
+        setidBanco={setidBanco}
         modo={modo}
       />
 

@@ -1,17 +1,18 @@
 // react
 import React, { useEffect, useState, useRef } from 'react';
 import { useHistory } from 'react-router';
+import { useSelector } from 'react-redux';
 // material-ui
 import AddIcon from "@material-ui/icons/Add";
 // styles
-import useStyles from './ParticipantesStyles';
+import useStyles from './ContratoStyles';
 // components
 import Panel from '../components/Panel';
 import MaterialTable from 'material-table';
-import ModalParticipantes from '../components/modals/ModalParticipantes';
+import ModalContrato from '../components/modals/ModalContrato';
 // services
 import { isLogin } from '../services/loginServices';
-import api from '../services/apiOld';
+import api from '../services/api';
 
 
 const searchFieldStyle = {
@@ -19,12 +20,14 @@ const searchFieldStyle = {
 };
 
 
-// PARTICIPANTES COMPONENT
-export default function Participantes() {
-  const [idEmpresa, setIdEmpresa] = useState(0);
+// CONTRATO COMPONENT
+export default function Contrato() {
+  const [idContrato, setIdContrato] = useState(0);
   const [showModal, setShowModal] = useState(false);
   const [modo, setModo] = useState('');
 
+  const user = useSelector(state => state.loginReducer.user);
+  const origin_id = useSelector(state => state.loginReducer.origin);
   const history = useHistory();
   const styles = useStyles();
 
@@ -32,53 +35,52 @@ export default function Participantes() {
 
   const columns = [
     { title: "Id", field: "id" },
-    { title: "Nome", field: "nome", defaultSort: "asc" },
-    { title: "Documento", field: "documento" }
+    { title: "Número", field: "numero" },
+    { title: "Nome", field: "nome" },
   ];
 
-  const loadData = (resolve, reject, query) => {
-    const search = query.search;
-    let orderBy = "";
-    let direction = "";
+  // const loadData = (resolve, reject, query) => {
+  //   const search = query.search;
+  //   let orderBy = "";
+  //   let direction = "";
 
-    if (query.orderDirection === "desc") {
-      direction = "-";
-    }
-    if (query.orderBy) {
-      orderBy = direction + query.orderBy.field;
-    }
+  //   if (query.orderDirection === "desc") {
+  //     direction = "-";
+  //   }
+  //   if (query.orderBy) {
+  //     orderBy = direction + query.orderBy.field;
+  //   }
 
-    const params = {
-      limit: query.pageSize,
-      page: query.page + 1,
-      search,
-      orderBy,
-    };
+  //   const params = {
+  //     limit: query.pageSize,
+  //     page: query.page + 1,
+  //     search,
+  //     orderBy,
+  //   };
 
 
-    api.get('/origem/1/empresa/1/participante', {
-      params
-    })
-      .then((response) => {
-        resolve({
-          data: response.data.result.data,
-          page: response.data.result.page - 1,
-          totalCount: response.data.result.totalCount
-        });
-      });
-  };
-
+  //   api.get('/origem/1/servico', {
+  //     params
+  //   })
+  //     .then((response) => {
+  //       resolve({
+  //         data: response.data.result.data,
+  //         page: response.data.result.page - 1,
+  //         totalCount: response.data.result.totalCount
+  //       });
+  //     });
+  // };
   useEffect(() => {
     if (!isLogin()) history.push('/');
   }, [history]);
 
-  const refreshTable = async () => {
-    tableRef.current.onQueryChange();
-  }
+  // const refreshTable = async () => {
+  //   tableRef.current.onQueryChange();
+  // }
 
-  useEffect(() => {
-    refreshTable();
-  }, [showModal]);
+  // useEffect(() => {
+  //   refreshTable();
+  // }, [showModal]);
 
 
   const handleModal = (action) => {
@@ -86,16 +88,15 @@ export default function Participantes() {
     setShowModal(!showModal);
   };
 
-  const selectedCompany = async (rowData, action) => {
+  const selectedService = async (rowData, action) => {
     if (action === 'delete') {
-      const headers = { 'Content-Type': 'application/json' };
-      await api.delete(`/origem/1/empresa/1/participante${rowData.id}`, { headers: headers })
+      await api(user.token).delete(`/origem/${origin_id}/contrato/${rowData.id}`)
         .then(() => console.log('deleted'))
         .catch((error) => console.log(error))
     }
 
     if (action === 'edit') {
-      setIdEmpresa(rowData.id);
+      setIdContrato(rowData.id);
       handleModal(action);
     }
   };
@@ -110,12 +111,9 @@ export default function Participantes() {
       <div className={styles.content}>
         <MaterialTable
           tableRef={tableRef}
-          data={(query) =>
-            new Promise((resolve, reject) => {
-              loadData(resolve, reject, query);
-            })}
+          data={[{ id: null, numero: '', nome: '' }]}
           columns={columns}
-          title="Participantes"
+          title="Contratos"
           actions={[
             {
               icon: () => <AddIcon />,
@@ -126,11 +124,11 @@ export default function Participantes() {
             {
               icon: 'edit',
               tooltip: 'Editar',
-              onClick: (e, rowData) => selectedCompany(rowData, 'edit')
+              onClick: (e, rowData) => selectedService(rowData, 'edit')
             }
           ]}
           editable={{
-            onRowDelete: (rowData) => selectedCompany(rowData, 'delete')
+            onRowDelete: (rowData) => selectedService(rowData, 'delete')
           }}
           options={{
             searchFieldStyle: searchFieldStyle,
@@ -154,18 +152,13 @@ export default function Participantes() {
             },
           }}
         />
-        <button
-          onClick={() => tableRef.current.onQueryChange()}
-        >
-          refresh material-tablez
-          </button>
       </div>
 
-      <ModalParticipantes
+      <ModalContrato
         showModal={showModal}
         handleModal={handleModal}
-        idEmpresa={idEmpresa}
-        setIdEmpresa={setIdEmpresa}
+        idContrato={idContrato}
+        setIdContrato={setIdContrato}
         modo={modo}
       />
 

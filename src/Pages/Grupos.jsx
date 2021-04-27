@@ -1,17 +1,18 @@
 // react
 import React, { useEffect, useState, useRef } from 'react';
 import { useHistory } from 'react-router';
+import { useSelector } from 'react-redux';
 // material-ui
 import AddIcon from "@material-ui/icons/Add";
 // styles
-import useStyles from './ParticipantesStyles';
+import useStyles from './GruposStyles';
 // components
 import Panel from '../components/Panel';
 import MaterialTable from 'material-table';
-import ModalParticipantes from '../components/modals/ModalParticipantes';
+import ModalGrupo from '../components/modals/ModalGrupo';
 // services
 import { isLogin } from '../services/loginServices';
-import api from '../services/apiOld';
+import api from '../services/api';
 
 
 const searchFieldStyle = {
@@ -19,21 +20,23 @@ const searchFieldStyle = {
 };
 
 
-// PARTICIPANTES COMPONENT
-export default function Participantes() {
-  const [idEmpresa, setIdEmpresa] = useState(0);
+// GRUPOS COMPONENT
+export default function Grupos() {
+  const [idGrupo, setIdGrupo] = useState(0);
   const [showModal, setShowModal] = useState(false);
   const [modo, setModo] = useState('');
 
+  const user = useSelector(state => state.loginReducer.user);
+  const origin_id = useSelector(state => state.loginReducer.origin);
   const history = useHistory();
   const styles = useStyles();
+
 
   const tableRef = useRef();
 
   const columns = [
     { title: "Id", field: "id" },
-    { title: "Nome", field: "nome", defaultSort: "asc" },
-    { title: "Documento", field: "documento" }
+    { title: "Descrição", field: "descricao" }
   ];
 
   const loadData = (resolve, reject, query) => {
@@ -55,8 +58,7 @@ export default function Participantes() {
       orderBy,
     };
 
-
-    api.get('/origem/1/empresa/1/participante', {
+    api(user.token).get(`/origem/${origin_id}/grupo`, {
       params
     })
       .then((response) => {
@@ -88,14 +90,14 @@ export default function Participantes() {
 
   const selectedCompany = async (rowData, action) => {
     if (action === 'delete') {
-      const headers = { 'Content-Type': 'application/json' };
-      await api.delete(`/origem/1/empresa/1/participante${rowData.id}`, { headers: headers })
+      console.log(action);
+      await api(user.token).delete(`/origem/${origin_id}/grupo/${rowData.id}`)
         .then(() => console.log('deleted'))
         .catch((error) => console.log(error))
     }
 
     if (action === 'edit') {
-      setIdEmpresa(rowData.id);
+      setIdGrupo(rowData.id);
       handleModal(action);
     }
   };
@@ -115,11 +117,11 @@ export default function Participantes() {
               loadData(resolve, reject, query);
             })}
           columns={columns}
-          title="Participantes"
+          title="Grupo"
           actions={[
             {
               icon: () => <AddIcon />,
-              tooltip: 'Incluir Novo',
+              tooltip: 'Incluir Nova',
               isFreeAction: true,
               onClick: () => handleModal('insert')
             },
@@ -154,18 +156,13 @@ export default function Participantes() {
             },
           }}
         />
-        <button
-          onClick={() => tableRef.current.onQueryChange()}
-        >
-          refresh material-tablez
-          </button>
       </div>
 
-      <ModalParticipantes
+      <ModalGrupo
         showModal={showModal}
         handleModal={handleModal}
-        idEmpresa={idEmpresa}
-        setIdEmpresa={setIdEmpresa}
+        idGrupo={idGrupo}
+        setIdGrupo={setIdGrupo}
         modo={modo}
       />
 

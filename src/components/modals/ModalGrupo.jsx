@@ -9,7 +9,7 @@ import {
   Grid,
 } from '@material-ui/core';
 // styles
-import useStyles from './ModalBancoStyles';
+import useStyles from './ModalGrupoStyles';
 // services
 import api from '../../services/api';
 import validations from '../../services/validations';
@@ -17,10 +17,10 @@ import validations from '../../services/validations';
 import { toast } from 'react-toastify';
 
 
-// MODALBANCO COMPONENT
-const ModalBanco = ({ handleModal, showModal, idBanco, setidBanco, modo }) => {
-  const [banco, setBanco] = useState({
-    descricao: '',
+// MODALGRUPO COMPONENT
+const ModalGrupo = ({ handleModal, showModal, idGrupo, setIdGrupo, modo }) => {
+  const [grupo, setGrupo] = useState({
+    descricao: ''
   });
   const [modified, setModified] = useState(false);
 
@@ -30,16 +30,16 @@ const ModalBanco = ({ handleModal, showModal, idBanco, setidBanco, modo }) => {
 
   useEffect(() => {
     if (modo === 'edit') {
-      api(user.token).get(`/origem/${origin_id}/banco/${idBanco}`)
-        .then(response => setBanco(response.data.result[0]))
+      api(user.token).get(`/origem/${origin_id}/grupo/${idGrupo}`)
+        .then(response => setGrupo(response.data.result[0]))
         .catch(e => console.log(e));
     }
-  }, [idBanco, modo, user.token, origin_id]);
+  }, [idGrupo, modo, user.token, origin_id]);
 
-  const handleBancoDataChange = (e) => {
+  const handleGrupoDataChange = (e) => {
     let { name, value } = e.target;
 
-    setBanco(prevState => ({
+    setGrupo(prevState => ({
       ...prevState,
       [name]: value
     }));
@@ -48,12 +48,12 @@ const ModalBanco = ({ handleModal, showModal, idBanco, setidBanco, modo }) => {
   };
 
   const update = async () => {
-    const bancoData = { ...banco, modo };
+    const grupoData = { ...grupo, modo };
     if (modo === 'insert') {
-      await api(user.token).post(`/origem/${origin_id}/banco`, bancoData)
+      await api(user.token).post(`/origem/${origin_id}/grupo`, grupoData)
         .then(() => {
-          toast.success(`${banco.descricao} foi adicionado com sucesso`);
-          setBanco({
+          toast.success(`${grupo.descricao} foi adicionada com sucesso`);
+          setGrupo({
             id: 0,
             descricao: ''
           });
@@ -62,10 +62,10 @@ const ModalBanco = ({ handleModal, showModal, idBanco, setidBanco, modo }) => {
     }
 
     if (modo === 'edit') {
-      await api(user.token).put(`/origem/${origin_id}/banco`, bancoData)
+      await api(user.token).put(`/origem/${origin_id}/grupo`, grupoData)
         .then(() => {
-          toast.success(`${banco.descricao} atualizado com sucesso`);
-          setBanco({
+          toast.success(`${grupo.descricao} atualizada com sucesso`);
+          setGrupo({
             id: 0,
             descricao: ''
           });
@@ -78,11 +78,11 @@ const ModalBanco = ({ handleModal, showModal, idBanco, setidBanco, modo }) => {
   };
 
   const handleCancel = () => {
-    setBanco({
+    setGrupo({
       id: 0,
-      descricao: '',
+      descricao: ''
     });
-    setidBanco(0);
+    setIdGrupo(0);
     handleModal();
     setModified(false);
   };
@@ -97,50 +97,55 @@ const ModalBanco = ({ handleModal, showModal, idBanco, setidBanco, modo }) => {
         <div className={styles.modalContainer}>
           <div className={styles.modalTitle}>
             {modo === 'insert'
-              ? <h2>NOVO BANCO</h2>
-              : <h2>ATUALIZAR BANCO</h2>
+              ? <h2>NOVO GRUPO</h2>
+              : <h2>ATUALIZAR GRUPO</h2>
             }
           </div>
 
           <Grid container spacing={2}>
-            <Grid item sm={6} md={8}>
+            <Grid item sm={12} md={8}>
               <TextField
                 label="Descrição"
                 name="descricao"
+                autoFocus
                 fullWidth
                 required
-                onChange={handleBancoDataChange}
-                value={banco.descricao}
-                error={!validations.fieldRequired(banco && banco.descricao)}
+                onChange={handleGrupoDataChange}
+                value={grupo.descricao}
+                error={!validations.fieldRequired(grupo && grupo.descricao)}
                 InputLabelProps={{
                   className: styles.inputModal,
                 }}
               />
             </Grid>
+
+            <Grid item sm={12} md={4}>
+              <div align="right">
+                <Button
+                  onClick={update}
+                  className={styles.buttonGravar}
+                  disabled={!
+                    (validations.fieldRequired(grupo.descricao) &&
+                      modified)
+                  }
+                >
+                  Gravar
+          </Button>
+                <Button
+                  onClick={handleCancel}
+                  className={styles.buttonCancelar}
+                >
+                  Cancelar
+          </Button>
+              </div>
+            </Grid>
           </Grid>
 
-          <div align="right">
-            <Button
-              onClick={update}
-              className={styles.buttonGravar}
-              disabled={!
-                (validations.fieldRequired(banco.descricao) &&
-                  modified)
-              }
-            >
-              Gravar
-          </Button>
-            <Button
-              onClick={handleCancel}
-              className={styles.buttonCancelar}
-            >
-              Cancelar
-          </Button>
-          </div>
+
         </div>
       </div>
     </Modal>
   );
 };
 
-export default ModalBanco;
+export default ModalGrupo;

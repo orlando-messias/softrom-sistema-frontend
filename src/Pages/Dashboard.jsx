@@ -34,7 +34,7 @@ export default function Dashboard() {
 
   return (
     <div className={styles.container}>
-      {console.log(empr)}
+      {console.log('selecionada ', empr.id)}
       <Panel />
 
       <div className={styles.content}>

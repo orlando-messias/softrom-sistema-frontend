@@ -1,17 +1,18 @@
 // react
 import React, { useEffect, useState, useRef } from 'react';
 import { useHistory } from 'react-router';
+import { useSelector } from 'react-redux';
 // material-ui
 import AddIcon from "@material-ui/icons/Add";
 // styles
-import useStyles from './ParticipantesStyles';
+import useStyles from './ServicoStyles';
 // components
 import Panel from '../components/Panel';
 import MaterialTable from 'material-table';
-import ModalParticipantes from '../components/modals/ModalParticipantes';
+import ModalServico from '../components/modals/ModalServico';
 // services
 import { isLogin } from '../services/loginServices';
-import api from '../services/apiOld';
+import api from '../services/api';
 
 
 const searchFieldStyle = {
@@ -19,22 +20,33 @@ const searchFieldStyle = {
 };
 
 
-// PARTICIPANTES COMPONENT
-export default function Participantes() {
-  const [idEmpresa, setIdEmpresa] = useState(0);
+// SERVICO COMPONENT
+export default function Servico() {
+  const [idServico, setIdServico] = useState(0);
   const [showModal, setShowModal] = useState(false);
   const [modo, setModo] = useState('');
 
+  const user = useSelector(state => state.loginReducer.user);
+  const origin_id = useSelector(state => state.loginReducer.origin);
+  const empresa_id = Number(useSelector(state => state.loginReducer.empresaSelecionada.id));
   const history = useHistory();
   const styles = useStyles();
 
   const tableRef = useRef();
-
+  
   const columns = [
     { title: "Id", field: "id" },
-    { title: "Nome", field: "nome", defaultSort: "asc" },
-    { title: "Documento", field: "documento" }
+    { title: "Conta Contábil", field: "conta_contabil_id", defaultSort: "asc" },
+    { title: "Descricao", field: "descricao" },
+    { title: "Valor", field: "valor" },
+    { title: "Motivo Ticket", field: "motivo_ticket_id" },
+    { title: "Motivo Ticket Financeiro", field: "motivo_ticket_financeiro_id" },
   ];
+
+  useEffect(() => {
+    api(user.token).get(`/origem/${origin_id}/empresa/${empresa_id}/servico`)
+      .then(response => console.log(response.data.result.data))
+  })
 
   const loadData = (resolve, reject, query) => {
     const search = query.search;
@@ -55,8 +67,8 @@ export default function Participantes() {
       orderBy,
     };
 
-
-    api.get('/origem/1/empresa/1/participante', {
+    
+    api(user.token).get(`/origem/${origin_id}/empresa/${empresa_id}/servico`, {
       params
     })
       .then((response) => {
@@ -86,16 +98,15 @@ export default function Participantes() {
     setShowModal(!showModal);
   };
 
-  const selectedCompany = async (rowData, action) => {
+  const selectedService = async (rowData, action) => {
     if (action === 'delete') {
-      const headers = { 'Content-Type': 'application/json' };
-      await api.delete(`/origem/1/empresa/1/participante${rowData.id}`, { headers: headers })
+      await api(user.token).delete(`/origem/${origin_id}/empresa/${empresa_id}/servico/${rowData.id}`)
         .then(() => console.log('deleted'))
         .catch((error) => console.log(error))
     }
 
     if (action === 'edit') {
-      setIdEmpresa(rowData.id);
+      setIdServico(rowData.id);
       handleModal(action);
     }
   };
@@ -115,7 +126,7 @@ export default function Participantes() {
               loadData(resolve, reject, query);
             })}
           columns={columns}
-          title="Participantes"
+          title="Serviços"
           actions={[
             {
               icon: () => <AddIcon />,
@@ -126,11 +137,11 @@ export default function Participantes() {
             {
               icon: 'edit',
               tooltip: 'Editar',
-              onClick: (e, rowData) => selectedCompany(rowData, 'edit')
+              onClick: (e, rowData) => selectedService(rowData, 'edit')
             }
           ]}
           editable={{
-            onRowDelete: (rowData) => selectedCompany(rowData, 'delete')
+            onRowDelete: (rowData) => selectedService(rowData, 'delete')
           }}
           options={{
             searchFieldStyle: searchFieldStyle,
@@ -161,11 +172,11 @@ export default function Participantes() {
           </button>
       </div>
 
-      <ModalParticipantes
+      <ModalServico
         showModal={showModal}
         handleModal={handleModal}
-        idEmpresa={idEmpresa}
-        setIdEmpresa={setIdEmpresa}
+        idServico={idServico}
+        setIdServico={setIdServico}
         modo={modo}
       />
 

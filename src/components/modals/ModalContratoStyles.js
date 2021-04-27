@@ -23,7 +23,7 @@ const useStyles = makeStyles((theme) => ({
     left: '50%',
     marginLeft: -550,
     display: 'inline-block',
-    height:'280px',
+    height:'420px',
   },
   "@keyframes myEffect": {
     '0%':{
@@ -53,6 +53,13 @@ const useStyles = makeStyles((theme) => ({
   },
   controls: {
     marginBottom: 15,
+  },
+  check: {
+    marginTop: 15,
+    marginLeft: 20
+  },
+  input: {
+    height: 50
   },
   buttonGravar: {
     border: '1px solid blue',

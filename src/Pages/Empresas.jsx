@@ -1,6 +1,7 @@
 // react
 import React, { useEffect, useState, useRef } from 'react';
 import { useHistory } from 'react-router';
+import { useSelector } from 'react-redux';
 // material-ui
 import AddIcon from "@material-ui/icons/Add";
 // styles
@@ -8,10 +9,10 @@ import useStyles from './EmpresasStyles';
 // components
 import Panel from '../components/Panel';
 import MaterialTable from 'material-table';
-import Modal from '../components/modals/Modal';
+import ModalEmpresas from '../components/modals/ModalEmpresas';
 // services
 import { isLogin } from '../services/loginServices';
-import api from '../services/apiOld';
+import api from '../services/api';
 
 
 const searchFieldStyle = {
@@ -25,6 +26,8 @@ export default function Empresas() {
   const [showModal, setShowModal] = useState(false);
   const [modo, setModo] = useState('');
 
+  const user = useSelector(state => state.loginReducer.user);
+  const origin_id = useSelector(state => state.loginReducer.origin);
   const history = useHistory();
   const styles = useStyles();
 
@@ -55,8 +58,7 @@ export default function Empresas() {
       orderBy,
     };
 
-
-    api.get('/origem/1/empresa', {
+    api(user.token).get(`/origem/${origin_id}/empresa`, {
       params
     })
       .then((response) => {
@@ -89,7 +91,8 @@ export default function Empresas() {
   const selectedCompany = async (rowData, action) => {
     if (action === 'delete') {
       const headers = { 'Content-Type': 'application/json' };
-      await api.delete(`/origem/1/empresa/${rowData.id}`, { headers: headers })
+      console.log('deleting');
+      await api(user.token).delete(`/origem/${origin_id}/empresa/${rowData.id}`, { headers: headers })
         .then(() => console.log('deleted'))
         .catch((error) => console.log(error))
     }
@@ -161,7 +164,7 @@ export default function Empresas() {
           </button>
       </div>
 
-      <Modal
+      <ModalEmpresas
         showModal={showModal}
         handleModal={handleModal}
         idEmpresa={idEmpresa}
