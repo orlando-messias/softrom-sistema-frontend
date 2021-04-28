@@ -14,22 +14,24 @@ import useStyles from './ModalServicoStyles';
 // services
 import api from '../../services/api';
 import validations from '../../services/validations';
-
+// toastify
 import { toast } from 'react-toastify';
 
 
 // MODALSERVICO COMPONENT
 const ModalServico = ({ handleModal, showModal, idServico, setIdServico, modo }) => {
   const [servico, setServico] = useState({
-    origem_id: 0,
-    empresa_id: 0,
+    origem_id: 1,
+    empresa_id: 51,
     conta_contabil_id: 0,
-    motivo_ticket_id: 0,
-    motivo_ticket_financeiro_id: 0,
+    motivo_ticket_id: null,
+    motivo_ticket_financeiro_id: null,
     descricao: '',
-    valor: 0,
+    valor: '',
     documento: ''
   });
+  const [contaContabil, setContaContabil] = useState([]);
+  const [contaContabilId, setContaContabilId] = useState('');
   const [modified, setModified] = useState(false);
 
   const styles = useStyles();
@@ -45,6 +47,14 @@ const ModalServico = ({ handleModal, showModal, idServico, setIdServico, modo })
     }
   }, [idServico, modo, user.token, empresa_id, origin_id]);
 
+  useEffect(() => {
+    if (modo === 'insert') {
+      api(user.token).get(`/origem/${origin_id}/empresa/${empresa_id}/conta_contabil`)
+        .then(response => setContaContabil(response.data.result.data))
+        .catch(e => console.log(e));
+    }
+  }, [origin_id, empresa_id, modo, user.token]);
+
   const handleServicoDataChange = (e) => {
     let { name, value } = e.target;
 
@@ -57,24 +67,10 @@ const ModalServico = ({ handleModal, showModal, idServico, setIdServico, modo })
   };
 
   const update = async () => {
-    const servicoData = { ...servico, modo };
+    setServico({ ...servico, conta_contabil_id: contaContabilId.id });
+    const servicoData = { ...servico, conta_contabil_id: contaContabilId.id, modo };
     if (modo === 'insert') {
-      await api(user.token).post(`/origem/${origin_id}/empresa/${empresa_id}/servico`, servicoData)
-        .then(() => {
-          toast.success(`${servico.nome_fantasia} foi adicionado com sucesso`);
-          setServico({
-            id: 0,
-            origem_id: 0,
-            empresa_id: 0,
-            conta_contabil_id: 0,
-            motivo_ticket_id: 0,
-            motivo_ticket_financeiro_id: 0,
-            descricao: '',
-            valor: 0,
-            documento: ''
-          });
-        })
-        .catch(error => console.log(error));
+      console.log(servicoData);
     }
 
     if (modo === 'edit') {
@@ -97,6 +93,7 @@ const ModalServico = ({ handleModal, showModal, idServico, setIdServico, modo })
     }
 
     handleModal();
+
     setModified(false);
   };
 
@@ -125,7 +122,6 @@ const ModalServico = ({ handleModal, showModal, idServico, setIdServico, modo })
     >
       <div className={styles.modal}>
         <div className={styles.modalContainer}>
-          {console.log('servico here ', servico)}
           <div className={styles.modalTitle}>
             {modo === 'insert'
               ? <h2>CADASTRO DE SERVIÇO</h2>
@@ -136,13 +132,13 @@ const ModalServico = ({ handleModal, showModal, idServico, setIdServico, modo })
           <Grid container spacing={2}>
             <Grid item sm={6} md={4}>
               <Autocomplete
-                options={[]}
-                value={null}
+                options={contaContabil}
+                value={contaContabilId || null}
                 onChange={(event, newValue) => {
-                  handleServicoDataChange(newValue);
+                  setContaContabilId(newValue);
                 }}
                 className={styles.controls}
-                // getOptionLabel={(option) => '1' + " - " + 'item'}
+                getOptionLabel={(option) => option.id + " - " + option.descricao}
                 renderInput={(params) => (
                   <TextField {...params} label="Conta Contábil" variant="outlined" />
                 )}
@@ -216,8 +212,7 @@ const ModalServico = ({ handleModal, showModal, idServico, setIdServico, modo })
               onClick={update}
               className={styles.buttonGravar}
               disabled={!
-                (validations.fieldRequired(servico && servico.conta_contabil) &&
-                  (validations.fieldRequired(servico && servico.descricao)) &&
+                  (validations.fieldRequired(servico && servico.descricao) &&
                   (validations.fieldRequired(servico && servico.valor)) &&
                   modified)
               }
