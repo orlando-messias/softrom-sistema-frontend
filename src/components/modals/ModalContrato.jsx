@@ -1,6 +1,7 @@
 // react
 import React, { useState } from 'react';
 import { useSelector } from 'react-redux';
+import FindInPageIcon from '@material-ui/icons/FindInPage';
 // react-icons
 import BackupIcon from '@material-ui/icons/Backup';
 // material-ui
@@ -18,12 +19,22 @@ import useStyles from './ModalContratoStyles';
 // services
 import api from '../../services/api';
 import validations from '../../services/validations';
-
+// toastify
 import { toast } from 'react-toastify';
 
 
-// MODALSERVICO COMPONENT
-const ModalContrato = ({ handleModal, showModal, idContrato, setIdContrato, modo }) => {
+// MODALCONTRATO COMPONENT
+const ModalContrato = ({
+  handleModal,
+  handleModalItens,
+  showModal,
+  items,
+  setItems,
+  idContrato,
+  setIdContrato,
+  modo
+}) => {
+
   const [contrato, setContrato] = useState({
     filial: '',
     participante: '',
@@ -115,6 +126,7 @@ const ModalContrato = ({ handleModal, showModal, idContrato, setIdContrato, modo
       anexo: '',
       obs: ''
     });
+    setItems([]);
     setIdContrato(0);
     setFilename('Nenhum arquivo selecionado');
     setFileTooLarge(false);
@@ -282,13 +294,30 @@ const ModalContrato = ({ handleModal, showModal, idContrato, setIdContrato, modo
           </Grid>
 
           <div align="right">
+            {items.length > 0 && (
+              <Button
+                className={styles.buttonItensContrato}
+                color="primary"
+                variant="contained"
+              >
+                <FindInPageIcon /> Listar Itens
+              </Button>)}
+            {console.log(items)}
+            <Button
+              onClick={() => handleModalItens(modo)}
+              className={styles.buttonItensContrato}
+              color="primary"
+              variant="contained"
+            >
+              Adicionar Itens
+          </Button>
             <Button
               onClick={update}
               className={styles.buttonGravar}
               disabled={!
-                (validations.fieldRequired(contrato.conta_contabil) &&
-                  (validations.fieldRequired(contrato.descricao)) &&
-                  (validations.fieldRequired(contrato.valor)) &&
+                (validations.fieldRequired(contrato && contrato.numero) &&
+                  (validations.fieldRequired(contrato && contrato.dia_vencimento)) &&
+                  (validations.fieldRequired(contrato.obs)) &&
                   modified)
               }
             >
