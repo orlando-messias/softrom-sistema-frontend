@@ -23,7 +23,9 @@ const useStyles = makeStyles((theme) => ({
     left: '50%',
     marginLeft: -550,
     display: 'inline-block',
-    height:'420px',
+    height:'580px',
+    zIndex: 999999,
+    overflowY:'scroll'
   },
   "@keyframes myEffect": {
     '0%':{
@@ -39,10 +41,17 @@ const useStyles = makeStyles((theme) => ({
   modalTitle: {
     display: 'flex',
     justifyContent: 'space-between',
-    marginBottom: 20
+    marginBottom: 10,
+  },
+  modalTitleDiv: {
+    display: 'flex',
+    alignItems: 'center'
   },
   inputModal: {
-      fontSize: 12
+    fontSize: 12,
+  },
+  autoComplete: {
+    marginTop: 10,
   },
   fullWidth: {
     width: '90%',
@@ -51,12 +60,14 @@ const useStyles = makeStyles((theme) => ({
     width: '100%',
     marginBottom: 20
   },
-  controls: {
-    marginBottom: 15,
+  gridSpaceBottom: {
+    marginBottom: 30
   },
-  check: {
-    marginTop: 15,
-    marginLeft: 20
+  gridSpaceTop: {
+    marginTop: 10
+  },
+  gridIntSpace: {
+    width: 100
   },
   input: {
     height: 50
@@ -67,6 +78,17 @@ const useStyles = makeStyles((theme) => ({
   buttonGravar: {
     border: '1px solid blue',
     margin: '35px 5px',
+    color: 'blue',
+    "&:hover": {
+      backgroundColor: 'rgba(0, 0, 255, 0.1)'
+    },
+    "&:disabled": {
+      border: '1px solid #d4d4d4'
+    }
+  },
+  buttonGravarItem: {
+    border: '1px solid blue',
+    margin: '20px 5px 0 0',
     color: 'blue',
     "&:hover": {
       backgroundColor: 'rgba(0, 0, 255, 0.1)'

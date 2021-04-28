@@ -13,6 +13,7 @@ import ModalContrato from '../components/modals/ModalContrato';
 // services
 import { isLogin } from '../services/loginServices';
 import api from '../services/api';
+import ModalContratoItens from '../components/modals/ModalContratoItens';
 
 
 const searchFieldStyle = {
@@ -24,7 +25,9 @@ const searchFieldStyle = {
 export default function Contrato() {
   const [idContrato, setIdContrato] = useState(0);
   const [showModal, setShowModal] = useState(false);
+  const [showModalItens, setShowModalItens] = useState(false);
   const [modo, setModo] = useState('');
+  const [items, setItems] = useState([]);
 
   const user = useSelector(state => state.loginReducer.user);
   const origin_id = useSelector(state => state.loginReducer.origin);
@@ -86,6 +89,10 @@ export default function Contrato() {
   const handleModal = (action) => {
     setModo(action);
     setShowModal(!showModal);
+  };
+
+  const handleModalItens = () => {
+    setShowModalItens(!showModalItens);
   };
 
   const selectedService = async (rowData, action) => {
@@ -156,10 +163,22 @@ export default function Contrato() {
 
       <ModalContrato
         showModal={showModal}
+        handleModalItens={handleModalItens}
         handleModal={handleModal}
         idContrato={idContrato}
         setIdContrato={setIdContrato}
+        items={items}
+        setItems={setItems}
         modo={modo}
+      />
+
+      <ModalContratoItens 
+        showModalItens={showModalItens}
+        handleModalItens={handleModalItens}
+        modo={modo}
+        setModo={setModo}
+        items={items}
+        setItems={setItems}
       />
 
     </div>
