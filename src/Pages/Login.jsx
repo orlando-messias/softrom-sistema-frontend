@@ -39,7 +39,7 @@ export default function Login() {
   const dispatch = useDispatch();
 
   useEffect(() => {
-    if (isLogin()) history.push('/dashboard');
+    if (isLogin()) history.push('/select-empresa');
   }, [history]);
 
   useEffect(() => {

@@ -93,7 +93,7 @@ export default function ListMenu() {
               <Typography className={styles.subItem}>Empresas</Typography>
             </ListItemText>
           </ListItem>
-          <ListItem button>
+          <ListItem button onClick={() => handleLinkClick('participantes')}>
             <ListItemIcon>
               <SupervisedUserCircleIcon className={styles.subItemIcon} />
             </ListItemIcon>
