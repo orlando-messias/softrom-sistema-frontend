@@ -52,7 +52,7 @@ const ModalParticipantes = ({ handleModal, showModal, idEmpresa, idParticipante,
         .then(response => setEmpr(response.data.result[0]))
         .catch(e => console.log(e));
     }
-  }, [idEmpresa, modo, user.token]);
+  }, [idEmpresa, modo, user.token, idParticipante]);
 
   const handleCompanyDataChange = (e) => {
     let { name, value, checked } = e.target;

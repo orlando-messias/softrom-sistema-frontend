@@ -1,11 +1,13 @@
 // react
-import React, { useRef } from 'react';
+import React, { useRef, useState } from 'react';
 // material table
 import MaterialTable from 'material-table';
 
 
 // ITEMSCONTRATO COMPONENT
 export default function ItemsContrato({ items, editItem, deleteItem, modo, setModo }) {
+  const [selectedRowId, setSelectedRowId] = useState(null);
+  const [selected, setSelected] = useState(false);
 
   const tableRef = useRef();
 
@@ -37,14 +39,31 @@ export default function ItemsContrato({ items, editItem, deleteItem, modo, setMo
       options={
         {
           search: false,
-          paging: false
+          paging: false,
+          rowStyle: rowData => ({
+            backgroundColor:
+              selected &&
+              modo === 'edit' &&
+              rowData.tableData.id === selectedRowId
+                ? "#87CEEB"
+                : "#FFF"
+          })
         }
       }
       actions={[
         {
           icon: 'edit',
           tooltip: 'Editar',
-          onClick: (e, rowData) => selectedItem(rowData, 'edit')
+          onClick: (e, rowData) => {
+            selectedItem(rowData, 'edit');
+            if (rowData.tableData.id === selectedRowId) {
+              setSelected(false);
+              setSelectedRowId(null);
+            } else {
+              setSelected(true);
+              setSelectedRowId(rowData.tableData.id);
+            }
+          }
         }
       ]}
       editable={{
