@@ -48,7 +48,7 @@ const useStyles = makeStyles((theme) => ({
     alignItems: 'center'
   },
   inputModal: {
-    fontSize: 12,
+    fontSize: 14,
   },
   autoComplete: {
     marginTop: 10,

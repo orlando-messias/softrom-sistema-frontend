@@ -18,6 +18,10 @@ import ItemsContrato from '../ItemsContrato';
 // services
 import validations from '../../services/validations';
 
+import 'date-fns';
+import DateFnsUtils from '@date-io/date-fns';
+import { MuiPickersUtilsProvider, KeyboardDatePicker } from "@material-ui/pickers";
+
 
 
 // MODALCONTRATOITENS COMPONENT
@@ -27,7 +31,7 @@ const ModalContratoItens = ({
   items,
   setItems,
   modo,
-  setModo 
+  setModo
 }) => {
 
   const [itensContrato, setItensContrato] = useState({
@@ -37,7 +41,7 @@ const ModalContratoItens = ({
     obs: ''
   });
 
-  const [data_inicio, setData_Inicio] = useState('');
+  const [data_inicio, setData_Inicio] = useState(null);
   const [data_fim, setData_Fim] = useState('');
   const [modified, setModified] = useState(false);
 
@@ -66,6 +70,7 @@ const ModalContratoItens = ({
 
   const handleDataInicio = (date) => {
     setData_Inicio(date);
+    console.log(date);
     setModified(true);
   };
 
@@ -75,7 +80,10 @@ const ModalContratoItens = ({
   };
 
   const update = () => {
-    const contratoData = { ...itensContrato, data_inicio, data_fim };
+    const dia = ("0" + (data_inicio.getDate())).slice(-2);
+    const mes = ("0" + (data_inicio.getMonth() + 1)).slice(-2);
+    const dataInicio = `${dia}-${mes}-${data_inicio.getFullYear()}`.toString();
+    const contratoData = { ...itensContrato, data_inicio: dataInicio, data_fim };
     if (modo === 'insert') {
       setItems([...items, contratoData]);
       setItensContrato({
@@ -84,7 +92,7 @@ const ModalContratoItens = ({
         valor: 0,
         obs: ''
       });
-      setData_Inicio('');
+      setData_Inicio(null);
       setData_Fim('');
     }
 
@@ -99,7 +107,7 @@ const ModalContratoItens = ({
         valor: 0,
         obs: ''
       });
-      setData_Inicio('');
+      setData_Inicio(null);
       setData_Fim('');
       setModo('insert');
     }
@@ -122,7 +130,11 @@ const ModalContratoItens = ({
   };
 
   const editItem = (item) => {
-    setData_Inicio(item.data_inicio);
+    const splittedDate = item.data_inicio.split('-');
+    const formatDate = splittedDate[2] + '-' + splittedDate[1] + '-' + splittedDate[0];
+    const finalDate = new Date(formatDate);
+    finalDate.setDate(finalDate.getDate() + 1);
+    setData_Inicio(finalDate);
     setData_Fim(item.data_fim);
     setItensContrato(item);
   }
@@ -170,18 +182,25 @@ const ModalContratoItens = ({
             </Grid>
 
             <Grid item sm={6} md={4}>
-              <TextField
-                label="Data Início"
-                fullWidth
-                type="date"
-                required
-                error={!validations.fieldRequired(data_inicio && data_inicio)}
-                value={data_inicio && data_inicio}
-                onChange={(e) => handleDataInicio(e.target.value)}
-                InputLabelProps={{
-                  shrink: true,
-                }}
-              />
+              <MuiPickersUtilsProvider utils={DateFnsUtils}>
+                <KeyboardDatePicker
+                  disableToolbar
+                  variant="inline"
+                  format="dd/MM/yyyy"
+                  fullWidth
+                  label="Data Início*"
+                  placeholder="dd/mm/aaaa"
+                  error={!validations.fieldReq(data_inicio && data_inicio)}
+                  value={data_inicio && data_inicio}
+                  minDate={new Date()}
+                  onChange={handleDataInicio}
+                  autoOk={true}
+                  InputLabelProps={{
+                    className: styles.inputModal,
+                    shrink: true,
+                  }}
+                />
+              </MuiPickersUtilsProvider>
             </Grid>
 
             <Grid item sm={6} md={4}>
@@ -316,7 +335,7 @@ const ModalContratoItens = ({
               disabled={!
                 (validations.fieldRequired(itensContrato && itensContrato.quantidade) &&
                   (validations.fieldRequired(itensContrato && itensContrato.valor)) &&
-                  (validations.fieldRequired(data_inicio && data_inicio)) &&
+                  (validations.fieldReq(data_inicio && data_inicio)) &&
                   (validations.fieldRequired(data_fim && data_fim)) &&
                   modified)
               }
