@@ -118,7 +118,7 @@ export default function Contrato() {
       <div className={styles.content}>
         <MaterialTable
           tableRef={tableRef}
-          data={[{ id: null, numero: '', nome: '' }]}
+          data={[]}
           columns={columns}
           title="Contratos"
           actions={[

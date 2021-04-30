@@ -41,8 +41,12 @@ const useStyles = makeStyles((theme) => ({
     justifyContent: 'space-between',
     marginBottom: 20
   },
+  modalTitleDiv: {
+    display: 'flex',
+    alignItems: 'center'
+  },
   inputModal: {
-      fontSize: 12
+    fontSize: 12
   },
   fullWidth: {
     width: '90%',
@@ -61,12 +65,15 @@ const useStyles = makeStyles((theme) => ({
   input: {
     height: 50
   },
+  autoComplete: {
+    marginBottom: 15,
+  },
   buttonItensContrato: {
     marginRight: 30
   },
   buttonGravar: {
     border: '1px solid blue',
-    margin: '35px 5px',
+    margin: '47px 5px',
     color: 'blue',
     "&:hover": {
       backgroundColor: 'rgba(0, 0, 255, 0.1)'
@@ -77,7 +84,7 @@ const useStyles = makeStyles((theme) => ({
   },
   buttonCancelar: {
     border: '1px solid rgb(161, 7, 7)',
-    margin: '35px 5px',
+    margin: '47px 5px',
     color: '#d10d0d',
     "&:hover": {
       backgroundColor: '#fdefef'

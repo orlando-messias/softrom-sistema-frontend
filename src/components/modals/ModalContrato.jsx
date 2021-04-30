@@ -4,6 +4,9 @@ import { useSelector } from 'react-redux';
 import FindInPageIcon from '@material-ui/icons/FindInPage';
 // react-icons
 import BackupIcon from '@material-ui/icons/Backup';
+import AddCircleIcon from '@material-ui/icons/AddCircle';
+import CreateIcon from '@material-ui/icons/Create';
+
 // material-ui
 import {
   Modal,
@@ -171,8 +174,14 @@ const ModalContrato = ({
         <div className={styles.modalContainer}>
           <div className={styles.modalTitle}>
             {modo === 'insert'
-              ? <h2>NOVO CONTRATO</h2>
-              : <h2>ATUALIZAR CONTRATO</h2>
+              ? <div className={styles.modalTitleDiv}>
+              <AddCircleIcon style={{ color: '#1769aa', marginRight: 5 }} />
+              <h2> NOVO CONTRATO</h2>
+            </div>
+            : <div className={styles.modalTitleDiv}>
+              <CreateIcon style={{ color: '#1769aa', marginRight: 5 }} />
+              <h2> ATUALIZAR CONTRATO</h2>
+            </div>
             }
           </div>
 
@@ -187,7 +196,7 @@ const ModalContrato = ({
                 className={styles.controls}
                 // getOptionLabel={(option) => '1' + " - " + 'item'}
                 renderInput={(params) => (
-                  <TextField {...params} label="Filial" variant="outlined" />
+                  <TextField {...params} label="Filial" variant="outlined" size="small" className={styles.autoComplete} />
                 )}
               />
             </Grid>
@@ -202,7 +211,7 @@ const ModalContrato = ({
                 className={styles.controls}
                 // getOptionLabel={(option) => '1' + " - " + 'item'}
                 renderInput={(params) => (
-                  <TextField {...params} label="Participante" variant="outlined" />
+                  <TextField {...params} label="Participante" variant="outlined" size="small" className={styles.autoComplete} />
                 )}
               />
             </Grid>
