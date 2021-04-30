@@ -17,7 +17,7 @@ import useStyles from './ModalContratoItensStyles';
 import ItemsContrato from '../ItemsContrato';
 // services
 import validations from '../../services/validations';
-
+// react-date-picker
 import 'date-fns';
 import DateFnsUtils from '@date-io/date-fns';
 import { MuiPickersUtilsProvider, KeyboardDatePicker } from "@material-ui/pickers";
@@ -42,7 +42,7 @@ const ModalContratoItens = ({
   });
 
   const [data_inicio, setData_Inicio] = useState(null);
-  const [data_fim, setData_Fim] = useState('');
+  const [data_fim, setData_Fim] = useState(null);
   const [modified, setModified] = useState(false);
 
   const styles = useStyles();
@@ -70,7 +70,6 @@ const ModalContratoItens = ({
 
   const handleDataInicio = (date) => {
     setData_Inicio(date);
-    console.log(date);
     setModified(true);
   };
 
@@ -79,11 +78,32 @@ const ModalContratoItens = ({
     setModified(true);
   };
 
+  const adjustDayAndMonth = (date) => {
+    const newDate = new Date(date);
+    const dia = ("0" + (newDate.getDate())).slice(-2);
+    const mes = ("0" + (newDate.getMonth() + 1)).slice(-2);
+    return `${dia}-${mes}-${newDate.getFullYear()}`.toString();
+  }
+
+  const handleDateFormat = (date) => {
+    const splittedDate = date.split('-');
+    const formatDate = splittedDate[2] + '-' + splittedDate[1] + '-' + splittedDate[0];
+    const finalDate = new Date(formatDate);
+    return finalDate.setDate(finalDate.getDate() + 1);
+  }
+
+  const editItem = (item) => {
+    const dataInicio = handleDateFormat(item.data_inicio);
+    const dataFim = handleDateFormat(item.data_fim);
+    setData_Inicio(dataInicio);
+    setData_Fim(dataFim);
+    setItensContrato(item);
+  }
+
   const update = () => {
-    const dia = ("0" + (data_inicio.getDate())).slice(-2);
-    const mes = ("0" + (data_inicio.getMonth() + 1)).slice(-2);
-    const dataInicio = `${dia}-${mes}-${data_inicio.getFullYear()}`.toString();
-    const contratoData = { ...itensContrato, data_inicio: dataInicio, data_fim };
+    const dataInicio = adjustDayAndMonth(data_inicio);
+    const dataFim = adjustDayAndMonth(data_fim);
+    const contratoData = { ...itensContrato, data_inicio: dataInicio, data_fim: dataFim };
     if (modo === 'insert') {
       setItems([...items, contratoData]);
       setItensContrato({
@@ -93,7 +113,7 @@ const ModalContratoItens = ({
         obs: ''
       });
       setData_Inicio(null);
-      setData_Fim('');
+      setData_Fim(null);
     }
 
     if (modo === 'edit') {
@@ -108,12 +128,17 @@ const ModalContratoItens = ({
         obs: ''
       });
       setData_Inicio(null);
-      setData_Fim('');
+      setData_Fim(null);
       setModo('insert');
     }
 
     setModified(false);
   };
+
+  const deleteItem = (item) => {
+    const newItens = items.filter(i => i.tableData.id !== item.tableData.id);
+    setItems(newItens);
+  }
 
   const handleCancel = () => {
     setModo('insert');
@@ -128,21 +153,6 @@ const ModalContratoItens = ({
     handleModalItens();
     setModified(false);
   };
-
-  const editItem = (item) => {
-    const splittedDate = item.data_inicio.split('-');
-    const formatDate = splittedDate[2] + '-' + splittedDate[1] + '-' + splittedDate[0];
-    const finalDate = new Date(formatDate);
-    finalDate.setDate(finalDate.getDate() + 1);
-    setData_Inicio(finalDate);
-    setData_Fim(item.data_fim);
-    setItensContrato(item);
-  }
-
-  const deleteItem = (item) => {
-    const newItens = items.filter(i => i.tableData.id !== item.tableData.id);
-    setItems(newItens);
-  }
 
 
   return (
@@ -204,18 +214,26 @@ const ModalContratoItens = ({
             </Grid>
 
             <Grid item sm={6} md={4}>
-              <TextField
-                label="Data Fim"
-                fullWidth
-                type="date"
-                required
-                error={!validations.fieldRequired(data_fim && data_fim)}
-                value={data_fim && data_fim}
-                onChange={(e) => handleDataFim(e.target.value)}
-                InputLabelProps={{
-                  shrink: true,
-                }}
-              />
+              <MuiPickersUtilsProvider utils={DateFnsUtils}>
+                <KeyboardDatePicker
+                  disableToolbar
+                  variant="inline"
+                  format="dd/MM/yyyy"
+                  fullWidth
+                  label="Data Fim*"
+                  placeholder="dd/mm/aaaa"
+                  error={!validations.fieldReq(data_fim && data_fim)}
+                  value={data_fim && data_fim}
+                  minDate={data_inicio}
+                  onChange={handleDataFim}
+                  autoOk={true}
+                  InputLabelProps={{
+                    className: styles.inputModal,
+                    shrink: true,
+                  }}
+                />
+              </MuiPickersUtilsProvider>
+
             </Grid>
 
           </Grid>
@@ -336,7 +354,7 @@ const ModalContratoItens = ({
                 (validations.fieldRequired(itensContrato && itensContrato.quantidade) &&
                   (validations.fieldRequired(itensContrato && itensContrato.valor)) &&
                   (validations.fieldReq(data_inicio && data_inicio)) &&
-                  (validations.fieldRequired(data_fim && data_fim)) &&
+                  (validations.fieldReq(data_fim && data_fim)) &&
                   modified)
               }
             >
