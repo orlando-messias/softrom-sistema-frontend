@@ -22,6 +22,7 @@ import validations from '../../services/validations';
 // toastify
 import { toast } from 'react-toastify';
 
+import ComboFilial from "../combos/ComboFilial";
 
 // MODALCONTRATO COMPONENT
 const ModalContrato = ({
@@ -36,7 +37,7 @@ const ModalContrato = ({
 }) => {
 
   const [contrato, setContrato] = useState({
-    filial: '',
+    filial: {id: '', nome_fantasia: ''},
     participante: '',
     numero: '',
     dia_vencimento: '',
@@ -81,7 +82,7 @@ const ModalContrato = ({
           toast.success(`${contrato.numero} foi adicionado com sucesso`);
           setContrato({
             id: 0,
-            filial: '',
+            filial: {id: '', nome_fantasia: ''},
             participante: '',
             numero: '',
             dia_vencimento: '',
@@ -99,7 +100,7 @@ const ModalContrato = ({
           toast.success(`${contrato.numero} atualizado com sucesso`);
           setContrato({
             id: 0,
-            filial: '',
+            filial: {id: '', nome_fantasia: ''},
             participante: '',
             numero: '',
             dia_vencimento: '',
@@ -118,7 +119,7 @@ const ModalContrato = ({
   const handleCancel = () => {
     setContrato({
       id: 0,
-      filial: '',
+      filial: {id: '', nome_fantasia: ''},
       participante: '',
       numero: '',
       dia_vencimento: '',
@@ -161,6 +162,12 @@ const ModalContrato = ({
     }
   };
 
+  const setCurrentFilial = (filial) => {
+    setContrato(prevState => ({
+      ...prevState,
+      filial: filial
+    }));
+  };
 
   return (
     <Modal
@@ -178,17 +185,9 @@ const ModalContrato = ({
 
           <Grid container spacing={2}>
             <Grid item sm={6} md={4}>
-              <Autocomplete
-                options={[]}
-                value={null}
-                onChange={(event, newValue) => {
-                  handleContratoDataChange(newValue);
-                }}
-                className={styles.controls}
-                // getOptionLabel={(option) => '1' + " - " + 'item'}
-                renderInput={(params) => (
-                  <TextField {...params} label="Filial" variant="outlined" />
-                )}
+              <ComboFilial
+                filial={contrato.filial}
+                setCurrentFilial={setCurrentFilial}
               />
             </Grid>
 

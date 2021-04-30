@@ -56,7 +56,7 @@ export default function Participantes() {
     };
 
 
-    api.get('/origem/1/empresa/1/participante', {
+    api.get('/origem/1/empresa/51/participante', {
       params
     })
       .then((response) => {
@@ -89,7 +89,7 @@ export default function Participantes() {
   const selectedCompany = async (rowData, action) => {
     if (action === 'delete') {
       const headers = { 'Content-Type': 'application/json' };
-      await api.delete(`/origem/1/empresa/1/participante${rowData.id}`, { headers: headers })
+      await api.delete(`/origem/1/empresa/51/participante${rowData.id}`, { headers: headers })
         .then(() => console.log('deleted'))
         .catch((error) => console.log(error))
     }

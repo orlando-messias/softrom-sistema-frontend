@@ -60,7 +60,7 @@ export default function Filiais() {
       orderBy,
     };
     
-    api(user.token).get(`/origem/${origin_id}/empresa/${empresa_id}/filial`, {
+    api(user.token).get(`/origem/${origin_id}/empresa/51/filial`, {
       params
     })
       .then((response) => {
