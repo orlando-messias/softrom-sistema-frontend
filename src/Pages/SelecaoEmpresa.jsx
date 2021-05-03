@@ -15,7 +15,7 @@ import TopBar from '../components/TopBar';
 import logo from '../assets/logo-softrom-completa.png';
 
 
-// SELECAOEMPRESA COMPONENT READY
+// SELECAOEMPRESA COMPONENT
 export default function SelecaoEmpresa() {
   const [empresa, setEmpresa] = useState('');
   const [data, setData] = useState([]);
