@@ -1,15 +1,17 @@
+// react
 import React, { useState, useEffect, useRef } from "react";
 import { useSelector } from "react-redux";
+// material-ui
 import TextField from "@material-ui/core/TextField";
 import Autocomplete from "@material-ui/lab/Autocomplete";
 // services
 import api from "../../services/api";
 
-const ComboFilial = (props) => {
-  const [data, setData] = useState([]);
 
-  const [inputValue, setInputValue] = useState("");
-  const [valueSelect, setValueSelect] = useState(props.filial);
+// COMBOPARTICIPANTE COMPONENT
+const ComboParticipante = ({ participante, setCurrentParticipante }) => {
+  const [data, setData] = useState([]);
+  const [valueSelect, setValueSelect] = useState(participante);
 
   const user = useSelector((state) => state.loginReducer.user);
   const origin_id = useSelector((state) => state.loginReducer.origin);
@@ -17,15 +19,14 @@ const ComboFilial = (props) => {
     (state) => state.loginReducer.empresaSelecionada.id
   );
 
-  let isRendered = useRef(false); //variavel de estado para cancelar requisicao quando
-  //a pagina for fechada
+  let isRendered = useRef(false);
+
   useEffect(() => {
     isRendered = true;
     api(user.token)
-      .get(`/origem/${origin_id}/empresa/51/filial`)
+      .get(`/origem/${origin_id}/empresa/${empresa_id}/participante`)
       .then((response) => {
         if (isRendered) {
-          console.log(response.data.result.data);
           setData(response.data.result.data);
         }
         return null;
@@ -37,8 +38,8 @@ const ComboFilial = (props) => {
   }, []);
 
   useEffect(() => {
-    setValueSelect(props.filial);
-  }, [props.filial]);
+    setValueSelect(participante);
+  }, [participante]);
 
   return (
     <>
@@ -47,23 +48,16 @@ const ComboFilial = (props) => {
         value={valueSelect || null}
         onChange={(event, newValue) => {
           setValueSelect(newValue);
-          props.setCurrentFilial(newValue);
+          setCurrentParticipante(newValue);
         }}
-        inputValue={inputValue}
-        onInputChange={(event, newInputValue) => {
-          setInputValue(newInputValue);
-        }}
-        getOptionSelected={(option, value) =>
-          option.id === value.id || option.id === valueSelect.id
-        }
-        getOptionLabel={(option) => option.id + "-" + option.nome_fantasia}
-        style={{ width: 300 }}
+        getOptionLabel={(option) => option.id + "-" + option.nome}
+        style={{ width: 300, marginBottom: 20 }}
         renderInput={(params) => (
-          <TextField {...params} label="Filial" variant="outlined" size="small"/>
+          <TextField {...params} label="Participante" variant="outlined" size="small" />
         )}
       />
     </>
   );
 };
 
-export default ComboFilial;
+export default ComboParticipante;
