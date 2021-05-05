@@ -6,26 +6,27 @@ import MaterialTable from 'material-table';
 // services
 import api from '../../services/api';
 // import { FormControl, MenuItem, Select } from '@material-ui/core';
-
+//material-ui
+import { InputMask } from "react-input-mask";
 
 // LISTAENDERECO COMPONENT
-export default function ListaEndereco({ empresaId, handleModified, handleEndereco, modo }) {
+export default function ListaEndereco({ empresaId, participanteId, handleModified, handleEndereco, modo }) {
   const [enderecos, setEnderecos] = useState([]);
 
   const user = useSelector(state => state.loginReducer.user);
 
   const columns = [
-    { title: "Identificação", field: "identificacao" },
+    { title: "Identificação", field: "identificacao", validate: rowData => !rowData.identificacao ? 'Preenchimento obrigatório' : '' },
     { title: "Cep", field: "cep" },
     { title: "Principal", field: "principal", type: 'boolean', initialEditValue: false }
   ];
 
   useEffect(() => {
     if (modo === 'edit') {
-      api(user.token).get(`/origem/1/empresa/${empresaId}/participante/51/endereco`)
+      api(user.token).get(`/origem/1/empresa/${empresaId}/participante/${participanteId}/endereco`)
         .then(response => setEnderecos(response.data.result.data));
     }
-  }, [empresaId, modo, user.token]);
+  }, [empresaId, participanteId, modo, user.token]);
 
   const handleNew = (rowData, oldData, resolve, reject, action) => {
     if (action === 'edit') {
