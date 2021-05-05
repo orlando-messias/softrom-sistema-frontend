@@ -156,6 +156,14 @@ export default function ListMenu() {
                   <Typography className={styles.subItem}>Conta</Typography>
                 </ListItemText>
               </ListItem>
+              <ListItem button onClick={() => handleLinkClick('conta-contabil')}>
+                <ListItemIcon>
+                  <MoneyIcon className={styles.subSubItemIcon} />
+                </ListItemIcon>
+                <ListItemText  >
+                  <Typography className={styles.subItem}>Conta Contábil</Typography>
+                </ListItemText>
+              </ListItem>
               <ListItem button>
                 <ListItemIcon>
                   <AccountBoxIcon className={styles.subSubItemIcon} />
@@ -172,7 +180,7 @@ export default function ListMenu() {
                   <Typography className={styles.subItem}>Credenciadora</Typography>
                 </ListItemText>
               </ListItem>
-              <ListItem button>
+              <ListItem button onClick={() => handleLinkClick('centro-custo')}>
                 <ListItemIcon>
                   <CreditCardIcon className={styles.subSubItemIcon} />
                 </ListItemIcon>

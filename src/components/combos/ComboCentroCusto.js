@@ -28,7 +28,7 @@ const ComboCentroCusto = ({ centroCusto, setCurrentCentroCusto }) => {
   useEffect(() => {
     isRendered = true;
     api(user.token)
-      .get(`/origem/${origin_id}/empresa/${empresa_id}/centro_custo`)
+      .get(`/origem/${origin_id}/empresa/51/centro_custo`)
       .then((response) => {
         if (isRendered) {
           setData(response.data.result.data);
@@ -54,7 +54,7 @@ const ComboCentroCusto = ({ centroCusto, setCurrentCentroCusto }) => {
           setValueSelect(newValue);
           setCurrentCentroCusto(newValue);
         }}
-        getOptionLabel={(option) => option.id + "-" + option.descricao}
+        getOptionLabel={(option) => option.id + " - " + option.descricao}
         style={{ width: 300, marginTop: 10}}
         renderInput={(params) => (
           <TextField {...params} label="Centro de Custo" variant="outlined" size="small" />

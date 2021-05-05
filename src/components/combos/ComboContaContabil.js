@@ -28,7 +28,7 @@ const ComboContaContabil = ({ contaContabil, setCurrentContaContabil }) => {
   useEffect(() => {
     isRendered = true;
     api(user.token)
-      .get(`/origem/${origin_id}/empresa/${empresa_id}/conta_contabil`)
+      .get(`/origem/${origin_id}/empresa/51/conta_contabil`)
       .then((response) => {
         if (isRendered) {
           setData(response.data.result.data);
@@ -54,7 +54,7 @@ const ComboContaContabil = ({ contaContabil, setCurrentContaContabil }) => {
           setValueSelect(newValue);
           setCurrentContaContabil(newValue);
         }}
-        getOptionLabel={(option) => option.id + "-" + option.descricao}
+        getOptionLabel={(option) => option.id + " - " + option.descricao}
         style={{ width: 300, marginTop: 10}}
         renderInput={(params) => (
           <TextField {...params} label="Conta Contábil" variant="outlined" size="small" />

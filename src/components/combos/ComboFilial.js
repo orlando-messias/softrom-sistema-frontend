@@ -56,7 +56,7 @@ const ComboFilial = (props) => {
         getOptionSelected={(option, value) =>
           option.id === value.id || option.id === valueSelect.id
         }
-        getOptionLabel={(option) => option.id + "-" + option.nome_fantasia}
+        getOptionLabel={(option) => `${option.id} - ${option.nome_fantasia}`}
         style={{ width: 300 }}
         renderInput={(params) => (
           <TextField {...params} label="Filial" variant="outlined" size="small"/>

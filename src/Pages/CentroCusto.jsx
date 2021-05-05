@@ -5,14 +5,14 @@ import { useSelector } from 'react-redux';
 // material-ui
 import AddIcon from "@material-ui/icons/Add";
 // styles
-import useStyles from './FiliaisStyles';
+import useStyles from './CentroCustoStyles';
 // components
 import Panel from '../components/Panel';
 import MaterialTable from 'material-table';
-import ModalFilial from '../components/modals/ModalFilial';
 // services
 import { isLogin } from '../services/loginServices';
 import api from '../services/api';
+import ModalCentroCusto from '../components/modals/ModalCentroCusto';
 
 
 const searchFieldStyle = {
@@ -20,15 +20,14 @@ const searchFieldStyle = {
 };
 
 
-// FILIAIS COMPONENT
-export default function Filiais() {
-  const [idFilial, setIdFilial] = useState(0);
+// CENTRO CUSTO COMPONENT
+export default function CentroCusto() {
+  const [idCentroCusto, setIdCentroCusto] = useState(0);
   const [showModal, setShowModal] = useState(false);
   const [modo, setModo] = useState('');
 
   const user = useSelector(state => state.loginReducer.user);
   const origin_id = useSelector(state => state.loginReducer.origin);
-  const empresa_id = useSelector(state => state.loginReducer.empresaSelecionada.id);
   const history = useHistory();
   const styles = useStyles();
 
@@ -36,9 +35,7 @@ export default function Filiais() {
 
   const columns = [
     { title: "Id", field: "id" },
-    { title: "Nome Fantasia", field: "nome_fantasia", defaultSort: "asc" },
-    { title: "Documento", field: "documento" },
-    { title: "Tipo Documento", field: "tipo_doc" }
+    { title: "Descrição", field: "descricao" },
   ];
 
   const loadData = (resolve, reject, query) => {
@@ -59,8 +56,8 @@ export default function Filiais() {
       search,
       orderBy,
     };
-    
-    api(user.token).get(`/origem/${origin_id}/empresa/51/filial`, {
+
+    api(user.token).get(`/origem/${origin_id}/empresa/51/centro_custo`, {
       params
     })
       .then((response) => {
@@ -90,15 +87,15 @@ export default function Filiais() {
     setShowModal(!showModal);
   };
 
-  const selectedCompany = async (rowData, action) => {
+  const selectedService = async (rowData, action) => {
     if (action === 'delete') {
-      await api(user.token).delete(`/origem/${origin_id}/empresa/51/filial/${rowData.id}`)
+      await api(user.token).delete(`/origem/${origin_id}/empresa/51/centro_custo/${rowData.id}`)
         .then(() => console.log('deleted'))
         .catch((error) => console.log(error))
     }
 
     if (action === 'edit') {
-      setIdFilial(rowData.id);
+      setIdCentroCusto(rowData.id);
       handleModal(action);
     }
   };
@@ -118,22 +115,22 @@ export default function Filiais() {
               loadData(resolve, reject, query);
             })}
           columns={columns}
-          title="Filiais"
+          title="Centro de Custo"
           actions={[
             {
               icon: () => <AddIcon />,
-              tooltip: 'Incluir Nova',
+              tooltip: 'Incluir Novo',
               isFreeAction: true,
               onClick: () => handleModal('insert')
             },
             {
               icon: 'edit',
               tooltip: 'Editar',
-              onClick: (e, rowData) => selectedCompany(rowData, 'edit')
+              onClick: (e, rowData) => selectedService(rowData, 'edit')
             }
           ]}
           editable={{
-            onRowDelete: (rowData) => selectedCompany(rowData, 'delete')
+            onRowDelete: (rowData) => selectedService(rowData, 'delete')
           }}
           options={{
             searchFieldStyle: searchFieldStyle,
@@ -159,11 +156,11 @@ export default function Filiais() {
         />
       </div>
 
-      <ModalFilial
+      <ModalCentroCusto
         showModal={showModal}
         handleModal={handleModal}
-        idFilial={idFilial}
-        setIdFilial={setIdFilial}
+        idCentroCusto={idCentroCusto}
+        setIdCentroCusto={setIdCentroCusto}
         modo={modo}
       />
 

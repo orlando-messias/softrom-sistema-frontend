@@ -9,7 +9,7 @@ import {
   Grid,
 } from '@material-ui/core';
 // styles
-import useStyles from './ModalBancoStyles';
+import useStyles from './ModalCentroCustoStyles';
 // services
 import api from '../../services/api';
 import validations from '../../services/validations';
@@ -18,8 +18,8 @@ import { toast } from 'react-toastify';
 
 
 // MODALBANCO COMPONENT
-const ModalBanco = ({ handleModal, showModal, idBanco, setidBanco, modo }) => {
-  const [banco, setBanco] = useState({
+const ModalCentroCusto = ({ handleModal, showModal, idCentroCusto, setIdCentroCusto, modo }) => {
+  const [centroCusto, setCentroCusto] = useState({
     descricao: '',
   });
   const [modified, setModified] = useState(false);
@@ -30,16 +30,16 @@ const ModalBanco = ({ handleModal, showModal, idBanco, setidBanco, modo }) => {
 
   useEffect(() => {
     if (modo === 'edit') {
-      api(user.token).get(`/origem/${origin_id}/banco/${idBanco}`)
-        .then(response => setBanco(response.data.result[0]))
+      api(user.token).get(`/origem/${origin_id}/empresa/51/centro_custo/${idCentroCusto}`)
+        .then(response => setCentroCusto(response.data.result[0]))
         .catch(e => console.log(e));
     }
-  }, [idBanco, modo, user.token, origin_id]);
+  }, [idCentroCusto, modo, user.token, origin_id]);
 
   const handleBancoDataChange = (e) => {
     let { name, value } = e.target;
 
-    setBanco(prevState => ({
+    setCentroCusto(prevState => ({
       ...prevState,
       [name]: value
     }));
@@ -48,12 +48,12 @@ const ModalBanco = ({ handleModal, showModal, idBanco, setidBanco, modo }) => {
   };
 
   const update = async () => {
-    const bancoData = { ...banco, modo };
+    const centroCustoData = { ...centroCusto, modo };
     if (modo === 'insert') {
-      await api(user.token).post(`/origem/${origin_id}/banco`, bancoData)
+      await api(user.token).post(`/origem/${origin_id}/empresa/51/centro_custo`, centroCustoData)
         .then(() => {
-          toast.success(`${banco.descricao} foi adicionado com sucesso`);
-          setBanco({
+          toast.success(`${centroCusto.descricao} foi adicionado com sucesso`);
+          setCentroCusto({
             id: 0,
             descricao: ''
           });
@@ -62,10 +62,10 @@ const ModalBanco = ({ handleModal, showModal, idBanco, setidBanco, modo }) => {
     }
 
     if (modo === 'edit') {
-      await api(user.token).put(`/origem/${origin_id}/banco`, bancoData)
+      await api(user.token).put(`/origem/${origin_id}/empresa/51/centro_custo`, centroCustoData)
         .then(() => {
-          toast.success(`${banco.descricao} atualizado com sucesso`);
-          setBanco({
+          toast.success(`${centroCusto.descricao} atualizado com sucesso`);
+          setCentroCusto({
             id: 0,
             descricao: ''
           });
@@ -78,11 +78,11 @@ const ModalBanco = ({ handleModal, showModal, idBanco, setidBanco, modo }) => {
   };
 
   const handleCancel = () => {
-    setBanco({
+    setCentroCusto({
       id: 0,
       descricao: '',
     });
-    setidBanco(0);
+    setIdCentroCusto(0);
     handleModal();
     setModified(false);
   };
@@ -97,8 +97,8 @@ const ModalBanco = ({ handleModal, showModal, idBanco, setidBanco, modo }) => {
         <div className={styles.modalContainer}>
           <div className={styles.modalTitle}>
             {modo === 'insert'
-              ? <h2>NOVO BANCO</h2>
-              : <h2>ATUALIZAR BANCO</h2>
+              ? <h2>NOVO CENTRO DE CUSTO</h2>
+              : <h2>ATUALIZAR CENTRO DE CUSTO</h2>
             }
           </div>
 
@@ -111,8 +111,8 @@ const ModalBanco = ({ handleModal, showModal, idBanco, setidBanco, modo }) => {
                 autoFocus
                 required
                 onChange={handleBancoDataChange}
-                value={banco.descricao}
-                error={!validations.fieldRequired(banco && banco.descricao)}
+                value={centroCusto.descricao}
+                error={!validations.fieldRequired(centroCusto && centroCusto.descricao)}
                 InputLabelProps={{
                   className: styles.inputModal,
                 }}
@@ -125,7 +125,7 @@ const ModalBanco = ({ handleModal, showModal, idBanco, setidBanco, modo }) => {
               onClick={update}
               className={styles.buttonGravar}
               disabled={!
-                (validations.fieldRequired(banco.descricao) &&
+                (validations.fieldRequired(centroCusto.descricao) &&
                   modified)
               }
             >
@@ -144,4 +144,4 @@ const ModalBanco = ({ handleModal, showModal, idBanco, setidBanco, modo }) => {
   );
 };
 
-export default ModalBanco;
+export default ModalCentroCusto;

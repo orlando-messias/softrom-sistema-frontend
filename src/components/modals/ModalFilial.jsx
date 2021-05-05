@@ -38,7 +38,7 @@ const ModalFilial = ({ handleModal, showModal, idFilial, setIdFilial, modo }) =>
 
   useEffect(() => {
     if (modo === 'edit') {
-      api(user.token).get(`/origem/${origin_id}/empresa/${empresa_id}/filial/${idFilial}`)
+      api(user.token).get(`/origem/${origin_id}/empresa/51/filial/${idFilial}`)
         .then(response => setFilial(response.data.result[0]))
         .catch(e => console.log(e));
     }
@@ -68,7 +68,7 @@ const ModalFilial = ({ handleModal, showModal, idFilial, setIdFilial, modo }) =>
     const filialData = { ...filial, origem_id: origin_id, empresa_id, modo };
     console.log('filialData ', filialData);
     if (modo === 'insert') {
-      await api(user.token).post(`/origem/${origin_id}/empresa/${empresa_id}/filial`, filialData)
+      await api(user.token).post(`/origem/${origin_id}/empresa/51/filial`, filialData)
         .then(() => {
           toast.success(`${filial.nome_fantasia} foi adicionada com sucesso`);
           setFilial({
@@ -84,7 +84,7 @@ const ModalFilial = ({ handleModal, showModal, idFilial, setIdFilial, modo }) =>
     }
 
     if (modo === 'edit') {
-      await api(user.token).put(`/origem/${origin_id}/empresa/${empresa_id}/filial`, filialData)
+      await api(user.token).put(`/origem/${origin_id}/empresa/51/filial`, filialData)
         .then(() => {
           toast.success(`${filial.nome_fantasia} atualizada com sucesso`);
           setFilial({
