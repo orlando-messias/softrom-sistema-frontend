@@ -1,6 +1,7 @@
 // react
 import React, { useEffect, useState, useRef } from 'react';
 import { useHistory } from 'react-router';
+import { useSelector } from 'react-redux';
 // material-ui
 import AddIcon from "@material-ui/icons/Add";
 // styles
@@ -11,7 +12,7 @@ import MaterialTable from 'material-table';
 import ModalParticipantes from '../components/modals/ModalParticipantes';
 // services
 import { isLogin } from '../services/loginServices';
-import api from '../services/apiOld';
+import api from '../services/api';
 
 
 const searchFieldStyle = {
@@ -19,12 +20,14 @@ const searchFieldStyle = {
 };
 
 
-// PARTICIPANTES COMPONENT
+// PARTICIPANTE COMPONENT
 export default function Participantes() {
-  const [idEmpresa, setIdEmpresa] = useState(0);
+  const [idParticipante, setIdParticipante] = useState(0);
   const [showModal, setShowModal] = useState(false);
   const [modo, setModo] = useState('');
 
+  const user = useSelector(state => state.loginReducer.user);
+  const origin_id = useSelector(state => state.loginReducer.origin);
   const history = useHistory();
   const styles = useStyles();
 
@@ -55,8 +58,7 @@ export default function Participantes() {
       orderBy,
     };
 
-
-    api.get('/origem/1/empresa/51/participante', {
+    api(user.token).get(`/origem/${origin_id}/empresa/51/participante`, {
       params
     })
       .then((response) => {
@@ -86,16 +88,17 @@ export default function Participantes() {
     setShowModal(!showModal);
   };
 
-  const selectedCompany = async (rowData, action) => {
+  const selectedParticip = async (rowData, action) => {
     if (action === 'delete') {
       const headers = { 'Content-Type': 'application/json' };
-      await api.delete(`/origem/1/empresa/51/participante${rowData.id}`, { headers: headers })
+      console.log('deleting');
+      await api(user.token).delete(`/origem/${origin_id}/empresa/51/participante/${rowData.id}`, { headers: headers })
         .then(() => console.log('deleted'))
         .catch((error) => console.log(error))
     }
 
     if (action === 'edit') {
-      setIdEmpresa(rowData.id);
+      setIdParticipante(rowData.id);
       handleModal(action);
     }
   };
@@ -126,11 +129,11 @@ export default function Participantes() {
             {
               icon: 'edit',
               tooltip: 'Editar',
-              onClick: (e, rowData) => selectedCompany(rowData, 'edit')
+              onClick: (e, rowData) => selectedParticip(rowData, 'edit')
             }
           ]}
           editable={{
-            onRowDelete: (rowData) => selectedCompany(rowData, 'delete')
+            onRowDelete: (rowData) => selectedParticip(rowData, 'delete')
           }}
           options={{
             searchFieldStyle: searchFieldStyle,
@@ -154,18 +157,14 @@ export default function Participantes() {
             },
           }}
         />
-        <button
-          onClick={() => tableRef.current.onQueryChange()}
-        >
-          refresh material-tablez
-          </button>
+
       </div>
 
       <ModalParticipantes
         showModal={showModal}
         handleModal={handleModal}
-        idEmpresa={idEmpresa}
-        setIdEmpresa={setIdEmpresa}
+        idParticipante={idParticipante}
+        setIdParticipante={setIdParticipante}
         modo={modo}
       />
 

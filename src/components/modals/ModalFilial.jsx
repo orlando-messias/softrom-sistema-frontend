@@ -15,10 +15,15 @@ import useStyles from './ModalFilialStyles';
 import { mask } from 'remask';
 // services
 import api from '../../services/api';
-import validations from '../../services/validations';
-
 import { toast } from 'react-toastify';
+//validações
+import * as yup from 'yup';
 
+//mask
+import InputMask from "react-input-mask";
+
+//formulário
+import { useFormik } from 'formik';
 
 // MODALFILIAL COMPONENT
 const ModalFilial = ({ handleModal, showModal, idFilial, setIdFilial, modo }) => {
@@ -36,49 +41,39 @@ const ModalFilial = ({ handleModal, showModal, idFilial, setIdFilial, modo }) =>
   const origin_id = useSelector(state => state.loginReducer.origin);
   const empresa_id = Number(useSelector(state => state.loginReducer.empresaSelecionada.id));
 
+  const cadastroFormSchema = yup.object().shape({
+    nome_fantasia: yup.string().required('Nome obrigatório.').min(3, 'No mínimo 3 caracteres.'),
+    tipo_doc: yup.string().required('Tipo de documento obrigatório.'),
+    documento: yup.string().required('Documento obrigatório.'),
+  })
+
+  const formik = useFormik({
+    initialValues: filial,
+    validationSchema: cadastroFormSchema,
+    onSubmit: (values) => {
+        formik.setSubmitting(false);
+        update(values);
+    },
+  });
+
   useEffect(() => {
     if (modo === 'edit') {
       api(user.token).get(`/origem/${origin_id}/empresa/51/filial/${idFilial}`)
-        .then(response => setFilial(response.data.result[0]))
+        .then(response => { setFilial(response.data.result[0]); formik.setValues(response.data.result[0]);})
         .catch(e => console.log(e));
+    } else {
+      limpaForm();
     }
   }, [idFilial, modo, user.token, empresa_id, origin_id]);
 
-  useEffect(() => {
-    console.log('filial ', origin_id);
-  }, [origin_id]);
-
-  const handleFilialDataChange = (e) => {
-    let { name, value } = e.target;
-
-    // implements cnpj mask in Documento
-    if (name === 'documento') {
-      value = mask(value, ['99.999.999/9999-99']);
-    };
-
-    setFilial(prevState => ({
-      ...prevState,
-      [name]: value
-    }));
-
-    setModified(true);
-  };
-
-  const update = async () => {
-    const filialData = { ...filial, origem_id: origin_id, empresa_id, modo };
+  const update = async (values) => {
+    const filialData = { ...values, origem_id: origin_id, empresa_id, modo };
     console.log('filialData ', filialData);
     if (modo === 'insert') {
       await api(user.token).post(`/origem/${origin_id}/empresa/51/filial`, filialData)
         .then(() => {
           toast.success(`${filial.nome_fantasia} foi adicionada com sucesso`);
-          setFilial({
-            id: 0,
-            nome_fantasia: '',
-            tipo_doc: '',
-            documento: '',
-            origem_id: 0,
-            empresa_id: 0
-          });
+          
         })
         .catch(error => console.log(error));
     }
@@ -87,14 +82,7 @@ const ModalFilial = ({ handleModal, showModal, idFilial, setIdFilial, modo }) =>
       await api(user.token).put(`/origem/${origin_id}/empresa/51/filial`, filialData)
         .then(() => {
           toast.success(`${filial.nome_fantasia} atualizada com sucesso`);
-          setFilial({
-            id: 0,
-            nome_fantasia: '',
-            tipo_doc: '',
-            documento: '',
-            origem_id: 0,
-            empresa_id: 0
-          });
+          
         })
         .catch(error => console.log(error));
     }
@@ -103,7 +91,8 @@ const ModalFilial = ({ handleModal, showModal, idFilial, setIdFilial, modo }) =>
     setModified(false);
   };
 
-  const handleCancel = () => {
+  const limpaForm = () => {
+    formik.resetForm();
     setFilial({
       id: 0,
       nome_fantasia: '',
@@ -112,7 +101,11 @@ const ModalFilial = ({ handleModal, showModal, idFilial, setIdFilial, modo }) =>
       origem_id: 0,
       empresa_id: 0
     });
-    setIdFilial(0);  // CHECKS
+    setIdFilial(0);    
+  }
+
+  const handleCancel = () => {
+    limpaForm();
     handleModal();
     setModified(false);
   };
@@ -131,7 +124,7 @@ const ModalFilial = ({ handleModal, showModal, idFilial, setIdFilial, modo }) =>
               : <h2>ATUALIZAR FILIAL</h2>
             }
           </div>
-
+          <form noValidate onSubmit={formik.handleSubmit}>
           <Grid container spacing={2}>
             <Grid item sm={12} md={6}>
               <TextField
@@ -139,13 +132,10 @@ const ModalFilial = ({ handleModal, showModal, idFilial, setIdFilial, modo }) =>
                 name="nome_fantasia"
                 autoFocus
                 fullWidth
-                required
-                onChange={handleFilialDataChange}
-                value={filial && filial.nome_fantasia}
-                error={!validations.fieldRequired(filial && filial.nome_fantasia)}
-                InputLabelProps={{
-                  className: styles.inputModal,
-                }}
+                onChange={formik.handleChange}
+                value={formik.values.nome_fantasia}
+                error={formik.touched.nome_fantasia && Boolean(formik.errors.nome_fantasia)}
+                helperText={formik.touched.nome_fantasia && formik.errors.nome_fantasia}   
               />
             </Grid>
             <Grid item sm={6} md={3}>
@@ -153,11 +143,10 @@ const ModalFilial = ({ handleModal, showModal, idFilial, setIdFilial, modo }) =>
                 label="Tipo de Pessoa"
                 name="tipo_doc"
                 select
-                required
-                value={filial && filial.tipo_doc}
-                onChange={handleFilialDataChange}
-                helperText="Jurídica / Física"
-                error={!validations.fieldRequired(filial && filial.tipo_doc)}
+                onChange={formik.handleChange}
+                value={formik.values.tipo_doc}
+                error={formik.touched.tipo_doc && Boolean(formik.errors.tipo_doc)}
+                helperText={formik.touched.tipo_doc && formik.errors.tipo_doc}      
                 InputLabelProps={{
                   className: styles.inputModal,
                 }}
@@ -168,31 +157,29 @@ const ModalFilial = ({ handleModal, showModal, idFilial, setIdFilial, modo }) =>
               </TextField>
             </Grid>
             <Grid item sm={6} md={3}>
-              <TextField
-                label="Documento"
-                name="documento"
-                fullWidth
-                required
-                onChange={handleFilialDataChange}
-                value={filial && filial.documento}
-                error={!validations.cnpj(filial && filial.documento)}
-                InputLabelProps={{
-                  className: styles.inputModal,
-                }}
-              />
+            <InputMask
+                    mask="99.999.999/9999-99"
+                    maskChar=" "
+                    onChange={formik.handleChange}
+                    value={formik.values.documento}                    
+                >
+                {() => <TextField
+                    label="Documento"
+                    name="documento"
+                    fullWidth
+
+                    error={formik.touched.documento && Boolean(formik.errors.documento)}
+                    helperText={formik.touched.documento && formik.errors.documento}
+                /> }
+                </InputMask>   
             </Grid>
           </Grid>
 
           <div align="right">
             <Button
-              onClick={update}
+              type="submit"
               className={styles.buttonGravar}
-              disabled={!
-                (validations.fieldRequired(filial && filial.nome_fantasia) &&
-                  (validations.fieldRequired(filial && filial.documento)) &&
-                  (validations.fieldRequired(filial && filial.tipo_doc)) &&
-                  modified)
-              }
+              disabled={formik.isSubmitting}
             >
               Gravar
           </Button>
@@ -203,6 +190,7 @@ const ModalFilial = ({ handleModal, showModal, idFilial, setIdFilial, modo }) =>
               Cancelar
           </Button>
           </div>
+          </form>      
         </div>
       </div>
     </Modal>

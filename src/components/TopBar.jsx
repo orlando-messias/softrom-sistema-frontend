@@ -169,11 +169,11 @@ export default function TopBar({ handleDrawerOpen, open }) {
             <>
               <Typography className={styles.welcome}>
                 {empresa &&
-                  <span>| &nbsp; {empresa.nome} &nbsp; |</span>
+                  <span>| &nbsp; {empresa.id} - {empresa.nome} &nbsp; |</span>
                 }
               </Typography>
               <Typography className={styles.welcome}>
-                Welcome, <span>{usernameUppercase}</span>
+                Bem Vindo, <span>{usernameUppercase}</span>
               </Typography>
               <Button
 

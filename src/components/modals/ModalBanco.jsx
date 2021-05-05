@@ -12,15 +12,21 @@ import {
 import useStyles from './ModalBancoStyles';
 // services
 import api from '../../services/api';
-import validations from '../../services/validations';
 
 import { toast } from 'react-toastify';
 
+//validações
+import * as yup from 'yup';
+
+//formulário
+import { useFormik } from 'formik';
 
 // MODALBANCO COMPONENT
 const ModalBanco = ({ handleModal, showModal, idBanco, setidBanco, modo }) => {
   const [banco, setBanco] = useState({
+    id: 0,
     descricao: '',
+    codigo: '',
   });
   const [modified, setModified] = useState(false);
 
@@ -28,35 +34,50 @@ const ModalBanco = ({ handleModal, showModal, idBanco, setidBanco, modo }) => {
   const user = useSelector(state => state.loginReducer.user);
   const origin_id = useSelector(state => state.loginReducer.origin);
 
+  const cadastroFormSchema = yup.object().shape({
+    descricao: yup.string().required('Descrição obrigatória.'),
+    codigo: yup.string().required('Código do banco obrigatório.').min(3, 'No mínimo 3 caracteres.'),
+  })  
+
+  const formik = useFormik({
+    initialValues: banco,
+    validationSchema: cadastroFormSchema,
+    onSubmit: (values) => {
+        formik.setSubmitting(false);
+        update(values);
+    },
+  });    
+
   useEffect(() => {
+    
     if (modo === 'edit') {
       api(user.token).get(`/origem/${origin_id}/banco/${idBanco}`)
-        .then(response => setBanco(response.data.result[0]))
+        .then(response => { setBanco(response.data.result[0]); formik.setValues(response.data.result[0]);})
         .catch(e => console.log(e));
+    } else {
+      limpaForm();
     }
   }, [idBanco, modo, user.token, origin_id]);
 
-  const handleBancoDataChange = (e) => {
-    let { name, value } = e.target;
+  const limpaForm = () => {
+    formik.resetForm();
 
-    setBanco(prevState => ({
-      ...prevState,
-      [name]: value
-    }));
+    setBanco({
+      id: 0,
+      descricao: '',
+      codigo: '',
+    });
+    setidBanco(0);
 
-    setModified(true);
-  };
-
-  const update = async () => {
-    const bancoData = { ...banco, modo };
+  }  
+  const update = async (values) => {
+    console.log(values);
+    const bancoData = { ...values, modo };
     if (modo === 'insert') {
       await api(user.token).post(`/origem/${origin_id}/banco`, bancoData)
         .then(() => {
           toast.success(`${banco.descricao} foi adicionado com sucesso`);
-          setBanco({
-            id: 0,
-            descricao: ''
-          });
+
         })
         .catch(error => console.log(error));
     }
@@ -65,10 +86,6 @@ const ModalBanco = ({ handleModal, showModal, idBanco, setidBanco, modo }) => {
       await api(user.token).put(`/origem/${origin_id}/banco`, bancoData)
         .then(() => {
           toast.success(`${banco.descricao} atualizado com sucesso`);
-          setBanco({
-            id: 0,
-            descricao: ''
-          });
         })
         .catch(error => console.log(error));
     }
@@ -78,11 +95,7 @@ const ModalBanco = ({ handleModal, showModal, idBanco, setidBanco, modo }) => {
   };
 
   const handleCancel = () => {
-    setBanco({
-      id: 0,
-      descricao: '',
-    });
-    setidBanco(0);
+    limpaForm();
     handleModal();
     setModified(false);
   };
@@ -101,33 +114,41 @@ const ModalBanco = ({ handleModal, showModal, idBanco, setidBanco, modo }) => {
               : <h2>ATUALIZAR BANCO</h2>
             }
           </div>
+          <form noValidate onSubmit={formik.handleSubmit}>
 
           <Grid container spacing={2}>
             <Grid item sm={6} md={8}>
               <TextField
                 label="Descrição"
                 name="descricao"
-                fullWidth
                 autoFocus
-                required
-                onChange={handleBancoDataChange}
-                value={banco.descricao}
-                error={!validations.fieldRequired(banco && banco.descricao)}
-                InputLabelProps={{
-                  className: styles.inputModal,
-                }}
+                fullWidth
+                onChange={formik.handleChange}
+                value={formik.values.descricao}
+                error={formik.touched.descricao && Boolean(formik.errors.descricao)}
+                helperText={formik.touched.descricao && formik.errors.descricao}  
               />
             </Grid>
           </Grid>
 
+          <Grid container spacing={2}>
+            <Grid item sm={6} md={8}>
+              <TextField
+                label="Código"
+                name="codigo"
+                onChange={formik.handleChange}
+                value={formik.values.codigo}
+                error={formik.touched.codigo && Boolean(formik.errors.codigo)}
+                helperText={formik.touched.codigo && formik.errors.codigo}   
+              />
+            </Grid>
+          </Grid>          
+
           <div align="right">
             <Button
-              onClick={update}
+              type="submit"
               className={styles.buttonGravar}
-              disabled={!
-                (validations.fieldRequired(banco.descricao) &&
-                  modified)
-              }
+              disabled={formik.isSubmitting}
             >
               Gravar
           </Button>
@@ -138,6 +159,7 @@ const ModalBanco = ({ handleModal, showModal, idBanco, setidBanco, modo }) => {
               Cancelar
           </Button>
           </div>
+          </form>              
         </div>
       </div>
     </Modal>

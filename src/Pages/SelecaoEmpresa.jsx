@@ -6,7 +6,7 @@ import { Button, Grid, TextField } from '@material-ui/core';
 import Autocomplete from "@material-ui/lab/Autocomplete";
 // redux
 import { useDispatch } from 'react-redux';
-import { selectCompany, setOrigin } from '../store/Login/Login.action';
+import { selectCompany, setOrigin, loginSuccess } from '../store/Login/Login.action';
 // styles
 import useStyles from './SelecaoEmpresaStyles';
 // components
@@ -28,6 +28,7 @@ export default function SelecaoEmpresa() {
     const axa = data.find(empr => empr.nome === empresa);
     console.log('achei ', axa);
     dispatch(selectCompany(empresa));
+    
     let userData = JSON.parse(localStorage.getItem('user'));
     userData = { ...userData, empresa };
     localStorage.setItem('user', JSON.stringify(userData));
@@ -36,6 +37,12 @@ export default function SelecaoEmpresa() {
 
   useEffect(() => {
     const userData = JSON.parse(localStorage.getItem('user'));
+    //atualizar redux login
+    const username = userData.username;
+    const userToken = userData.token;
+    dispatch(loginSuccess(username, userToken));
+    //fim
+
     const token = JSON.parse(atob(userData.token.split('.')[1]));
     const dados = JSON.parse(token.dados);
     dispatch(setOrigin(dados.origem[0].id));

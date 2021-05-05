@@ -8,11 +8,11 @@ import api from '../../services/api';
 
 
 // LISTACONTATO COMPONENT
-export default function ListaContato({ empresaId, handleModified, handleContato, modo }) {
+export default function ListaContato({ empresaId, participanteId, handleModified, handleContato, modo }) {
   const [contatos, setContatos] = useState([]);
 
   const columns = [
-    { title: "Nome", field: "nome" },
+    { title: "Nome", field: "nome", validate: rowData => !rowData.nome ? 'Preenchimento obrigatório' : ''},
     { title: "Telefone", field: "fone" },
     { title: "Email", field: "email" },
   ];
@@ -20,26 +20,32 @@ export default function ListaContato({ empresaId, handleModified, handleContato,
   const user = useSelector(state => state.loginReducer.user);
 
   useEffect(() => {
+    
     if (modo === 'edit') {
-      api(user.token).get(`/origem/1/empresa/${empresaId}/participante/51/contato`)
+      api(user.token).get(`/origem/1/empresa/${empresaId}/participante/${participanteId}/contato`)
         .then(response => setContatos(response.data.result.data));
     }
-  }, [empresaId, modo, user.token]);
+  }, [empresaId, participanteId, modo, user.token]);
 
   const handleNew = (rowData, oldData, resolve, reject, action) => {
+
+    if (rowData.nome === '') {
+
+      reject();
+      return;
+    }
+
     if (action === 'edit') {
       const dataUpdate = [...contatos];
       const index = oldData.tableData.id;
       dataUpdate[index] = { ...rowData, modo: action };
       setContatos(dataUpdate);
       handleContato(dataUpdate);
-      console.log('Contatos', contatos)
     }
     else {
       rowData = { ...rowData, modo: action };
       setContatos([...contatos, rowData]);
       handleContato([...contatos, rowData]);
-      console.log('Contatos ', contatos);
     }
 
     handleModified();

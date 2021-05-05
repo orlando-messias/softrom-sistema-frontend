@@ -59,7 +59,6 @@ export default function Filiais() {
       search,
       orderBy,
     };
-    
     api(user.token).get(`/origem/${origin_id}/empresa/51/filial`, {
       params
     })
