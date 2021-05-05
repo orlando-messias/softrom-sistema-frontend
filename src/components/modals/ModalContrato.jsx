@@ -26,6 +26,7 @@ import validations from '../../services/validations';
 import { toast } from 'react-toastify';
 
 import ComboFilial from "../combos/ComboFilial";
+import ComboParticipante from '../combos/ComboParticipante';
 
 // MODALCONTRATO COMPONENT
 const ModalContrato = ({
@@ -40,8 +41,8 @@ const ModalContrato = ({
 }) => {
 
   const [contrato, setContrato] = useState({
-    filial: {id: '', nome_fantasia: ''},
-    participante: '',
+    filial: { id: '', nome_fantasia: '' },
+    participante: { id: '', nome: '' },
     numero: '',
     dia_vencimento: '',
     pendencia: false,
@@ -85,7 +86,7 @@ const ModalContrato = ({
           toast.success(`${contrato.numero} foi adicionado com sucesso`);
           setContrato({
             id: 0,
-            filial: {id: '', nome_fantasia: ''},
+            filial: { id: '', nome_fantasia: '' },
             participante: '',
             numero: '',
             dia_vencimento: '',
@@ -103,7 +104,7 @@ const ModalContrato = ({
           toast.success(`${contrato.numero} atualizado com sucesso`);
           setContrato({
             id: 0,
-            filial: {id: '', nome_fantasia: ''},
+            filial: { id: '', nome_fantasia: '' },
             participante: '',
             numero: '',
             dia_vencimento: '',
@@ -122,8 +123,8 @@ const ModalContrato = ({
   const handleCancel = () => {
     setContrato({
       id: 0,
-      filial: {id: '', nome_fantasia: ''},
-      participante: '',
+      filial: { id: '', nome_fantasia: '' },
+      participante: { id: '', nome: '' },
       numero: '',
       dia_vencimento: '',
       pendencia: false,
@@ -172,6 +173,13 @@ const ModalContrato = ({
     }));
   };
 
+  const setCurrentParticipante = (participante) => {
+    setContrato(prevState => ({
+      ...prevState,
+      participante: participante
+    }));
+  };
+
   return (
     <Modal
       open={showModal}
@@ -182,13 +190,13 @@ const ModalContrato = ({
           <div className={styles.modalTitle}>
             {modo === 'insert'
               ? <div className={styles.modalTitleDiv}>
-              <AddCircleIcon style={{ color: '#1769aa', marginRight: 5 }} />
-              <h2> NOVO CONTRATO</h2>
-            </div>
-            : <div className={styles.modalTitleDiv}>
-              <CreateIcon style={{ color: '#1769aa', marginRight: 5 }} />
-              <h2> ATUALIZAR CONTRATO</h2>
-            </div>
+                <AddCircleIcon style={{ color: '#1769aa', marginRight: 5 }} />
+                <h2> NOVO CONTRATO</h2>
+              </div>
+              : <div className={styles.modalTitleDiv}>
+                <CreateIcon style={{ color: '#1769aa', marginRight: 5 }} />
+                <h2> ATUALIZAR CONTRATO</h2>
+              </div>
             }
           </div>
 
@@ -201,17 +209,9 @@ const ModalContrato = ({
             </Grid>
 
             <Grid item sm={6} md={4}>
-              <Autocomplete
-                options={[]}
-                value={null}
-                onChange={(event, newValue) => {
-                  handleContratoDataChange(newValue);
-                }}
-                className={styles.controls}
-                // getOptionLabel={(option) => '1' + " - " + 'item'}
-                renderInput={(params) => (
-                  <TextField {...params} label="Participante" variant="outlined" size="small" className={styles.autoComplete} />
-                )}
+              <ComboParticipante
+                participante={contrato.participante}
+                setCurrentParticipante={setCurrentParticipante}
               />
             </Grid>
 

@@ -21,6 +21,7 @@ import validations from '../../services/validations';
 import 'date-fns';
 import DateFnsUtils from '@date-io/date-fns';
 import { MuiPickersUtilsProvider, KeyboardDatePicker } from "@material-ui/pickers";
+import ComboServico from '../combos/ComboServico';
 
 
 
@@ -35,7 +36,7 @@ const ModalContratoItens = ({
 }) => {
 
   const [itensContrato, setItensContrato] = useState({
-    servico: '',
+    servico: { id: '', descricao: '' },
     quantidade: 0,
     valor: 0,
     obs: ''
@@ -107,7 +108,7 @@ const ModalContratoItens = ({
     if (modo === 'insert') {
       setItems([...items, contratoData]);
       setItensContrato({
-        servico: '',
+        servico: { id: '', descricao: '' },
         quantidade: 0,
         valor: 0,
         obs: ''
@@ -122,7 +123,7 @@ const ModalContratoItens = ({
       const otherItems = items.filter(item => item.tableData.id !== contratoData.tableData.id);
       setItems([...otherItems, updatedFoundItem]);
       setItensContrato({
-        servico: '',
+        servico: { id: '', descricao: '' },
         quantidade: 0,
         valor: 0,
         obs: ''
@@ -143,7 +144,7 @@ const ModalContratoItens = ({
   const handleCancel = () => {
     setModo('insert');
     setItensContrato({
-      servico: '',
+      servico: { id: '', descricao: '' },
       quantidade: 0,
       valor: 0,
       obs: ''
@@ -152,6 +153,13 @@ const ModalContratoItens = ({
     setData_Fim('');
     handleModalItens();
     setModified(false);
+  };
+
+  const setCurrentServico = (servico) => {
+    setItensContrato(prevState => ({
+      ...prevState,
+      servico: servico
+    }));
   };
 
 
@@ -177,17 +185,9 @@ const ModalContratoItens = ({
 
           <Grid container spacing={4} className={styles.gridSpaceBottom}>
             <Grid item sm={6} md={4}>
-              <Autocomplete
-                options={[]}
-                value={null}
-                onChange={(event, newValue) => {
-                  handleContratoItensDataChange(newValue);
-                }}
-                className={styles.controls}
-                // getOptionLabel={(option) => '1' + " - " + 'item'}
-                renderInput={(params) => (
-                  <TextField {...params} label="Serviço" variant="outlined" size="small" className={styles.autoComplete} />
-                )}
+              <ComboServico
+                servico={itensContrato.servico}
+                setCurrentServico={setCurrentServico}
               />
             </Grid>
 
