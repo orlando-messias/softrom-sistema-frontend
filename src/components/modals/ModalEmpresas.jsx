@@ -12,8 +12,6 @@ import {
   Grid,
   MenuItem,
 } from '@material-ui/core';
-// mask
-import { mask } from 'remask';
 // styles
 import useStyles from './ModalEmpresasStyles';
 
@@ -23,13 +21,20 @@ import { toast } from 'react-toastify';
 import ListaEndereco from '../Empresas/ListaEndereco';
 import ListaContato from '../Empresas/ListaContato';
 
-import validations from '../../services/validations';
+//validações
+import * as yup from 'yup';
 
+//mask
+import InputMask from "react-input-mask";
+
+//formulário
+import { useFormik } from 'formik';
 
 // MODALEMPRESAS COMPONENT
 const ModalEmpresas = ({ handleModal, showModal, idEmpresa, setIdEmpresa, modo }) => {
   const [endereco, setEndereco] = useState([]);
   const [contato, setContato] = useState([]);
+  const [modified, setModified] = useState(false);
   const [empr, setEmpr] = useState({
     nome: '',
     tipo_doc: '',
@@ -39,64 +44,48 @@ const ModalEmpresas = ({ handleModal, showModal, idEmpresa, setIdEmpresa, modo }
     obs: '',
     agrupar_fatura_contrato: false
   });
-  const [modified, setModified] = useState(false);
-
   const styles = useStyles();
   const user = useSelector(state => state.loginReducer.user);
   const origin_id = useSelector(state => state.loginReducer.origin);
 
+  const cadastroFormSchema = yup.object().shape({
+    nome: yup.string().required('Nome obrigatório.').min(3, 'No mínimo 3 caracteres.'),
+    tipo_doc: yup.string().required('Tipo de documento obrigatório.'),
+    documento: yup.string().required('Documento obrigatório.'),
+    gerar_nf: yup.boolean(),
+    retem_iss: yup.boolean(),
+    obs: yup.string(),
+    agrupar_fatura_contrato: yup.boolean(),
+  })
+  
+  const formik = useFormik({
+    initialValues: empr,
+    validationSchema: cadastroFormSchema,
+    onSubmit: (values) => {
+        formik.setSubmitting(false);
+        update(values);
+    },
+  });
+
   useEffect(() => {
     if (modo === 'edit') {
-      // const user = JSON.parse(localStorage.getItem('user'));
-      // console.log('id ', idEmpresa);
       api(user.token).get(`/origem/${origin_id}/empresa/${idEmpresa}`)
-        .then(response => setEmpr(response.data.result[0]))
+        .then(response => { setEmpr(response.data.result[0]); formik.setValues(response.data.result[0]);})
         .catch(e => console.log(e));
+    } else {
+      limpaForm();
     }
   }, [idEmpresa, modo, user.token, origin_id]);
 
-  const handleCompanyDataChange = (e) => {
-    let { name, value, checked } = e.target;
-    if (
-      name === 'gerar_nf' ||
-      name === 'retem_iss' ||
-      name === 'agrupar_fatura_contrato') {
-      value = checked;
-    };
+  const update = async (values) => {
+    const company = { empresa: { ...values, modo, contato, endereco } };
 
-    // implements cnpj mask in Documento
-    if (name === 'documento') {
-      value = mask(value, ['99.999.999/9999-99']);
-    };
-
-    setEmpr(prevState => ({
-      ...prevState,
-      [name]: value
-    }));
-
-    setModified(true);
-  };
-
-  const update = async () => {
-    const company = { empresa: { ...empr, modo, contato, endereco } };
-    // const user = JSON.parse(localStorage.getItem('user'));
     if (modo === 'insert') {
       console.log('company ', company);
       await api(user.token).post(`/origem/${origin_id}/empresa`, company)
         .then(() => {
           toast.success(`${empr.nome} foi adicionada com sucesso`);
-          setEmpr({
-            id: 0,
-            nome: '',
-            tipo_doc: '',
-            documento: '',
-            gerar_nf: false,
-            retem_iss: false,
-            obs: '',
-            agrupar_fatura_contrato: false
-          });
-          setContato([]);
-          setEndereco([]);
+          
         })
         .catch(error => console.log(error));
     }
@@ -106,29 +95,17 @@ const ModalEmpresas = ({ handleModal, showModal, idEmpresa, setIdEmpresa, modo }
       await api(user.token).put(`/origem/${origin_id}/empresa`, company)
         .then(() => {
           toast.success(`${empr.nome} atualizada com sucesso`);
-          setEmpr({
-            id: 0,
-            nome: '',
-            tipo_doc: '',
-            documento: '',
-            gerar_nf: false,
-            retem_iss: false,
-            obs: '',
-            agrupar_fatura_contrato: false
-          });
-          setContato([]);
-          setEndereco([]);
+          
         })
         .catch(error => console.log(error));
     }
 
     handleModal();
-
-    setModified(false);
-
   };
 
-  const handleCancel = () => {
+  const limpaForm = () => {
+    formik.resetForm();
+
     setEmpr({
       id: 0,
       nome: '',
@@ -140,8 +117,13 @@ const ModalEmpresas = ({ handleModal, showModal, idEmpresa, setIdEmpresa, modo }
       agrupar_fatura_contrato: false
     });
     setIdEmpresa(0);
+    setContato([]);
+    setEndereco([]);  
+  }
+
+  const handleCancel = () => {
+    limpaForm();
     handleModal();
-    setModified(false);
   };
 
   const handleEndereco = (endereco) => {
@@ -154,7 +136,7 @@ const ModalEmpresas = ({ handleModal, showModal, idEmpresa, setIdEmpresa, modo }
 
   const handleModified = () => {
     setModified(true);
-  }
+  }  
 
   return (
     <Modal
@@ -169,7 +151,7 @@ const ModalEmpresas = ({ handleModal, showModal, idEmpresa, setIdEmpresa, modo }
               : <h2>ATUALIZAR EMPRESA</h2>
             }
           </div>
-
+          <form noValidate onSubmit={formik.handleSubmit}>
           <Grid container spacing={2}>
             <Grid item sm={12} md={6}>
               <TextField
@@ -177,13 +159,10 @@ const ModalEmpresas = ({ handleModal, showModal, idEmpresa, setIdEmpresa, modo }
                 name="nome"
                 autoFocus
                 fullWidth
-                required
-                onChange={handleCompanyDataChange}
-                value={empr.nome}
-                error={!validations.fieldRequired(empr && empr.nome)}
-                InputLabelProps={{
-                  className: styles.inputModal,
-                }}
+                onChange={formik.handleChange}
+                value={formik.values.nome}
+                error={formik.touched.nome && Boolean(formik.errors.nome)}
+                helperText={formik.touched.nome && formik.errors.nome}                
               />
             </Grid>
             <Grid item sm={6} md={3}>
@@ -191,11 +170,10 @@ const ModalEmpresas = ({ handleModal, showModal, idEmpresa, setIdEmpresa, modo }
                 label="Tipo de Pessoa"
                 name="tipo_doc"
                 select
-                required
-                value={empr.tipo_doc}
-                onChange={handleCompanyDataChange}
-                helperText="Jurídica / Física"
-                error={!validations.fieldRequired(empr.tipo_doc)}
+                onChange={formik.handleChange}
+                value={formik.values.tipo_doc}
+                error={formik.touched.tipo_doc && Boolean(formik.errors.tipo_doc)}
+                helperText={formik.touched.tipo_doc && formik.errors.tipo_doc}      
                 InputLabelProps={{
                   className: styles.inputModal,
                 }}
@@ -206,18 +184,21 @@ const ModalEmpresas = ({ handleModal, showModal, idEmpresa, setIdEmpresa, modo }
               </TextField>
             </Grid>
             <Grid item sm={6} md={3}>
-              <TextField
-                label="Documento"
-                name="documento"
-                fullWidth
-                required
-                onChange={handleCompanyDataChange}
-                value={empr.documento}
-                error={!validations.cnpj(empr.documento)}
-                InputLabelProps={{
-                  className: styles.inputModal,
-                }}
-              />
+                <InputMask
+                    mask="99.999.999/9999-99"
+                    maskChar=" "
+                    onChange={formik.handleChange}
+                    value={formik.values.documento}                    
+                >
+                {() => <TextField
+                    label="Documento"
+                    name="documento"
+                    fullWidth
+
+                    error={formik.touched.documento && Boolean(formik.errors.documento)}
+                    helperText={formik.touched.documento && formik.errors.documento}
+                /> }
+                </InputMask>                 
             </Grid>
           </Grid>
           <Grid container spacing={2}>
@@ -228,8 +209,8 @@ const ModalEmpresas = ({ handleModal, showModal, idEmpresa, setIdEmpresa, modo }
                   <Checkbox
                     name="gerar_nf"
                     color="primary"
-                    onChange={handleCompanyDataChange}
-                    checked={empr.gerar_nf}
+                    onChange={formik.handleChange}
+                    checked={formik.values.gerar_nf}
                   />
                 }
                 label="Gerar NF"
@@ -241,8 +222,8 @@ const ModalEmpresas = ({ handleModal, showModal, idEmpresa, setIdEmpresa, modo }
                   <Checkbox
                     name="retem_iss"
                     color="primary"
-                    onChange={handleCompanyDataChange}
-                    checked={empr.retem_iss}
+                    onChange={formik.handleChange}
+                    checked={formik.values.retem_iss}
                   />
                 }
                 label="Retém ISS"
@@ -254,8 +235,8 @@ const ModalEmpresas = ({ handleModal, showModal, idEmpresa, setIdEmpresa, modo }
                   <Switch
                     name="agrupar_fatura_contrato"
                     color="primary"
-                    onChange={handleCompanyDataChange}
-                    checked={empr.agrupar_fatura_contrato}
+                    onChange={formik.handleChange}
+                    checked={formik.values.agrupar_fatura_contrato}
                   />
                 }
                 label="Agrupar Fatura por Contrato"
@@ -267,15 +248,12 @@ const ModalEmpresas = ({ handleModal, showModal, idEmpresa, setIdEmpresa, modo }
             <Grid item lg={12}>
               <TextField
                 name="obs"
-                required
                 label="Obs"
-                onChange={handleCompanyDataChange}
-                value={empr.obs}
-                error={!validations.fieldRequired(empr.obs)}
-                InputLabelProps={{
-                  className: styles.inputModal,
-                }}
-                className={styles.fullWidthSpace}
+                fullWidth
+                onChange={formik.handleChange}
+                value={formik.values.obs}
+                error={formik.touched.obs && Boolean(formik.errors.obs)}
+                helperText={formik.touched.obs && formik.errors.obs}   
               />
             </Grid>
 
@@ -296,16 +274,9 @@ const ModalEmpresas = ({ handleModal, showModal, idEmpresa, setIdEmpresa, modo }
 
           <div align="right">
             <Button
-              onClick={update}
+              type="submit"
               className={styles.buttonGravar}
-              disabled={!
-                (validations.fieldRequired(empr.nome) &&
-                  (validations.fieldRequired(empr.documento)) &&
-                  (validations.fieldRequired(empr.tipo_doc)) &&
-                  (validations.fieldRequired(empr.obs)) &&
-                  (validations.cnpj(empr.documento)) &&
-                  modified)
-              }
+              disabled={formik.isSubmitting}
             >
               Gravar
           </Button>
@@ -316,6 +287,7 @@ const ModalEmpresas = ({ handleModal, showModal, idEmpresa, setIdEmpresa, modo }
               Cancelar
           </Button>
           </div>
+          </form>          
         </div>
       </div>
     </Modal>

@@ -14,11 +14,9 @@ import ModalBanco from '../components/modals/ModalBanco';
 import { isLogin } from '../services/loginServices';
 import api from '../services/api';
 
-
 const searchFieldStyle = {
   marginRight: 30
 };
-
 
 // BANCOS COMPONENT
 export default function Bancos() {
@@ -36,6 +34,7 @@ export default function Bancos() {
   const columns = [
     { title: "Id", field: "id" },
     { title: "Descrição", field: "descricao" },
+    { title: "Código", field: "codigo" },
   ];
 
   const loadData = (resolve, reject, query) => {
@@ -154,11 +153,6 @@ export default function Bancos() {
             },
           }}
         />
-        <button
-          onClick={() => tableRef.current.onQueryChange()}
-        >
-          refresh material-tablez
-          </button>
       </div>
 
       <ModalBanco

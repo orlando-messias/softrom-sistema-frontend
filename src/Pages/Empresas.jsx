@@ -157,11 +157,7 @@ export default function Empresas() {
             },
           }}
         />
-        <button
-          onClick={() => tableRef.current.onQueryChange()}
-        >
-          refresh material-tablez
-          </button>
+
       </div>
 
       <ModalEmpresas
