@@ -8,8 +8,8 @@ import Autocomplete from "@material-ui/lab/Autocomplete";
 import api from "../../services/api";
 
 
-// COMBO SERVICO COMPONENT
-const ComboServico = ({ servico, setCurrentServico }) => {
+// COMBO CENTRO DE CUSTO COMPONENT
+const ComboCentroCusto = ({ centroCusto, setCurrentCentroCusto }) => {
   const [data, setData] = useState([]);
   const [valueSelect, setValueSelect] = useState('');
 
@@ -22,13 +22,13 @@ const ComboServico = ({ servico, setCurrentServico }) => {
   let isRendered = useRef(false);
 
   useEffect(() => {
-    setValueSelect(servico);
-  }, [servico]);
+    setValueSelect(centroCusto);
+  }, [centroCusto]);
 
   useEffect(() => {
     isRendered = true;
     api(user.token)
-      .get(`/origem/${origin_id}/empresa/${empresa_id}/servico`)
+      .get(`/origem/${origin_id}/empresa/${empresa_id}/centro_custo`)
       .then((response) => {
         if (isRendered) {
           setData(response.data.result.data);
@@ -42,8 +42,8 @@ const ComboServico = ({ servico, setCurrentServico }) => {
   }, []);
 
   useEffect(() => {
-    setValueSelect(servico);
-  }, [servico]);
+    setValueSelect(centroCusto);
+  }, [centroCusto]);
 
   return (
     <>
@@ -52,16 +52,16 @@ const ComboServico = ({ servico, setCurrentServico }) => {
         value={valueSelect || null}
         onChange={(event, newValue) => {
           setValueSelect(newValue);
-          setCurrentServico(newValue);
+          setCurrentCentroCusto(newValue);
         }}
         getOptionLabel={(option) => option.id + "-" + option.descricao}
         style={{ width: 300, marginTop: 10}}
         renderInput={(params) => (
-          <TextField {...params} label="Servico" variant="outlined" size="small" />
+          <TextField {...params} label="Centro de Custo" variant="outlined" size="small" />
         )}
       />
     </>
   );
 };
 
-export default ComboServico;
+export default ComboCentroCusto;

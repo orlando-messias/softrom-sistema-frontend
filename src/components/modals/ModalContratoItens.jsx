@@ -8,7 +8,6 @@ import {
   Button,
   Grid,
 } from '@material-ui/core';
-import Autocomplete from "@material-ui/lab/Autocomplete";
 import AddCircleIcon from '@material-ui/icons/AddCircle';
 import CreateIcon from '@material-ui/icons/Create';
 // styles
@@ -22,6 +21,10 @@ import 'date-fns';
 import DateFnsUtils from '@date-io/date-fns';
 import { MuiPickersUtilsProvider, KeyboardDatePicker } from "@material-ui/pickers";
 import ComboServico from '../combos/ComboServico';
+import ComboMotivoTerminoContrato from '../combos/ComboMotivoTerminoContrato';
+import ComboGrupoServico from '../combos/ComboGrupoServico';
+import ComboCentroCusto from '../combos/ComboCentroCusto';
+import ComboContaContabil from '../combos/ComboContaContabil';
 
 
 
@@ -39,6 +42,10 @@ const ModalContratoItens = ({
     servico: { id: '', descricao: '' },
     quantidade: 0,
     valor: 0,
+    motivoTerminoContrato: { id: '', descricao: '' },
+    grupoServico: { id: '', descricao: '' },
+    centroCusto: { id: '', descricao: '' },
+    contaContabil: { id: '', descricao: '' },
     obs: ''
   });
 
@@ -162,6 +169,34 @@ const ModalContratoItens = ({
     }));
   };
 
+  const setCurrentMotivoTerminoContrato = (motivoTerminoContrato) => {
+    setItensContrato(prevState => ({
+      ...prevState,
+      motivoTerminoContrato: motivoTerminoContrato
+    }));
+  };
+
+  const setCurrentGrupoServico = (grupoServico) => {
+    setItensContrato(prevState => ({
+      ...prevState,
+      grupoServico: grupoServico
+    }));
+  };
+
+  const setCurrentCentroCusto = (centroCusto) => {
+    setItensContrato(prevState => ({
+      ...prevState,
+      centroCusto: centroCusto
+    }));
+  };
+
+  const setCurrentContaContabil = (contaContabil) => {
+    setItensContrato(prevState => ({
+      ...prevState,
+      contaContabil: contaContabil
+    }));
+  };
+
 
   return (
     <Modal
@@ -269,62 +304,30 @@ const ModalContratoItens = ({
             </Grid>
 
             <Grid item sm={12} md={4}>
-              <Autocomplete
-                options={[]}
-                value={null}
-                onChange={(event, newValue) => {
-                  handleContratoItensDataChange(newValue);
-                }}
-                className={styles.controls}
-                // getOptionLabel={(option) => '1' + " - " + 'item'}
-                renderInput={(params) => (
-                  <TextField {...params} label="Motivo Término Contrato" variant="outlined" size="small" className={styles.autoComplete} />
-                )}
+              <ComboMotivoTerminoContrato
+                motivoTerminoContrato={itensContrato.motivoTerminoContrato}
+                setCurrentMotivoTerminoContrato={setCurrentMotivoTerminoContrato}
               />
             </Grid>
           </Grid>
 
           <Grid container spacing={4}>
             <Grid item sm={12} md={4}>
-              <Autocomplete
-                options={[]}
-                value={null}
-                onChange={(event, newValue) => {
-                  handleContratoItensDataChange(newValue);
-                }}
-                className={styles.controls}
-                // getOptionLabel={(option) => '1' + " - " + 'item'}
-                renderInput={(params) => (
-                  <TextField {...params} label="Grupo de Serviço" variant="outlined" size="small" className={styles.autoComplete} />
-                )}
+              <ComboGrupoServico
+                grupoServico={itensContrato.grupoServico}
+                setCurrentGrupoServico={setCurrentGrupoServico}
               />
             </Grid>
             <Grid item sm={12} md={4}>
-              <Autocomplete
-                options={[]}
-                value={null}
-                onChange={(event, newValue) => {
-                  handleContratoItensDataChange(newValue);
-                }}
-                className={styles.controls}
-                // getOptionLabel={(option) => '1' + " - " + 'item'}
-                renderInput={(params) => (
-                  <TextField {...params} label="Centro de Custo" variant="outlined" size="small" className={styles.autoComplete} />
-                )}
+              <ComboCentroCusto
+                centroCusto={itensContrato.centroCusto}
+                setCurrentCentroCusto={setCurrentCentroCusto}
               />
             </Grid>
             <Grid item sm={12} md={4}>
-              <Autocomplete
-                options={[]}
-                value={null}
-                onChange={(event, newValue) => {
-                  handleContratoItensDataChange(newValue);
-                }}
-                className={styles.controls}
-                // getOptionLabel={(option) => '1' + " - " + 'item'}
-                renderInput={(params) => (
-                  <TextField {...params} label="Conta Contábil" variant="outlined" size="small" className={styles.autoComplete} />
-                )}
+              <ComboContaContabil
+                contaContabil={itensContrato.contaContabil}
+                setCurrentContaContabil={setCurrentContaContabil}
               />
             </Grid>
           </Grid>

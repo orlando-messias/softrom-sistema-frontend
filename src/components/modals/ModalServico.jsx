@@ -8,7 +8,6 @@ import {
   Button,
   Grid,
 } from '@material-ui/core';
-import Autocomplete from "@material-ui/lab/Autocomplete";
 // styles
 import useStyles from './ModalServicoStyles';
 // services
@@ -16,11 +15,13 @@ import api from '../../services/api';
 import validations from '../../services/validations';
 // toastify
 import { toast } from 'react-toastify';
+import ComboContaContabil from '../combos/ComboContaContabil';
 
 
 // MODALSERVICO COMPONENT
 const ModalServico = ({ handleModal, showModal, idServico, setIdServico, modo }) => {
   const [servico, setServico] = useState({
+    contaContabil: { id: '', descricao: '' },
     origem_id: 1,
     empresa_id: 51,
     conta_contabil_id: 0,
@@ -114,6 +115,13 @@ const ModalServico = ({ handleModal, showModal, idServico, setIdServico, modo })
     setModified(false);
   };
 
+  const setCurrentContaContabil = (contaContabil) => {
+    setServico(prevState => ({
+      ...prevState,
+      contaContabil: contaContabil
+    }));
+  };
+
 
   return (
     <Modal
@@ -131,17 +139,9 @@ const ModalServico = ({ handleModal, showModal, idServico, setIdServico, modo })
 
           <Grid container spacing={2}>
             <Grid item sm={6} md={4}>
-              <Autocomplete
-                options={contaContabil}
-                value={contaContabilId || null}
-                onChange={(event, newValue) => {
-                  setContaContabilId(newValue);
-                }}
-                className={styles.controls}
-                getOptionLabel={(option) => option.id + " - " + option.descricao}
-                renderInput={(params) => (
-                  <TextField {...params} label="Conta Contábil" variant="outlined" />
-                )}
+              <ComboContaContabil 
+                contaContabil={servico.contaContabil}
+                setCurrentContaContabil={setCurrentContaContabil}
               />
             </Grid>
 
