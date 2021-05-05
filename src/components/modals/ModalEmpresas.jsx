@@ -62,7 +62,6 @@ const ModalEmpresas = ({ handleModal, showModal, idEmpresa, setIdEmpresa, modo }
     initialValues: empr,
     validationSchema: cadastroFormSchema,
     onSubmit: (values) => {
-        console.log(JSON.stringify(values, null, 2));
         formik.setSubmitting(false);
         update(values);
     },
@@ -249,8 +248,8 @@ const ModalEmpresas = ({ handleModal, showModal, idEmpresa, setIdEmpresa, modo }
             <Grid item lg={12}>
               <TextField
                 name="obs"
-                required
                 label="Obs"
+                fullWidth
                 onChange={formik.handleChange}
                 value={formik.values.obs}
                 error={formik.touched.obs && Boolean(formik.errors.obs)}
