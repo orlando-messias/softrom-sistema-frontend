@@ -15,6 +15,9 @@ import SelecaoEmpresa from "./Pages/SelecaoEmpresa";
 import Contrato from "./Pages/Contrato";
 import CentroCusto from "./Pages/CentroCusto";
 import ContaContabil from "./Pages/ContaContabil";
+import MotivoTerminoContrato from "./Pages/MotivoTerminoContrato";
+import GrupoServico from "./Pages/GrupoServico";
+import Atividade from "./Pages/Atividade";
 
 function Routes() {
   return (
@@ -31,6 +34,9 @@ function Routes() {
       <Route path="/contrato" component={Contrato} />
       <Route path="/centro-custo" component={CentroCusto} />
       <Route path="/conta-contabil" component={ContaContabil} />
+      <Route path="/motivo-termino-contrato" component={MotivoTerminoContrato} />
+      <Route path="/grupo-servico" component={GrupoServico} />
+      <Route path="/atividade" component={Atividade} />
     </Router>
   );
 }

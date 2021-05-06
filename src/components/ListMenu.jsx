@@ -29,7 +29,10 @@ import {
   ContactMail as ContactMailIcon,
   AttachMoney as AttachMoneyIcon,
   ExpandLess,
-  ExpandMore
+  ExpandMore,
+  Cancel as CancelIcon,
+  Work as WorkIcon,
+  GroupWork as GroupWorkIcon
 } from '@material-ui/icons';
 // styles
 import useStyles from './ListMenuStyles';
@@ -124,7 +127,7 @@ export default function ListMenu() {
           {/* itens inside menu Diversos */}
           <Collapse in={openDiversos} timeout="auto" unmountOnExit>
             <List component="div" disablePadding>
-              <ListItem button>
+              <ListItem button onClick={() => handleLinkClick('atividade')}>
                 <ListItemIcon>
                   <AssignmentIcon className={styles.subSubItemIcon} />
                 </ListItemIcon>
@@ -204,6 +207,14 @@ export default function ListMenu() {
                   <Typography className={styles.subItem}>Grupos</Typography>
                 </ListItemText>
               </ListItem>
+              <ListItem button onClick={() => handleLinkClick('grupo-servico')}>
+                <ListItemIcon>
+                  <GroupWorkIcon className={styles.subSubItemIcon} />
+                </ListItemIcon>
+                <ListItemText  >
+                  <Typography className={styles.subItem}>Grupos Serviço</Typography>
+                </ListItemText>
+              </ListItem>
               <ListItem button>
                 <ListItemIcon>
                   <DescriptionIcon className={styles.subSubItemIcon} />
@@ -230,7 +241,7 @@ export default function ListMenu() {
               </ListItem>
               <ListItem button>
                 <ListItemIcon>
-                  <BusinessIcon className={styles.subSubItemIcon} />
+                  <WorkIcon className={styles.subSubItemIcon} />
                 </ListItemIcon>
                 <ListItemText  >
                   <Typography className={styles.subItem}>Vendedor</Typography>
@@ -242,6 +253,14 @@ export default function ListMenu() {
                 </ListItemIcon>
                 <ListItemText  >
                   <Typography className={styles.subItem}>Serviço</Typography>
+                </ListItemText>
+              </ListItem>
+              <ListItem button onClick={() => handleLinkClick("motivo-termino-contrato")}>
+                <ListItemIcon>
+                  <CancelIcon className={styles.subSubItemIcon} />
+                </ListItemIcon>
+                <ListItemText  >
+                  <Typography className={styles.subItem}>Término Contrato</Typography>
                 </ListItemText>
               </ListItem>
             </List>

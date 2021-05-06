@@ -24,7 +24,7 @@ const ComboParticipante = ({ participante, setCurrentParticipante }) => {
   useEffect(() => {
     isRendered = true;
     api(user.token)
-      .get(`/origem/${origin_id}/empresa/${empresa_id}/participante`)
+      .get(`/origem/${origin_id}/empresa/51/participante`)
       .then((response) => {
         if (isRendered) {
           setData(response.data.result.data);
