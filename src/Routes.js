@@ -13,6 +13,8 @@ import Grupos from "./Pages/Grupos";
 import Servico from "./Pages/Servico";
 import SelecaoEmpresa from "./Pages/SelecaoEmpresa";
 import Contrato from "./Pages/Contrato";
+import CentroCusto from "./Pages/CentroCusto";
+import ContaContabil from "./Pages/ContaContabil";
 
 function Routes() {
   return (
@@ -27,6 +29,8 @@ function Routes() {
       <Route path="/grupos" component={Grupos} />
       <Route path="/servico" component={Servico} />
       <Route path="/contrato" component={Contrato} />
+      <Route path="/centro-custo" component={CentroCusto} />
+      <Route path="/conta-contabil" component={ContaContabil} />
     </Router>
   );
 }

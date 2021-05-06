@@ -28,7 +28,7 @@ const ComboMotivoTerminoContrato = ({ motivoTerminoContrato, setCurrentMotivoTer
   useEffect(() => {
     isRendered = true;
     api(user.token)
-      .get(`/origem/${origin_id}/empresa/${empresa_id}/contrato_motivo_termino`)
+      .get(`/origem/${origin_id}/empresa/51/contrato_motivo_termino`)
       .then((response) => {
         if (isRendered) {
           setData(response.data.result.data);
@@ -54,7 +54,7 @@ const ComboMotivoTerminoContrato = ({ motivoTerminoContrato, setCurrentMotivoTer
           setValueSelect(newValue);
           setCurrentMotivoTerminoContrato(newValue);
         }}
-        getOptionLabel={(option) => option.id + "-" + option.descricao}
+        getOptionLabel={(option) => option.id + " - " + option.descricao}
         style={{ width: 300, marginTop: 10}}
         renderInput={(params) => (
           <TextField {...params} label="Motivo Término Contrato" variant="outlined" size="small" />

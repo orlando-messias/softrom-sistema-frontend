@@ -28,7 +28,7 @@ const ComboGrupoServico = ({ grupoServico, setCurrentGrupoServico }) => {
   useEffect(() => {
     isRendered = true;
     api(user.token)
-      .get(`/origem/${origin_id}/empresa/${empresa_id}/grupo_servico`)
+      .get(`/origem/${origin_id}/empresa/51/grupo_servico`)
       .then((response) => {
         if (isRendered) {
           setData(response.data.result.data);
@@ -54,7 +54,7 @@ const ComboGrupoServico = ({ grupoServico, setCurrentGrupoServico }) => {
           setValueSelect(newValue);
           setCurrentGrupoServico(newValue);
         }}
-        getOptionLabel={(option) => option.id + "-" + option.descricao}
+        getOptionLabel={(option) => option.id + " - " + option.descricao}
         style={{ width: 300, marginTop: 10}}
         renderInput={(params) => (
           <TextField {...params} label="Grupo de Serviço" variant="outlined" size="small" />
