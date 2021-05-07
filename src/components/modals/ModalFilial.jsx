@@ -50,6 +50,7 @@ const ModalFilial = ({ handleModal, showModal, idFilial, setIdFilial, modo }) =>
   const formik = useFormik({
     initialValues: filial,
     validationSchema: cadastroFormSchema,
+    enableReinitialize: true,
     onSubmit: (values) => {
         formik.setSubmitting(false);
         update(values);
@@ -158,7 +159,7 @@ const ModalFilial = ({ handleModal, showModal, idFilial, setIdFilial, modo }) =>
             </Grid>
             <Grid item sm={6} md={3}>
             <InputMask
-                    mask="99.999.999/9999-99"
+                    mask={(formik.values.tipo_doc === "Física")? "999.999.999-99" : "99.999.999/9999-99"}
                     maskChar=" "
                     onChange={formik.handleChange}
                     value={formik.values.documento}                    
@@ -179,7 +180,7 @@ const ModalFilial = ({ handleModal, showModal, idFilial, setIdFilial, modo }) =>
             <Button
               type="submit"
               className={styles.buttonGravar}
-              disabled={formik.isSubmitting}
+              disabled={!(formik.dirty) || formik.isSubmitting}
             >
               Gravar
           </Button>

@@ -101,6 +101,22 @@ export default function TopBar({ handleDrawerOpen, open }) {
     localStorage.removeItem('user');
     history.push('/');
   };
+  
+  useEffect(() => {
+    const listener = event => {
+      if (event.keyCode === 116) {
+        if (window.confirm("Atualizar a página? Todos os dados não salvos serão descartados.")) {
+          history.push('/');
+        } else {
+          event.preventDefault();
+        }
+      }
+    };
+    document.addEventListener("keydown", listener);
+    return () => {
+      document.removeEventListener("keydown", listener);
+    };
+  }, []);  
 
   return (
     <AppBar

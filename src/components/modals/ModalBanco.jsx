@@ -42,6 +42,7 @@ const ModalBanco = ({ handleModal, showModal, idBanco, setidBanco, modo }) => {
   const formik = useFormik({
     initialValues: banco,
     validationSchema: cadastroFormSchema,
+    enableReinitialize: true,
     onSubmit: (values) => {
         formik.setSubmitting(false);
         update(values);
@@ -148,7 +149,8 @@ const ModalBanco = ({ handleModal, showModal, idBanco, setidBanco, modo }) => {
             <Button
               type="submit"
               className={styles.buttonGravar}
-              disabled={formik.isSubmitting}
+              disabled={!(formik.dirty) || formik.isSubmitting}
+              
             >
               Gravar
           </Button>

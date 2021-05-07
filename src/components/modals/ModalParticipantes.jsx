@@ -62,6 +62,7 @@ const ModalParticipantes = ({ handleModal, showModal, idParticipante, setIdParti
   const formik = useFormik({
     initialValues: particip,
     validationSchema: cadastroFormSchema,
+    enableReinitialize: true,
     onSubmit: (values) => {
         console.log(JSON.stringify(values, null, 2));
         formik.setSubmitting(false);
@@ -123,6 +124,7 @@ const ModalParticipantes = ({ handleModal, showModal, idParticipante, setIdParti
     setIdParticipante(0);
     setContato([]);
     setEndereco([]);  
+    setModified(false);
   }
 
   const handleCancel = () => {
@@ -282,7 +284,7 @@ const ModalParticipantes = ({ handleModal, showModal, idParticipante, setIdParti
             <Button
               type="submit"
               className={styles.buttonGravar}
-              disabled={formik.isSubmitting}
+              disabled={(!(formik.dirty || modified) || formik.isSubmitting)}
             >
               Gravar
           </Button>
