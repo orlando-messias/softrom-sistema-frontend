@@ -12,9 +12,11 @@ import {
 import useStyles from './ModalCentroCustoStyles';
 // services
 import api from '../../services/api';
-import validations from '../../services/validations';
-
 import { toast } from 'react-toastify';
+//validações
+import * as yup from 'yup';
+//formulário
+import { useFormik } from 'formik';
 
 
 // MODALBANCO COMPONENT
@@ -22,33 +24,38 @@ const ModalCentroCusto = ({ handleModal, showModal, idCentroCusto, setIdCentroCu
   const [centroCusto, setCentroCusto] = useState({
     descricao: '',
   });
-  const [modified, setModified] = useState(false);
 
   const styles = useStyles();
   const user = useSelector(state => state.loginReducer.user);
   const origin_id = useSelector(state => state.loginReducer.origin);
 
+  const cadastroFormSchema = yup.object().shape({
+    descricao: yup.string().required('Descrição obrigatória.').min(3, 'No mínimo 3 caracteres.'),
+  })
+
+  const formik = useFormik({
+    initialValues: centroCusto,
+    validationSchema: cadastroFormSchema,
+    enableReinitialize: true,
+    onSubmit: (values) => {
+      formik.setSubmitting(false);
+      update(values);
+    },
+  });
+
   useEffect(() => {
     if (modo === 'edit') {
       api(user.token).get(`/origem/${origin_id}/empresa/51/centro_custo/${idCentroCusto}`)
-        .then(response => setCentroCusto(response.data.result[0]))
+        .then(response => {
+          setCentroCusto(response.data.result[0]);
+          formik.setValues(response.data.result[0]);
+        })
         .catch(e => console.log(e));
     }
   }, [idCentroCusto, modo, user.token, origin_id]);
 
-  const handleBancoDataChange = (e) => {
-    let { name, value } = e.target;
-
-    setCentroCusto(prevState => ({
-      ...prevState,
-      [name]: value
-    }));
-
-    setModified(true);
-  };
-
-  const update = async () => {
-    const centroCustoData = { ...centroCusto, modo };
+  const update = async (values) => {
+    const centroCustoData = { ...values, modo };
     if (modo === 'insert') {
       await api(user.token).post(`/origem/${origin_id}/empresa/51/centro_custo`, centroCustoData)
         .then(() => {
@@ -57,6 +64,7 @@ const ModalCentroCusto = ({ handleModal, showModal, idCentroCusto, setIdCentroCu
             id: 0,
             descricao: ''
           });
+          limpaForm();
         })
         .catch(error => console.log(error));
     }
@@ -74,17 +82,21 @@ const ModalCentroCusto = ({ handleModal, showModal, idCentroCusto, setIdCentroCu
     }
 
     handleModal();
-    setModified(false);
   };
 
-  const handleCancel = () => {
+  const limpaForm = () => {
+    formik.resetForm();
+
     setCentroCusto({
       id: 0,
       descricao: '',
     });
     setIdCentroCusto(0);
+  };
+
+  const handleCancel = () => {
+    limpaForm();
     handleModal();
-    setModified(false);
   };
 
 
@@ -102,42 +114,43 @@ const ModalCentroCusto = ({ handleModal, showModal, idCentroCusto, setIdCentroCu
             }
           </div>
 
-          <Grid container spacing={2}>
-            <Grid item sm={6} md={8}>
-              <TextField
-                label="Descrição"
-                name="descricao"
-                fullWidth
-                autoFocus
-                required
-                onChange={handleBancoDataChange}
-                value={centroCusto.descricao}
-                error={!validations.fieldRequired(centroCusto && centroCusto.descricao)}
-                InputLabelProps={{
-                  className: styles.inputModal,
-                }}
-              />
-            </Grid>
-          </Grid>
+          <form noValidate onSubmit={formik.handleSubmit}>
 
-          <div align="right">
-            <Button
-              onClick={update}
-              className={styles.buttonGravar}
-              disabled={!
-                (validations.fieldRequired(centroCusto.descricao) &&
-                  modified)
-              }
-            >
-              Gravar
-          </Button>
-            <Button
-              onClick={handleCancel}
-              className={styles.buttonCancelar}
-            >
-              Cancelar
-          </Button>
-          </div>
+            <Grid container spacing={2}>
+              <Grid item sm={6} md={8}>
+                <TextField
+                  label="Descrição"
+                  name="descricao"
+                  fullWidth
+                  autoFocus
+                  required
+                  onChange={formik.handleChange}
+                  value={formik.values.descricao}
+                  error={formik.touched.descricao && Boolean(formik.errors.descricao)}
+                  helperText={formik.touched.descricao && formik.errors.descricao}
+                  InputLabelProps={{
+                    className: styles.inputModal,
+                  }}
+                />
+              </Grid>
+            </Grid>
+
+            <div align="right">
+              <Button
+                type="submit"
+                className={styles.buttonGravar}
+                disabled={!formik.dirty || formik.isSubmitting}
+              >
+                Gravar
+              </Button>
+              <Button
+                onClick={handleCancel}
+                className={styles.buttonCancelar}
+              >
+                Cancelar
+            </Button>
+            </div>
+          </form>
         </div>
       </div>
     </Modal>
