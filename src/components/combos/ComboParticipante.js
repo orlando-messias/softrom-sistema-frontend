@@ -7,7 +7,6 @@ import Autocomplete from "@material-ui/lab/Autocomplete";
 // services
 import api from "../../services/api";
 
-
 // COMBOPARTICIPANTE COMPONENT
 const ComboParticipante = ({ participante, setCurrentParticipante }) => {
   const [data, setData] = useState([]);
@@ -53,7 +52,12 @@ const ComboParticipante = ({ participante, setCurrentParticipante }) => {
         getOptionLabel={(option) => option.id + "-" + option.nome}
         style={{ width: 300, marginBottom: 20 }}
         renderInput={(params) => (
-          <TextField {...params} label="Participante" variant="outlined" size="small" />
+          <TextField
+            {...params}
+            label="Participante"
+            variant="outlined"
+            size="small"
+          />
         )}
       />
     </>
