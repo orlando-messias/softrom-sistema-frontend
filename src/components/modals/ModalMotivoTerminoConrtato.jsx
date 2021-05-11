@@ -12,9 +12,12 @@ import {
 import useStyles from './ModalMotivoTerminoContratoStyles';
 // services
 import api from '../../services/api';
-import validations from '../../services/validations';
 
 import { toast } from 'react-toastify';
+//validações
+import * as yup from 'yup';
+//formulário
+import { useFormik } from 'formik';
 
 
 // MODAL MOTIVO TERMINO CONTRATO COMPONENT
@@ -22,33 +25,39 @@ const ModalMotivoTerminoContrato = ({ handleModal, showModal, idMotivoTerminoCon
   const [motivoTerminoContrato, SetMotivoTerminoContrato] = useState({
     descricao: '',
   });
-  const [modified, setModified] = useState(false);
 
   const styles = useStyles();
   const user = useSelector(state => state.loginReducer.user);
   const origin_id = useSelector(state => state.loginReducer.origin);
 
+  const cadastroFormSchema = yup.object().shape({
+    descricao: yup.string().required('Descrição obrigatória.').min(3, 'No mínimo 3 caracteres.'),
+  })
+
+  const formik = useFormik({
+    initialValues: motivoTerminoContrato,
+    validationSchema: cadastroFormSchema,
+    enableReinitialize: true,
+    onSubmit: (values) => {
+      formik.setSubmitting(false);
+      update(values);
+    },
+  });
+
   useEffect(() => {
     if (modo === 'edit') {
       api(user.token).get(`/origem/${origin_id}/empresa/51/contrato_motivo_termino/${idMotivoTerminoContrato}`)
-        .then(response => SetMotivoTerminoContrato(response.data.result[0]))
+        .then(response => {
+          SetMotivoTerminoContrato(response.data.result[0]);
+          formik.setValues(response.data.result[0]);
+        })
         .catch(e => console.log(e));
     }
   }, [idMotivoTerminoContrato, modo, user.token, origin_id]);
 
-  const handleBancoDataChange = (e) => {
-    let { name, value } = e.target;
 
-    SetMotivoTerminoContrato(prevState => ({
-      ...prevState,
-      [name]: value
-    }));
-
-    setModified(true);
-  };
-
-  const update = async () => {
-    const centroCustoData = { ...motivoTerminoContrato, modo };
+  const update = async (values) => {
+    const centroCustoData = { ...values, modo };
     if (modo === 'insert') {
       await api(user.token).post(`/origem/${origin_id}/empresa/51/contrato_motivo_termino`, centroCustoData)
         .then(() => {
@@ -57,6 +66,7 @@ const ModalMotivoTerminoContrato = ({ handleModal, showModal, idMotivoTerminoCon
             id: 0,
             descricao: ''
           });
+          limpaForm();
         })
         .catch(error => console.log(error));
     }
@@ -74,17 +84,21 @@ const ModalMotivoTerminoContrato = ({ handleModal, showModal, idMotivoTerminoCon
     }
 
     handleModal();
-    setModified(false);
   };
 
-  const handleCancel = () => {
+  const limpaForm = () => {
+    formik.resetForm();
+
     SetMotivoTerminoContrato({
       id: 0,
       descricao: '',
     });
     setIdMotivoTerminoContrato(0);
+  };
+
+  const handleCancel = () => {
+    limpaForm();
     handleModal();
-    setModified(false);
   };
 
 
@@ -102,42 +116,42 @@ const ModalMotivoTerminoContrato = ({ handleModal, showModal, idMotivoTerminoCon
             }
           </div>
 
-          <Grid container spacing={2}>
-            <Grid item sm={6} md={8}>
-              <TextField
-                label="Descrição"
-                name="descricao"
-                fullWidth
-                autoFocus
-                required
-                onChange={handleBancoDataChange}
-                value={motivoTerminoContrato.descricao}
-                error={!validations.fieldRequired(motivoTerminoContrato && motivoTerminoContrato.descricao)}
-                InputLabelProps={{
-                  className: styles.inputModal,
-                }}
-              />
+          <form noValidate onSubmit={formik.handleSubmit}>
+            <Grid container spacing={2}>
+              <Grid item sm={6} md={8}>
+                <TextField
+                  label="Descrição"
+                  name="descricao"
+                  fullWidth
+                  autoFocus
+                  required
+                  onChange={formik.handleChange}
+                  value={formik.values.descricao}
+                  error={formik.touched.descricao && Boolean(formik.errors.descricao)}
+                  helperText={formik.touched.descricao && formik.errors.descricao}
+                  InputLabelProps={{
+                    className: styles.inputModal,
+                  }}
+                />
+              </Grid>
             </Grid>
-          </Grid>
 
-          <div align="right">
-            <Button
-              onClick={update}
-              className={styles.buttonGravar}
-              disabled={!
-                (validations.fieldRequired(motivoTerminoContrato.descricao) &&
-                  modified)
-              }
-            >
-              Gravar
-          </Button>
-            <Button
-              onClick={handleCancel}
-              className={styles.buttonCancelar}
-            >
-              Cancelar
-          </Button>
-          </div>
+            <div align="right">
+              <Button
+                type="submit"
+                className={styles.buttonGravar}
+                disabled={!formik.dirty || formik.isSubmitting}
+              >
+                Gravar
+              </Button>
+              <Button
+                onClick={handleCancel}
+                className={styles.buttonCancelar}
+              >
+                Cancelar
+              </Button>
+            </div>
+          </form>
         </div>
       </div>
     </Modal>

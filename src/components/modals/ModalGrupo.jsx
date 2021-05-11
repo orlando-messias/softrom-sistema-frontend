@@ -12,9 +12,12 @@ import {
 import useStyles from './ModalGrupoStyles';
 // services
 import api from '../../services/api';
-import validations from '../../services/validations';
 
 import { toast } from 'react-toastify';
+//validações
+import * as yup from 'yup';
+//formulário
+import { useFormik } from 'formik';
 
 
 // MODALGRUPO COMPONENT
@@ -22,33 +25,39 @@ const ModalGrupo = ({ handleModal, showModal, idGrupo, setIdGrupo, modo }) => {
   const [grupo, setGrupo] = useState({
     descricao: ''
   });
-  const [modified, setModified] = useState(false);
 
   const styles = useStyles();
   const user = useSelector(state => state.loginReducer.user);
   const origin_id = useSelector(state => state.loginReducer.origin);
 
+  const cadastroFormSchema = yup.object().shape({
+    descricao: yup.string().required('Descrição obrigatória.').min(3, 'No mínimo 3 caracteres.'),
+  })
+
+  const formik = useFormik({
+    initialValues: grupo,
+    validationSchema: cadastroFormSchema,
+    enableReinitialize: true,
+    onSubmit: (values) => {
+      formik.setSubmitting(false);
+      update(values);
+    },
+  });
+
   useEffect(() => {
     if (modo === 'edit') {
       api(user.token).get(`/origem/${origin_id}/grupo/${idGrupo}`)
-        .then(response => setGrupo(response.data.result[0]))
+        .then(response => {
+          setGrupo(response.data.result[0]);
+          formik.setValues(response.data.result[0]);
+        })
         .catch(e => console.log(e));
     }
   }, [idGrupo, modo, user.token, origin_id]);
 
-  const handleGrupoDataChange = (e) => {
-    let { name, value } = e.target;
 
-    setGrupo(prevState => ({
-      ...prevState,
-      [name]: value
-    }));
-
-    setModified(true);
-  };
-
-  const update = async () => {
-    const grupoData = { ...grupo, modo };
+  const update = async (values) => {
+    const grupoData = { ...values, modo };
     if (modo === 'insert') {
       await api(user.token).post(`/origem/${origin_id}/grupo`, grupoData)
         .then(() => {
@@ -57,6 +66,7 @@ const ModalGrupo = ({ handleModal, showModal, idGrupo, setIdGrupo, modo }) => {
             id: 0,
             descricao: ''
           });
+          limpaForm();
         })
         .catch(error => console.log(error));
     }
@@ -74,17 +84,21 @@ const ModalGrupo = ({ handleModal, showModal, idGrupo, setIdGrupo, modo }) => {
     }
 
     handleModal();
-    setModified(false);
+  };
+
+  const limpaForm = () => {
+    formik.resetForm();
+
+    setGrupo({
+      id: 0,
+      descricao: '',
+    });
+    setIdGrupo(0);
   };
 
   const handleCancel = () => {
-    setGrupo({
-      id: 0,
-      descricao: ''
-    });
-    setIdGrupo(0);
+    limpaForm();
     handleModal();
-    setModified(false);
   };
 
 
@@ -102,46 +116,44 @@ const ModalGrupo = ({ handleModal, showModal, idGrupo, setIdGrupo, modo }) => {
             }
           </div>
 
-          <Grid container spacing={2}>
-            <Grid item sm={12} md={8}>
-              <TextField
-                label="Descrição"
-                name="descricao"
-                autoFocus
-                fullWidth
-                required
-                onChange={handleGrupoDataChange}
-                value={grupo.descricao}
-                error={!validations.fieldRequired(grupo && grupo.descricao)}
-                InputLabelProps={{
-                  className: styles.inputModal,
-                }}
-              />
+          <form noValidate onSubmit={formik.handleSubmit}>
+            <Grid container spacing={2}>
+              <Grid item sm={12} md={8}>
+                <TextField
+                  label="Descrição"
+                  name="descricao"
+                  autoFocus
+                  fullWidth
+                  required
+                  onChange={formik.handleChange}
+                  value={formik.values.descricao}
+                  error={formik.touched.descricao && Boolean(formik.errors.descricao)}
+                  helperText={formik.touched.descricao && formik.errors.descricao}
+                  InputLabelProps={{
+                    className: styles.inputModal,
+                  }}
+                />
+              </Grid>
+
+              <Grid item sm={12} md={4}>
+                <div align="right">
+                  <Button
+                    type="submit"
+                    className={styles.buttonGravar}
+                    disabled={!formik.dirty || formik.isSubmitting}
+                  >
+                    Gravar
+                  </Button>
+                  <Button
+                    onClick={handleCancel}
+                    className={styles.buttonCancelar}
+                  >
+                    Cancelar
+                </Button>
+                </div>
+              </Grid>
             </Grid>
-
-            <Grid item sm={12} md={4}>
-              <div align="right">
-                <Button
-                  onClick={update}
-                  className={styles.buttonGravar}
-                  disabled={!
-                    (validations.fieldRequired(grupo.descricao) &&
-                      modified)
-                  }
-                >
-                  Gravar
-          </Button>
-                <Button
-                  onClick={handleCancel}
-                  className={styles.buttonCancelar}
-                >
-                  Cancelar
-          </Button>
-              </div>
-            </Grid>
-          </Grid>
-
-
+          </form>
         </div>
       </div>
     </Modal>

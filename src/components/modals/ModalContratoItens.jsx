@@ -39,7 +39,7 @@ const ModalContratoItens = ({
 }) => {
 
   const [itensContrato, setItensContrato] = useState({
-    servico: { id: '', descricao: '' },
+    // servico: { id: '', descricao: '' },
     quantidade: 0,
     valor: 0,
     motivoTerminoContrato: { id: '', descricao: '' },
@@ -112,10 +112,14 @@ const ModalContratoItens = ({
     const dataInicio = adjustDayAndMonth(data_inicio);
     const dataFim = adjustDayAndMonth(data_fim);
     const contratoData = { ...itensContrato, data_inicio: dataInicio, data_fim: dataFim };
+    console.log('HERE ', contratoData);
     if (modo === 'insert') {
       setItems([...items, contratoData]);
       setItensContrato({
-        servico: { id: '', descricao: '' },
+        motivoTerminoContrato: { id: '', descricao: '' },
+        grupoServico: { id: '', descricao: '' },
+        centroCusto: { id: '', descricao: '' },
+        contaContabil: { id: '', descricao: '' },
         quantidade: 0,
         valor: 0,
         obs: ''
@@ -130,7 +134,10 @@ const ModalContratoItens = ({
       const otherItems = items.filter(item => item.tableData.id !== contratoData.tableData.id);
       setItems([...otherItems, updatedFoundItem]);
       setItensContrato({
-        servico: { id: '', descricao: '' },
+        motivoTerminoContrato: { id: '', descricao: '' },
+        grupoServico: { id: '', descricao: '' },
+        centroCusto: { id: '', descricao: '' },
+        contaContabil: { id: '', descricao: '' },
         quantidade: 0,
         valor: 0,
         obs: ''
@@ -151,7 +158,10 @@ const ModalContratoItens = ({
   const handleCancel = () => {
     setModo('insert');
     setItensContrato({
-      servico: { id: '', descricao: '' },
+      motivoTerminoContrato: { id: '', descricao: '' },
+      grupoServico: { id: '', descricao: '' },
+      centroCusto: { id: '', descricao: '' },
+      contaContabil: { id: '', descricao: '' },
       quantidade: 0,
       valor: 0,
       obs: ''
@@ -220,10 +230,10 @@ const ModalContratoItens = ({
 
           <Grid container spacing={4} className={styles.gridSpaceBottom}>
             <Grid item sm={6} md={4}>
-              <ComboServico
+              {/* <ComboServico
                 servico={itensContrato.servico}
                 setCurrentServico={setCurrentServico}
-              />
+              /> */}
             </Grid>
 
             <Grid item sm={6} md={4}>

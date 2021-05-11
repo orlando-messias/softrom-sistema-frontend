@@ -27,6 +27,10 @@ import { toast } from 'react-toastify';
 
 import ComboFilial from "../combos/ComboFilial";
 import ComboParticipante from '../combos/ComboParticipante';
+//validações
+import * as yup from 'yup';
+//formulário
+import { useFormik } from 'formik';
 
 // MODALCONTRATO COMPONENT
 const ModalContrato = ({
@@ -53,6 +57,23 @@ const ModalContrato = ({
   const [filename, setFilename] = useState('Nenhum arquivo selecionado');
   const [fileTooLarge, setFileTooLarge] = useState(false);
 
+  const cadastroFormSchema = yup.object().shape({
+    participante: yup.object().required('Obrigatório'),
+    numero: yup.string().required('Número obrigatório.'),
+    dia_vencimento: yup.string().required('Dia de Vencimento obrigatório.'),
+    obs: yup.string().required('Observação obrigatória.'),
+  })
+
+  const formik = useFormik({
+    initialValues: contrato,
+    validationSchema: cadastroFormSchema,
+    enableReinitialize: true,
+    onSubmit: (values) => {
+      formik.setSubmitting(false);
+      update(values);
+    },
+  });
+
   const styles = useStyles();
   const user = useSelector(state => state.loginReducer.user);
   const origin_id = useSelector(state => state.loginReducer.origin);
@@ -78,8 +99,8 @@ const ModalContrato = ({
     setModified(true);
   };
 
-  const update = async () => {
-    const contratoData = { ...contrato, modo };
+  const update = async (values) => {
+    const contratoData = { ...values, modo };
     if (modo === 'insert') {
       await api(user.token).post(`/origem/${origin_id}/contrato`, contratoData)
         .then(() => {
@@ -94,6 +115,7 @@ const ModalContrato = ({
             anexo: '',
             obs: ''
           });
+          limpaForm();
         })
         .catch(error => console.log(error));
     }
@@ -117,10 +139,12 @@ const ModalContrato = ({
     }
 
     handleModal();
-    setModified(false);
+    // setModified(false);
   };
 
-  const handleCancel = () => {
+  const limpaForm = () => {
+    formik.resetForm();
+
     setContrato({
       id: 0,
       filial: { id: '', nome_fantasia: '' },
@@ -135,8 +159,11 @@ const ModalContrato = ({
     setIdContrato(0);
     setFilename('Nenhum arquivo selecionado');
     setFileTooLarge(false);
+  };
+
+  const handleCancel = () => {
+    limpaForm();
     handleModal();
-    setModified(false);
   };
 
   const handleFile = (e) => {
@@ -200,144 +227,149 @@ const ModalContrato = ({
             }
           </div>
 
-          <Grid container spacing={2}>
-            <Grid item sm={6} md={4}>
-              <ComboFilial
-                filial={contrato.filial}
-                setCurrentFilial={setCurrentFilial}
-              />
-            </Grid>
-
-            <Grid item sm={6} md={4}>
-              <ComboParticipante
-                participante={contrato.participante}
-                setCurrentParticipante={setCurrentParticipante}
-              />
-            </Grid>
-
-          </Grid>
-
-          <Grid container spacing={2}>
-            <Grid item sm={12} md={3}>
-              <TextField
-                label="Número"
-                name="numero"
-                fullWidth
-                required
-                onChange={handleContratoDataChange}
-                value={contrato.numero}
-                error={!validations.fieldRequired(contrato && contrato.numero)}
-                InputLabelProps={{
-                  className: styles.inputModal,
-                }}
-              />
-            </Grid>
-            <Grid item sm={12} md={3}>
-              <TextField
-                label="Dia Vencimento"
-                name="dia_vencimento"
-                fullWidth
-                required
-                onChange={handleContratoDataChange}
-                value={contrato.dia_vencimento}
-                error={!validations.fieldRequired(contrato && contrato.dia_vencimento)}
-                InputLabelProps={{
-                  className: styles.inputModal,
-                }}
-              />
-            </Grid>
-            <Grid item sm={12} md={2}>
-              <FormControlLabel
-                className={styles.check}
-                control={
-                  <Checkbox
-                    name="pendencia"
-                    color="primary"
-                    onChange={handleContratoDataChange}
-                    checked={contrato.pendencia}
-                  />
-                }
-                label="Pendência"
-              />
-            </Grid>
-            <Grid item sm={12} md={4}>
-              <div className="file-input">
-                <input
-                  type="file"
-                  id="file"
-                  accept=".doc, .docx, .pdf, .odt"
-                  multiple
-                  className="file"
-                  onChange={handleFile}
+          <form noValidate onSubmit={formik.handleSubmit}>
+            <Grid container spacing={2}>
+              <Grid item sm={6} md={4}>
+                <ComboFilial
+                  filial={contrato.filial}
+                  setCurrentFilial={setCurrentFilial}
+                  update={update}
                 />
-                <label
-                  htmlFor="file"
-                  className={`labelFile ${filename !== 'Nenhum arquivo selecionado' ? 'active' : ''}`}
+              </Grid>
+
+              <Grid item sm={6} md={4}>
+                <ComboParticipante
+                  participante={contrato.participante}
+                  setCurrentParticipante={setCurrentParticipante}
+                  onChange={formik.handleChange}
+                  value={formik.values.participante}
+                  error={formik.touched.participante && Boolean(formik.errors.participante)}
+                  helperText={formik.touched.participante && formik.errors.participante}
+                />
+              </Grid>
+
+            </Grid>
+
+            <Grid container spacing={2}>
+              <Grid item sm={12} md={3}>
+                <TextField
+                  label="Número"
+                  name="numero"
+                  fullWidth
+                  required
+                  onChange={formik.handleChange}
+                  value={formik.values.numero}
+                  error={formik.touched.numero && Boolean(formik.errors.numero)}
+                  helperText={formik.touched.numero && formik.errors.numero}
+                  InputLabelProps={{
+                    className: styles.inputModal,
+                  }}
+                />
+              </Grid>
+              <Grid item sm={12} md={3}>
+                <TextField
+                  label="Dia Vencimento"
+                  name="dia_vencimento"
+                  fullWidth
+                  required
+                  onChange={formik.handleChange}
+                  value={formik.values.dia_vencimento}
+                  error={formik.touched.dia_vencimento && Boolean(formik.errors.dia_vencimento)}
+                  helperText={formik.touched.dia_vencimento && formik.errors.dia_vencimento}
+                  InputLabelProps={{
+                    className: styles.inputModal,
+                  }}
+                />
+              </Grid>
+              <Grid item sm={12} md={2}>
+                <FormControlLabel
+                  className={styles.check}
+                  control={
+                    <Checkbox
+                      name="pendencia"
+                      color="primary"
+                      onChange={handleContratoDataChange}
+                      checked={contrato.pendencia}
+                    />
+                  }
+                  label="Pendência"
+                />
+              </Grid>
+              <Grid item sm={12} md={4}>
+                <div className="file-input">
+                  <input
+                    type="file"
+                    id="file"
+                    accept=".doc, .docx, .pdf, .odt"
+                    multiple
+                    className="file"
+                    onChange={handleFile}
+                  />
+                  <label
+                    htmlFor="file"
+                    className={`labelFile ${filename !== 'Nenhum arquivo selecionado' ? 'active' : ''}`}
+                  >
+                    <div className="textButton">
+                      <BackupIcon /> <span>Anexo</span>
+                    </div>
+                  </label>
+                  <p className="file-name">{filename}</p>
+                  {fileTooLarge && <p className="file-error">Arquivo(s) acima de 2MB</p>}
+                </div>
+              </Grid>
+            </Grid>
+
+            <Grid container spacing={2}>
+              <Grid item sm={12}>
+                <TextField
+                  label="Obs"
+                  name="obs"
+                  fullWidth
+                  required
+                  onChange={formik.handleChange}
+                  value={formik.values.obs}
+                  error={formik.touched.obs && Boolean(formik.errors.obs)}
+                  helperText={formik.touched.obs && formik.errors.obs}
+                  InputLabelProps={{
+                    className: styles.inputModal,
+                  }}
+                />
+              </Grid>
+            </Grid>
+
+            <div align="right">
+              {items.length > 0 && (
+                <Button
+                  className={styles.buttonItensContrato}
+                  color="primary"
+                  variant="contained"
                 >
-                  <div className="textButton">
-                    <BackupIcon /> <span>Anexo</span>
-                  </div>
-                </label>
-                <p className="file-name">{filename}</p>
-                {fileTooLarge && <p className="file-error">Arquivo(s) acima de 2MB</p>}
-              </div>
-            </Grid>
-          </Grid>
-
-          <Grid container spacing={2}>
-            <Grid item sm={12}>
-              <TextField
-                label="Obs"
-                name="obs"
-                fullWidth
-                required
-                onChange={handleContratoDataChange}
-                value={contrato.obs}
-                error={!validations.fieldRequired(contrato && contrato.obs)}
-                InputLabelProps={{
-                  className: styles.inputModal,
-                }}
-              />
-            </Grid>
-          </Grid>
-
-          <div align="right">
-            {items.length > 0 && (
+                  <FindInPageIcon /> Listar Itens
+                </Button>)}
+              {console.log(items)}
               <Button
+                onClick={() => handleModalItens(modo)}
                 className={styles.buttonItensContrato}
                 color="primary"
                 variant="contained"
               >
-                <FindInPageIcon /> Listar Itens
-              </Button>)}
-            {console.log(items)}
-            <Button
-              onClick={() => handleModalItens(modo)}
-              className={styles.buttonItensContrato}
-              color="primary"
-              variant="contained"
-            >
-              Adicionar Itens
+                Adicionar Itens
           </Button>
-            <Button
-              onClick={update}
-              className={styles.buttonGravar}
-              disabled={!
-                (validations.fieldRequired(contrato && contrato.numero) &&
-                  (validations.fieldRequired(contrato && contrato.dia_vencimento)) &&
-                  (validations.fieldRequired(contrato.obs)) &&
-                  modified)
-              }
-            >
-              Gravar
-          </Button>
-            <Button
-              onClick={handleCancel}
-              className={styles.buttonCancelar}
-            >
-              Cancelar
-          </Button>
-          </div>
+              <Button
+                type="submit"
+                className={styles.buttonGravar}
+                disabled={!formik.dirty || formik.isSubmitting}
+              >
+                Gravar
+              </Button>
+              <Button
+                onClick={handleCancel}
+                className={styles.buttonCancelar}
+              >
+                Cancelar
+              </Button>
+            </div>
+          </form>
         </div>
       </div>
     </Modal>
