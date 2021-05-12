@@ -9,9 +9,8 @@ import api from "../../services/api";
 
 
 // COMBO MOTIVO TERMINO CONTRATO COMPONENT
-const ComboMotivoTerminoContrato = ({ motivoTerminoContrato, setCurrentMotivoTerminoContrato }) => {
+const ComboMotivoTerminoContrato = ({ onChange, value, helperText, error }) => {
   const [data, setData] = useState([]);
-  const [valueSelect, setValueSelect] = useState('');
 
   const user = useSelector((state) => state.loginReducer.user);
   const origin_id = useSelector((state) => state.loginReducer.origin);
@@ -22,16 +21,17 @@ const ComboMotivoTerminoContrato = ({ motivoTerminoContrato, setCurrentMotivoTer
   let isRendered = useRef(false);
 
   useEffect(() => {
-    setValueSelect(motivoTerminoContrato);
-  }, [motivoTerminoContrato]);
-
-  useEffect(() => {
     isRendered = true;
     api(user.token)
       .get(`/origem/${origin_id}/empresa/51/contrato_motivo_termino`)
       .then((response) => {
         if (isRendered) {
-          setData(response.data.result.data);
+          const part = response.data.result.data.map((p) => ({
+            id: p.id,
+            descricao: p.descricao,
+          }));
+
+          setData(part);
         }
         return null;
       })
@@ -41,23 +41,26 @@ const ComboMotivoTerminoContrato = ({ motivoTerminoContrato, setCurrentMotivoTer
     };
   }, []);
 
-  useEffect(() => {
-    setValueSelect(motivoTerminoContrato);
-  }, [motivoTerminoContrato]);
 
   return (
     <>
       <Autocomplete
+        name="motivoTerminoContrato"
         options={data}
-        value={valueSelect || null}
-        onChange={(event, newValue) => {
-          setValueSelect(newValue);
-          setCurrentMotivoTerminoContrato(newValue);
-        }}
-        getOptionLabel={(option) => option.id + " - " + option.descricao}
-        style={{ width: 300, marginTop: 10}}
+        getOptionLabel={(option) => option.descricao}
+        onChange={onChange}
+        value={value}
+        style={{ width: 300, marginBottom: 20 }}
         renderInput={(params) => (
-          <TextField {...params} label="Motivo Término Contrato" variant="outlined" size="small" />
+          <TextField
+            {...params}
+            helperText={helperText}
+            error={error}
+            name="motivoTerminoContrato"
+            label="Motivo Término Contrato"
+            variant="outlined"
+            size="small"
+          />
         )}
       />
     </>

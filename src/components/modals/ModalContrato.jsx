@@ -322,7 +322,7 @@ const ModalContrato = ({
                 variant="contained"
               >
                 Adicionar Itens
-          </Button>
+              </Button>
               <Button
                 type="submit"
                 className={styles.buttonGravar}
