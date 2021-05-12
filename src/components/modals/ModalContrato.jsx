@@ -16,12 +16,10 @@ import {
   FormControlLabel,
   Checkbox
 } from '@material-ui/core';
-import Autocomplete from "@material-ui/lab/Autocomplete";
 // styles
 import useStyles from './ModalContratoStyles';
 // services
 import api from '../../services/api';
-import validations from '../../services/validations';
 // toastify
 import { toast } from 'react-toastify';
 
@@ -45,8 +43,8 @@ const ModalContrato = ({
 }) => {
 
   const [contrato, setContrato] = useState({
-    filial: { id: '', nome_fantasia: '' },
-    participante: { id: '', nome: '' },
+    filial: null,
+    participante: null,
     numero: '',
     dia_vencimento: '',
     pendencia: false,
@@ -58,10 +56,11 @@ const ModalContrato = ({
   const [fileTooLarge, setFileTooLarge] = useState(false);
 
   const cadastroFormSchema = yup.object().shape({
-    participante: yup.object().required('Obrigatório'),
+    filial: yup.object().nullable(),
+    participante: yup.object().nullable().required('Participante obrigatório.'),
     numero: yup.string().required('Número obrigatório.'),
     dia_vencimento: yup.string().required('Dia de Vencimento obrigatório.'),
-    obs: yup.string().required('Observação obrigatória.'),
+    obs: yup.string(),
   })
 
   const formik = useFormik({
@@ -69,8 +68,9 @@ const ModalContrato = ({
     validationSchema: cadastroFormSchema,
     enableReinitialize: true,
     onSubmit: (values) => {
+      console.log(values);
       formik.setSubmitting(false);
-      update(values);
+      //update(values);
     },
   });
 
@@ -105,16 +105,7 @@ const ModalContrato = ({
       await api(user.token).post(`/origem/${origin_id}/contrato`, contratoData)
         .then(() => {
           toast.success(`${contrato.numero} foi adicionado com sucesso`);
-          setContrato({
-            id: 0,
-            filial: { id: '', nome_fantasia: '' },
-            participante: '',
-            numero: '',
-            dia_vencimento: '',
-            pendencia: false,
-            anexo: '',
-            obs: ''
-          });
+
           limpaForm();
         })
         .catch(error => console.log(error));
@@ -124,16 +115,8 @@ const ModalContrato = ({
       await api(user.token).put(`/origem/${origin_id}/contrato`, contratoData)
         .then(() => {
           toast.success(`${contrato.numero} atualizado com sucesso`);
-          setContrato({
-            id: 0,
-            filial: { id: '', nome_fantasia: '' },
-            participante: '',
-            numero: '',
-            dia_vencimento: '',
-            pendencia: false,
-            anexo: '',
-            obs: ''
-          });
+
+          limpaForm();
         })
         .catch(error => console.log(error));
     }
@@ -147,8 +130,8 @@ const ModalContrato = ({
 
     setContrato({
       id: 0,
-      filial: { id: '', nome_fantasia: '' },
-      participante: { id: '', nome: '' },
+      filial: null,
+      participante: null,
       numero: '',
       dia_vencimento: '',
       pendencia: false,
@@ -193,20 +176,6 @@ const ModalContrato = ({
     }
   };
 
-  const setCurrentFilial = (filial) => {
-    setContrato(prevState => ({
-      ...prevState,
-      filial: filial
-    }));
-  };
-
-  const setCurrentParticipante = (participante) => {
-    setContrato(prevState => ({
-      ...prevState,
-      participante: participante
-    }));
-  };
-
   return (
     <Modal
       open={showModal}
@@ -230,18 +199,17 @@ const ModalContrato = ({
           <form noValidate onSubmit={formik.handleSubmit}>
             <Grid container spacing={2}>
               <Grid item sm={6} md={4}>
-                <ComboFilial
-                  filial={contrato.filial}
-                  setCurrentFilial={setCurrentFilial}
-                  update={update}
+              <ComboFilial
+                  onChange={(e, value) => formik.setFieldValue("filial", value)}
+                  value={formik.values.filial}
+                  error={formik.touched.filial && Boolean(formik.errors.filial)}
+                  helperText={formik.touched.filial && formik.errors.filial}
                 />
               </Grid>
 
               <Grid item sm={6} md={4}>
                 <ComboParticipante
-                  participante={contrato.participante}
-                  setCurrentParticipante={setCurrentParticipante}
-                  onChange={formik.handleChange}
+                  onChange={(e, value) => formik.setFieldValue("participante", value)}
                   value={formik.values.participante}
                   error={formik.touched.participante && Boolean(formik.errors.participante)}
                   helperText={formik.touched.participante && formik.errors.participante}
@@ -346,7 +314,7 @@ const ModalContrato = ({
                 >
                   <FindInPageIcon /> Listar Itens
                 </Button>)}
-              {console.log(items)}
+              
               <Button
                 onClick={() => handleModalItens(modo)}
                 className={styles.buttonItensContrato}
@@ -358,7 +326,7 @@ const ModalContrato = ({
               <Button
                 type="submit"
                 className={styles.buttonGravar}
-                disabled={!formik.dirty || formik.isSubmitting}
+                disabled={!(formik.dirty) || formik.isSubmitting}
               >
                 Gravar
               </Button>

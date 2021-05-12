@@ -7,11 +7,9 @@ import Autocomplete from "@material-ui/lab/Autocomplete";
 // services
 import api from "../../services/api";
 
-
 // COMBOPARTICIPANTE COMPONENT
-const ComboParticipante = ({ participante, setCurrentParticipante }) => {
+const ComboParticipante = ({ onChange, value, helperText, error }) => {
   const [data, setData] = useState([]);
-  const [valueSelect, setValueSelect] = useState(participante);
 
   const user = useSelector((state) => state.loginReducer.user);
   const origin_id = useSelector((state) => state.loginReducer.origin);
@@ -27,7 +25,12 @@ const ComboParticipante = ({ participante, setCurrentParticipante }) => {
       .get(`/origem/${origin_id}/empresa/51/participante`)
       .then((response) => {
         if (isRendered) {
-          setData(response.data.result.data);
+          const part = response.data.result.data.map((p) => ({
+            id: p.id,
+            nome: p.nome,
+          }));
+
+          setData(part);
         }
         return null;
       })
@@ -37,23 +40,25 @@ const ComboParticipante = ({ participante, setCurrentParticipante }) => {
     };
   }, []);
 
-  useEffect(() => {
-    setValueSelect(participante);
-  }, [participante]);
-
   return (
     <>
       <Autocomplete
+        name="participante"
         options={data}
-        value={valueSelect || null}
-        onChange={(event, newValue) => {
-          setValueSelect(newValue);
-          setCurrentParticipante(newValue);
-        }}
-        getOptionLabel={(option) => option.id + "-" + option.nome}
+        getOptionLabel={(option) => option.nome}
+        onChange={onChange}
+        value={value}
         style={{ width: 300, marginBottom: 20 }}
         renderInput={(params) => (
-          <TextField {...params} label="Participante" variant="outlined" size="small" />
+          <TextField
+            {...params}
+            helperText={helperText}
+            error={error}
+            name="participante"
+            label="Participante"
+            variant="outlined"
+            size="small"
+          />
         )}
       />
     </>
