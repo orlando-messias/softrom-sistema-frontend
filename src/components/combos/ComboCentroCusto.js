@@ -9,9 +9,8 @@ import api from "../../services/api";
 
 
 // COMBO CENTRO DE CUSTO COMPONENT
-const ComboCentroCusto = ({ centroCusto, setCurrentCentroCusto }) => {
+const ComboCentroCusto = ({ onChange, value, helperText, error }) => {
   const [data, setData] = useState([]);
-  const [valueSelect, setValueSelect] = useState('');
 
   const user = useSelector((state) => state.loginReducer.user);
   const origin_id = useSelector((state) => state.loginReducer.origin);
@@ -22,16 +21,17 @@ const ComboCentroCusto = ({ centroCusto, setCurrentCentroCusto }) => {
   let isRendered = useRef(false);
 
   useEffect(() => {
-    setValueSelect(centroCusto);
-  }, [centroCusto]);
-
-  useEffect(() => {
     isRendered = true;
     api(user.token)
       .get(`/origem/${origin_id}/empresa/51/centro_custo`)
       .then((response) => {
         if (isRendered) {
-          setData(response.data.result.data);
+          const part = response.data.result.data.map((p) => ({
+            id: p.id,
+            descricao: p.descricao,
+          }));
+
+          setData(part);
         }
         return null;
       })
@@ -41,23 +41,26 @@ const ComboCentroCusto = ({ centroCusto, setCurrentCentroCusto }) => {
     };
   }, []);
 
-  useEffect(() => {
-    setValueSelect(centroCusto);
-  }, [centroCusto]);
 
   return (
     <>
       <Autocomplete
+        name="centroCusto"
         options={data}
-        value={valueSelect || null}
-        onChange={(event, newValue) => {
-          setValueSelect(newValue);
-          setCurrentCentroCusto(newValue);
-        }}
-        getOptionLabel={(option) => option.id + " - " + option.descricao}
-        style={{ width: 300, marginTop: 10}}
+        getOptionLabel={(option) => option.descricao}
+        onChange={onChange}
+        value={value}
+        style={{ width: 300, marginBottom: 20 }}
         renderInput={(params) => (
-          <TextField {...params} label="Centro de Custo" variant="outlined" size="small" />
+          <TextField
+            {...params}
+            helperText={helperText}
+            error={error}
+            name="centroCusto"
+            label="Centro de Custo"
+            variant="outlined"
+            size="small"
+          />
         )}
       />
     </>

@@ -32,7 +32,7 @@ import ComboContaContabil from '../combos/ComboContaContabil';
 
 
 
-// MODALCONTRATOITENS COMPONENT
+// MODAL CONTRATO ITENS COMPONENT
 const ModalContratoItens = ({
   handleModalItens,
   showModalItens,
@@ -44,15 +44,14 @@ const ModalContratoItens = ({
 
   const [itensContrato, setItensContrato] = useState({
     // servico: { id: '', descricao: '' },
-    quantidade: 0,
-    valor: 0,
+    quantidade: '',
+    valor: '',
     motivoTerminoContrato: null,
-    data_inicio: null,
-    data_fim: null,
-    // grupoServico: { id: '', descricao: '' },
-    // centroCusto: { id: '', descricao: '' },
-    // contaContabil: { id: '', descricao: '' },
-    // obs: ''
+    obs: '',
+    grupoServico: null,
+    centroCusto: null,
+    contaContabil: null,
+    obs: ''
   });
 
   const [data_inicio, setData_Inicio] = useState(null);
@@ -62,9 +61,11 @@ const ModalContratoItens = ({
   const cadastroFormSchema = yup.object().shape({
     quantidade: yup.string().required('obrigatório.'),
     valor: yup.string().required('obrigatório.'),
-    motivoTerminoContrato: yup.object().nullable().required('Motivo obrigatório.'),
-    data_inicio: yup.date().required('obrigatório.'),
-    data_fim: yup.date().required('obrigatório.')
+    motivoTerminoContrato: yup.object().nullable(),
+    grupoServico: yup.object().nullable().required('Grupo Serviço obrigatório.'),
+    centroCusto: yup.object().nullable().required('Centro de Custo obrigatório.'),
+    contaContabil: yup.object().nullable().required('Conta Contábil obrigatória.'),
+    obs: yup.string()
   });
 
   const formik = useFormik({
@@ -89,17 +90,6 @@ const ModalContratoItens = ({
   //       .catch(e => console.log(e));
   //   }
   // }, [idContrato, modo, user.token]);
-
-  const handleContratoItensDataChange = (e) => {
-    let { name, value } = e.target;
-
-    setItensContrato(prevState => ({
-      ...prevState,
-      [name]: value
-    }));
-
-    setModified(true);
-  };
 
   const handleDataInicio = (date) => {
     setData_Inicio(date);
@@ -134,7 +124,6 @@ const ModalContratoItens = ({
   }
 
   const update = async (values) => {
-    console.log('UPDATE AQUI');
     const dataInicio = adjustDayAndMonth(data_inicio);
     const dataFim = adjustDayAndMonth(data_fim);
     const contratoData = { ...values, data_inicio: dataInicio, data_fim: dataFim };
@@ -143,13 +132,12 @@ const ModalContratoItens = ({
     if (modo === 'insert') {
       setItems([...items, contratoData]);
       setItensContrato({
-        motivoTerminoContrato: { id: '', descricao: '' },
-        grupoServico: { id: '', descricao: '' },
-        centroCusto: { id: '', descricao: '' },
-        contaContabil: { id: '', descricao: '' },
-        quantidade: 0,
-        valor: 0,
-        obs: ''
+        quantidade: '',
+        valor: '',
+        motivoTerminoContrato: null,
+        grupoServico: null,
+        centroCusto: null,
+        contaContabil: null
       });
       setData_Inicio(null);
       setData_Fim(null);
@@ -161,21 +149,19 @@ const ModalContratoItens = ({
       const otherItems = items.filter(item => item.tableData.id !== contratoData.tableData.id);
       setItems([...otherItems, updatedFoundItem]);
       setItensContrato({
-        motivoTerminoContrato: { id: '', descricao: '' },
-        grupoServico: { id: '', descricao: '' },
-        centroCusto: { id: '', descricao: '' },
-        contaContabil: { id: '', descricao: '' },
-        quantidade: 0,
-        valor: 0,
-        obs: ''
+        quantidade: '',
+        valor: '',
+        motivoTerminoContrato: null,
+        grupoServico: null,
+        centroCusto: null,
+        contaContabil: null
       });
       setData_Inicio(null);
       setData_Fim(null);
       setModo('insert');
     }
 
-    handleModalItens();
-    // setModified(false);
+    setModified(false);
   };
 
   const deleteItem = (item) => {
@@ -188,54 +174,20 @@ const ModalContratoItens = ({
 
     setModo('insert');
     setItensContrato({
-      quantidade: 0,
-      valor: 0,
+      quantidade: '',
+      valor: '',
       motivoTerminoContrato: null,
-      data_inicio: null,
-      data_fim: null,
+      grupoServico: null,
+      centroCusto: null,
+      contaContabil: null
     });
-    setData_Inicio('');
-    setData_Fim('');
+    setData_Inicio(null);
+    setData_Fim(null);
   };
 
   const handleCancel = () => {
     limpaForm();
     handleModalItens();
-  };
-
-  const setCurrentServico = (servico) => {
-    setItensContrato(prevState => ({
-      ...prevState,
-      servico: servico
-    }));
-  };
-
-  const setCurrentMotivoTerminoContrato = (motivoTerminoContrato) => {
-    setItensContrato(prevState => ({
-      ...prevState,
-      motivoTerminoContrato: motivoTerminoContrato
-    }));
-  };
-
-  const setCurrentGrupoServico = (grupoServico) => {
-    setItensContrato(prevState => ({
-      ...prevState,
-      grupoServico: grupoServico
-    }));
-  };
-
-  const setCurrentCentroCusto = (centroCusto) => {
-    setItensContrato(prevState => ({
-      ...prevState,
-      centroCusto: centroCusto
-    }));
-  };
-
-  const setCurrentContaContabil = (contaContabil) => {
-    setItensContrato(prevState => ({
-      ...prevState,
-      contaContabil: contaContabil
-    }));
   };
 
 
@@ -277,7 +229,7 @@ const ModalContratoItens = ({
                     fullWidth
                     label="Data Início*"
                     placeholder="dd/mm/aaaa"
-                    error={!validations.fieldReq(data_inicio && data_inicio)}
+                    // error={!validations.fieldReq(data_inicio && data_inicio)}
                     value={data_inicio && data_inicio}
                     minDate={new Date()}
                     onChange={handleDataInicio}
@@ -299,7 +251,7 @@ const ModalContratoItens = ({
                     fullWidth
                     label="Data Fim*"
                     placeholder="dd/mm/aaaa"
-                    error={!validations.fieldReq(data_fim && data_fim)}
+                    // error={!validations.fieldReq(data_fim && data_fim)}
                     value={data_fim && data_fim}
                     minDate={data_inicio}
                     onChange={handleDataFim}
@@ -322,9 +274,10 @@ const ModalContratoItens = ({
                   name="quantidade"
                   fullWidth
                   required
-                  onChange={handleContratoItensDataChange}
-                  value={itensContrato && itensContrato.quantidade}
-                  error={!validations.fieldRequired(itensContrato && itensContrato.quantidade)}
+                  onChange={formik.handleChange}
+                  value={formik.values.quantidade}
+                  error={formik.touched.quantidade && Boolean(formik.errors.quantidade)}
+                  helperText={formik.touched.quantidade && formik.errors.quantidade}
                   InputLabelProps={{
                     className: styles.inputModal,
                   }}
@@ -336,9 +289,10 @@ const ModalContratoItens = ({
                   name="valor"
                   fullWidth
                   required
-                  onChange={handleContratoItensDataChange}
-                  value={itensContrato && itensContrato.valor}
-                  error={!validations.fieldRequired(itensContrato && itensContrato.valor)}
+                  onChange={formik.handleChange}
+                  value={formik.values.valor}
+                  error={formik.touched.valor && Boolean(formik.errors.valor)}
+                  helperText={formik.touched.valor && formik.errors.valor}
                   InputLabelProps={{
                     className: styles.inputModal,
                   }}
@@ -347,7 +301,7 @@ const ModalContratoItens = ({
 
               <Grid item sm={12} md={4}>
                 <ComboMotivoTerminoContrato
-                  onChange={(e, value) => formik.setFieldValue("motivoTerminoCrontrato", value)}
+                  onChange={(e, value) => formik.setFieldValue("motivoTerminoContrato", value)}
                   value={formik.values.motivoTerminoContrato}
                   error={formik.touched.motivoTerminoContrato && Boolean(formik.errors.motivoTerminoContrato)}
                   helperText={formik.touched.motivoTerminoContrato && formik.errors.motivoTerminoContrato}
@@ -358,20 +312,26 @@ const ModalContratoItens = ({
             <Grid container spacing={4}>
               <Grid item sm={12} md={4}>
                 <ComboGrupoServico
-                  grupoServico={itensContrato.grupoServico}
-                  setCurrentGrupoServico={setCurrentGrupoServico}
+                  onChange={(e, value) => formik.setFieldValue("grupoServico", value)}
+                  value={formik.values.grupoServico}
+                  error={formik.touched.grupoServico && Boolean(formik.errors.grupoServico)}
+                  helperText={formik.touched.grupoServico && formik.errors.grupoServico}
                 />
               </Grid>
               <Grid item sm={12} md={4}>
                 <ComboCentroCusto
-                  centroCusto={itensContrato.centroCusto}
-                  setCurrentCentroCusto={setCurrentCentroCusto}
+                  onChange={(e, value) => formik.setFieldValue("centroCusto", value)}
+                  value={formik.values.centroCusto}
+                  error={formik.touched.centroCusto && Boolean(formik.errors.centroCusto)}
+                  helperText={formik.touched.centroCusto && formik.errors.centroCusto}
                 />
               </Grid>
               <Grid item sm={12} md={4}>
                 <ComboContaContabil
-                  contaContabil={itensContrato.contaContabil}
-                  setCurrentContaContabil={setCurrentContaContabil}
+                  onChange={(e, value) => formik.setFieldValue("contaContabil", value)}
+                  value={formik.values.contaContabil}
+                  error={formik.touched.contaContabil && Boolean(formik.errors.contaContabil)}
+                  helperText={formik.touched.contaContabil && formik.errors.contaContabil}
                 />
               </Grid>
             </Grid>
@@ -383,9 +343,10 @@ const ModalContratoItens = ({
                   name="obs"
                   fullWidth
                   required
-                  onChange={handleContratoItensDataChange}
-                  value={itensContrato && itensContrato.obs}
-                  // error={!validations.fieldRequired(itensContrato && itensContrato.obs)}
+                  onChange={formik.handleChange}
+                  value={formik.values.obs}
+                  error={formik.touched.obs && Boolean(formik.errors.obs)}
+                  helperText={formik.touched.obs && formik.errors.obs}
                   InputLabelProps={{
                     className: styles.inputModal,
                   }}
@@ -397,7 +358,7 @@ const ModalContratoItens = ({
               <Button
                 type="submit"
                 className={styles.buttonGravarItem}
-                disabled={!(formik.dirty) || formik.isSubmitting}
+                disabled={(!formik.dirty || formik.isSubmitting) && !modified}
               >
                 Gravar Item
             </Button>
