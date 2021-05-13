@@ -16,6 +16,10 @@ import useStyles from './ModalContratoItensStyles';
 import ItemsContrato from '../ItemsContrato';
 // services
 import validations from '../../services/validations';
+//validações
+import * as yup from 'yup';
+//formulário
+import { useFormik } from 'formik';
 // react-date-picker
 import 'date-fns';
 import DateFnsUtils from '@date-io/date-fns';
@@ -28,7 +32,7 @@ import ComboContaContabil from '../combos/ComboContaContabil';
 
 
 
-// MODALCONTRATOITENS COMPONENT
+// MODAL CONTRATO ITENS COMPONENT
 const ModalContratoItens = ({
   handleModalItens,
   showModalItens,
@@ -40,18 +44,40 @@ const ModalContratoItens = ({
 
   const [itensContrato, setItensContrato] = useState({
     // servico: { id: '', descricao: '' },
-    quantidade: 0,
-    valor: 0,
-    motivoTerminoContrato: { id: '', descricao: '' },
-    grupoServico: { id: '', descricao: '' },
-    centroCusto: { id: '', descricao: '' },
-    contaContabil: { id: '', descricao: '' },
+    quantidade: '',
+    valor: '',
+    motivoTerminoContrato: null,
+    obs: '',
+    grupoServico: null,
+    centroCusto: null,
+    contaContabil: null,
     obs: ''
   });
 
   const [data_inicio, setData_Inicio] = useState(null);
   const [data_fim, setData_Fim] = useState(null);
   const [modified, setModified] = useState(false);
+
+  const cadastroFormSchema = yup.object().shape({
+    quantidade: yup.string().required('obrigatório.'),
+    valor: yup.string().required('obrigatório.'),
+    motivoTerminoContrato: yup.object().nullable(),
+    grupoServico: yup.object().nullable().required('Grupo Serviço obrigatório.'),
+    centroCusto: yup.object().nullable().required('Centro de Custo obrigatório.'),
+    contaContabil: yup.object().nullable().required('Conta Contábil obrigatória.'),
+    obs: yup.string()
+  });
+
+  const formik = useFormik({
+    initialValues: itensContrato,
+    validationSchema: cadastroFormSchema,
+    enableReinitialize: true,
+    onSubmit: (values) => {
+      console.log(values);
+      formik.setSubmitting(false);
+      update(values);
+    },
+  });
 
   const styles = useStyles();
   // const user = useSelector(state => state.loginReducer.user);
@@ -64,17 +90,6 @@ const ModalContratoItens = ({
   //       .catch(e => console.log(e));
   //   }
   // }, [idContrato, modo, user.token]);
-
-  const handleContratoItensDataChange = (e) => {
-    let { name, value } = e.target;
-
-    setItensContrato(prevState => ({
-      ...prevState,
-      [name]: value
-    }));
-
-    setModified(true);
-  };
 
   const handleDataInicio = (date) => {
     setData_Inicio(date);
@@ -108,21 +123,21 @@ const ModalContratoItens = ({
     setItensContrato(item);
   }
 
-  const update = () => {
+  const update = async (values) => {
     const dataInicio = adjustDayAndMonth(data_inicio);
     const dataFim = adjustDayAndMonth(data_fim);
-    const contratoData = { ...itensContrato, data_inicio: dataInicio, data_fim: dataFim };
+    const contratoData = { ...values, data_inicio: dataInicio, data_fim: dataFim };
+    setItensContrato(contratoData);
     console.log('HERE ', contratoData);
     if (modo === 'insert') {
       setItems([...items, contratoData]);
       setItensContrato({
-        motivoTerminoContrato: { id: '', descricao: '' },
-        grupoServico: { id: '', descricao: '' },
-        centroCusto: { id: '', descricao: '' },
-        contaContabil: { id: '', descricao: '' },
-        quantidade: 0,
-        valor: 0,
-        obs: ''
+        quantidade: '',
+        valor: '',
+        motivoTerminoContrato: null,
+        grupoServico: null,
+        centroCusto: null,
+        contaContabil: null
       });
       setData_Inicio(null);
       setData_Fim(null);
@@ -134,13 +149,12 @@ const ModalContratoItens = ({
       const otherItems = items.filter(item => item.tableData.id !== contratoData.tableData.id);
       setItems([...otherItems, updatedFoundItem]);
       setItensContrato({
-        motivoTerminoContrato: { id: '', descricao: '' },
-        grupoServico: { id: '', descricao: '' },
-        centroCusto: { id: '', descricao: '' },
-        contaContabil: { id: '', descricao: '' },
-        quantidade: 0,
-        valor: 0,
-        obs: ''
+        quantidade: '',
+        valor: '',
+        motivoTerminoContrato: null,
+        grupoServico: null,
+        centroCusto: null,
+        contaContabil: null
       });
       setData_Inicio(null);
       setData_Fim(null);
@@ -155,56 +169,25 @@ const ModalContratoItens = ({
     setItems(newItens);
   }
 
-  const handleCancel = () => {
+  const limpaForm = () => {
+    formik.resetForm();
+
     setModo('insert');
     setItensContrato({
-      motivoTerminoContrato: { id: '', descricao: '' },
-      grupoServico: { id: '', descricao: '' },
-      centroCusto: { id: '', descricao: '' },
-      contaContabil: { id: '', descricao: '' },
-      quantidade: 0,
-      valor: 0,
-      obs: ''
+      quantidade: '',
+      valor: '',
+      motivoTerminoContrato: null,
+      grupoServico: null,
+      centroCusto: null,
+      contaContabil: null
     });
-    setData_Inicio('');
-    setData_Fim('');
+    setData_Inicio(null);
+    setData_Fim(null);
+  };
+
+  const handleCancel = () => {
+    limpaForm();
     handleModalItens();
-    setModified(false);
-  };
-
-  const setCurrentServico = (servico) => {
-    setItensContrato(prevState => ({
-      ...prevState,
-      servico: servico
-    }));
-  };
-
-  const setCurrentMotivoTerminoContrato = (motivoTerminoContrato) => {
-    setItensContrato(prevState => ({
-      ...prevState,
-      motivoTerminoContrato: motivoTerminoContrato
-    }));
-  };
-
-  const setCurrentGrupoServico = (grupoServico) => {
-    setItensContrato(prevState => ({
-      ...prevState,
-      grupoServico: grupoServico
-    }));
-  };
-
-  const setCurrentCentroCusto = (centroCusto) => {
-    setItensContrato(prevState => ({
-      ...prevState,
-      centroCusto: centroCusto
-    }));
-  };
-
-  const setCurrentContaContabil = (contaContabil) => {
-    setItensContrato(prevState => ({
-      ...prevState,
-      contaContabil: contaContabil
-    }));
   };
 
 
@@ -228,163 +211,170 @@ const ModalContratoItens = ({
             }
           </div>
 
-          <Grid container spacing={4} className={styles.gridSpaceBottom}>
-            <Grid item sm={6} md={4}>
-              {/* <ComboServico
+          <form noValidate onSubmit={formik.handleSubmit}>
+            <Grid container spacing={4} className={styles.gridSpaceBottom}>
+              <Grid item sm={6} md={4}>
+                {/* <ComboServico
                 servico={itensContrato.servico}
                 setCurrentServico={setCurrentServico}
               /> */}
+              </Grid>
+
+              <Grid item sm={6} md={4}>
+                <MuiPickersUtilsProvider utils={DateFnsUtils}>
+                  <KeyboardDatePicker
+                    disableToolbar
+                    variant="inline"
+                    format="dd/MM/yyyy"
+                    fullWidth
+                    label="Data Início*"
+                    placeholder="dd/mm/aaaa"
+                    // error={!validations.fieldReq(data_inicio && data_inicio)}
+                    value={data_inicio && data_inicio}
+                    minDate={new Date()}
+                    onChange={handleDataInicio}
+                    autoOk={true}
+                    InputLabelProps={{
+                      className: styles.inputModal,
+                      shrink: true,
+                    }}
+                  />
+                </MuiPickersUtilsProvider>
+              </Grid>
+
+              <Grid item sm={6} md={4}>
+                <MuiPickersUtilsProvider utils={DateFnsUtils}>
+                  <KeyboardDatePicker
+                    disableToolbar
+                    variant="inline"
+                    format="dd/MM/yyyy"
+                    fullWidth
+                    label="Data Fim*"
+                    placeholder="dd/mm/aaaa"
+                    // error={!validations.fieldReq(data_fim && data_fim)}
+                    value={data_fim && data_fim}
+                    minDate={data_inicio}
+                    onChange={handleDataFim}
+                    autoOk={true}
+                    InputLabelProps={{
+                      className: styles.inputModal,
+                      shrink: true,
+                    }}
+                  />
+                </MuiPickersUtilsProvider>
+
+              </Grid>
+
             </Grid>
 
-            <Grid item sm={6} md={4}>
-              <MuiPickersUtilsProvider utils={DateFnsUtils}>
-                <KeyboardDatePicker
-                  disableToolbar
-                  variant="inline"
-                  format="dd/MM/yyyy"
+            <Grid container spacing={4} className={styles.gridSpaceBottom}>
+              <Grid item sm={12} md={4} className={styles.gridIntSpace}>
+                <TextField
+                  label="Quantidade"
+                  name="quantidade"
                   fullWidth
-                  label="Data Início*"
-                  placeholder="dd/mm/aaaa"
-                  error={!validations.fieldReq(data_inicio && data_inicio)}
-                  value={data_inicio && data_inicio}
-                  minDate={new Date()}
-                  onChange={handleDataInicio}
-                  autoOk={true}
+                  required
+                  onChange={formik.handleChange}
+                  value={formik.values.quantidade}
+                  error={formik.touched.quantidade && Boolean(formik.errors.quantidade)}
+                  helperText={formik.touched.quantidade && formik.errors.quantidade}
                   InputLabelProps={{
                     className: styles.inputModal,
-                    shrink: true,
                   }}
                 />
-              </MuiPickersUtilsProvider>
-            </Grid>
-
-            <Grid item sm={6} md={4}>
-              <MuiPickersUtilsProvider utils={DateFnsUtils}>
-                <KeyboardDatePicker
-                  disableToolbar
-                  variant="inline"
-                  format="dd/MM/yyyy"
+              </Grid>
+              <Grid item sm={12} md={4}>
+                <TextField
+                  label="Valor"
+                  name="valor"
                   fullWidth
-                  label="Data Fim*"
-                  placeholder="dd/mm/aaaa"
-                  error={!validations.fieldReq(data_fim && data_fim)}
-                  value={data_fim && data_fim}
-                  minDate={data_inicio}
-                  onChange={handleDataFim}
-                  autoOk={true}
+                  required
+                  onChange={formik.handleChange}
+                  value={formik.values.valor}
+                  error={formik.touched.valor && Boolean(formik.errors.valor)}
+                  helperText={formik.touched.valor && formik.errors.valor}
                   InputLabelProps={{
                     className: styles.inputModal,
-                    shrink: true,
                   }}
                 />
-              </MuiPickersUtilsProvider>
+              </Grid>
 
+              <Grid item sm={12} md={4}>
+                <ComboMotivoTerminoContrato
+                  onChange={(e, value) => formik.setFieldValue("motivoTerminoContrato", value)}
+                  value={formik.values.motivoTerminoContrato}
+                  error={formik.touched.motivoTerminoContrato && Boolean(formik.errors.motivoTerminoContrato)}
+                  helperText={formik.touched.motivoTerminoContrato && formik.errors.motivoTerminoContrato}
+                />
+              </Grid>
             </Grid>
 
-          </Grid>
-
-          <Grid container spacing={4} className={styles.gridSpaceBottom}>
-            <Grid item sm={12} md={4} className={styles.gridIntSpace}>
-              <TextField
-                label="Quantidade"
-                name="quantidade"
-                fullWidth
-                required
-                onChange={handleContratoItensDataChange}
-                value={itensContrato && itensContrato.quantidade}
-                error={!validations.fieldRequired(itensContrato && itensContrato.quantidade)}
-                InputLabelProps={{
-                  className: styles.inputModal,
-                }}
-              />
-            </Grid>
-            <Grid item sm={12} md={4}>
-              <TextField
-                label="Valor"
-                name="valor"
-                fullWidth
-                required
-                onChange={handleContratoItensDataChange}
-                value={itensContrato && itensContrato.valor}
-                error={!validations.fieldRequired(itensContrato && itensContrato.valor)}
-                InputLabelProps={{
-                  className: styles.inputModal,
-                }}
-              />
+            <Grid container spacing={4}>
+              <Grid item sm={12} md={4}>
+                <ComboGrupoServico
+                  onChange={(e, value) => formik.setFieldValue("grupoServico", value)}
+                  value={formik.values.grupoServico}
+                  error={formik.touched.grupoServico && Boolean(formik.errors.grupoServico)}
+                  helperText={formik.touched.grupoServico && formik.errors.grupoServico}
+                />
+              </Grid>
+              <Grid item sm={12} md={4}>
+                <ComboCentroCusto
+                  onChange={(e, value) => formik.setFieldValue("centroCusto", value)}
+                  value={formik.values.centroCusto}
+                  error={formik.touched.centroCusto && Boolean(formik.errors.centroCusto)}
+                  helperText={formik.touched.centroCusto && formik.errors.centroCusto}
+                />
+              </Grid>
+              <Grid item sm={12} md={4}>
+                <ComboContaContabil
+                  onChange={(e, value) => formik.setFieldValue("contaContabil", value)}
+                  value={formik.values.contaContabil}
+                  error={formik.touched.contaContabil && Boolean(formik.errors.contaContabil)}
+                  helperText={formik.touched.contaContabil && formik.errors.contaContabil}
+                />
+              </Grid>
             </Grid>
 
-            <Grid item sm={12} md={4}>
-              <ComboMotivoTerminoContrato
-                motivoTerminoContrato={itensContrato.motivoTerminoContrato}
-                setCurrentMotivoTerminoContrato={setCurrentMotivoTerminoContrato}
-              />
+            <Grid container spacing={4} className={styles.gridSpaceTop}>
+              <Grid item sm={12}>
+                <TextField
+                  label="Obs"
+                  name="obs"
+                  fullWidth
+                  required
+                  onChange={formik.handleChange}
+                  value={formik.values.obs}
+                  error={formik.touched.obs && Boolean(formik.errors.obs)}
+                  helperText={formik.touched.obs && formik.errors.obs}
+                  InputLabelProps={{
+                    className: styles.inputModal,
+                  }}
+                />
+              </Grid>
             </Grid>
-          </Grid>
 
-          <Grid container spacing={4}>
-            <Grid item sm={12} md={4}>
-              <ComboGrupoServico
-                grupoServico={itensContrato.grupoServico}
-                setCurrentGrupoServico={setCurrentGrupoServico}
-              />
-            </Grid>
-            <Grid item sm={12} md={4}>
-              <ComboCentroCusto
-                centroCusto={itensContrato.centroCusto}
-                setCurrentCentroCusto={setCurrentCentroCusto}
-              />
-            </Grid>
-            <Grid item sm={12} md={4}>
-              <ComboContaContabil
-                contaContabil={itensContrato.contaContabil}
-                setCurrentContaContabil={setCurrentContaContabil}
-              />
-            </Grid>
-          </Grid>
+            <div align="right">
+              <Button
+                type="submit"
+                className={styles.buttonGravarItem}
+                disabled={(!formik.dirty || formik.isSubmitting) && !modified}
+              >
+                Gravar Item
+            </Button>
+            </div>
 
-          <Grid container spacing={4} className={styles.gridSpaceTop}>
-            <Grid item sm={12}>
-              <TextField
-                label="Obs"
-                name="obs"
-                fullWidth
-                required
-                onChange={handleContratoItensDataChange}
-                value={itensContrato && itensContrato.obs}
-                // error={!validations.fieldRequired(itensContrato && itensContrato.obs)}
-                InputLabelProps={{
-                  className: styles.inputModal,
-                }}
-              />
-            </Grid>
-          </Grid>
+            <ItemsContrato items={items} editItem={editItem} deleteItem={deleteItem} modo={modo} setModo={setModo} />
 
-          <div align="right">
-            <Button
-              onClick={update}
-              className={styles.buttonGravarItem}
-              disabled={!
-                (validations.fieldRequired(itensContrato && itensContrato.quantidade) &&
-                  (validations.fieldRequired(itensContrato && itensContrato.valor)) &&
-                  (validations.fieldReq(data_inicio && data_inicio)) &&
-                  (validations.fieldReq(data_fim && data_fim)) &&
-                  modified)
-              }
-            >
-              Gravar Item
-          </Button>
-          </div>
-
-          <ItemsContrato items={items} editItem={editItem} deleteItem={deleteItem} modo={modo} setModo={setModo} />
-
-          <div align="right">
-            <Button
-              onClick={handleCancel}
-              className={styles.buttonCancelar}
-            >
-              Fechar
-          </Button>
-          </div>
+            <div align="right">
+              <Button
+                onClick={handleCancel}
+                className={styles.buttonCancelar}
+              >
+                Fechar
+            </Button>
+            </div>
+          </form>
         </div>
       </div>
     </Modal>
