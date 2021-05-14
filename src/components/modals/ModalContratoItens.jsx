@@ -73,7 +73,7 @@ const ModalContratoItens = ({
     validationSchema: cadastroFormSchema,
     enableReinitialize: true,
     onSubmit: (values) => {
-      console.log(values);
+      // console.log(values);
       formik.setSubmitting(false);
       update(values);
     },
@@ -128,7 +128,7 @@ const ModalContratoItens = ({
     const dataFim = adjustDayAndMonth(data_fim);
     const contratoData = { ...values, data_inicio: dataInicio, data_fim: dataFim };
     setItensContrato(contratoData);
-    console.log('HERE ', contratoData);
+    // console.log('HERE ', contratoData);
     if (modo === 'insert') {
       setItems([...items, contratoData]);
       setItensContrato({

@@ -70,7 +70,7 @@ const ModalContrato = ({
     onSubmit: (values) => {
       console.log(values);
       formik.setSubmitting(false);
-      //update(values);
+      update(values);
     },
   });
 
@@ -100,16 +100,17 @@ const ModalContrato = ({
   };
 
   const update = async (values) => {
-    const contratoData = { ...values, modo };
-    if (modo === 'insert') {
-      await api(user.token).post(`/origem/${origin_id}/contrato`, contratoData)
-        .then(() => {
-          toast.success(`${contrato.numero} foi adicionado com sucesso`);
+    const contratoData = { ...values, items };
+    console.log('CONTRATO ', contratoData);
+    // if (modo === 'insert') {
+    //   await api(user.token).post(`/origem/${origin_id}/contrato`, contratoData)
+    //     .then(() => {
+    //       toast.success(`${contrato.numero} foi adicionado com sucesso`);
 
-          limpaForm();
-        })
-        .catch(error => console.log(error));
-    }
+    //       limpaForm();
+    //     })
+    //     .catch(error => console.log(error));
+    // }
 
     if (modo === 'edit') {
       await api(user.token).put(`/origem/${origin_id}/contrato`, contratoData)
