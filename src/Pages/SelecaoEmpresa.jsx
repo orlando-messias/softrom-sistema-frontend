@@ -3,7 +3,7 @@ import React, { useEffect, useState } from 'react';
 import { useHistory } from 'react-router';
 // material
 import { Button, Grid, TextField } from '@material-ui/core';
-import Autocomplete from "@material-ui/lab/Autocomplete";
+
 // redux
 import { useDispatch } from 'react-redux';
 import { selectCompany, setOrigin, loginSuccess } from '../store/Login/Login.action';
@@ -14,21 +14,37 @@ import TopBar from '../components/TopBar';
 // images
 import logo from '../assets/logo-softrom-completa.png';
 
+import ComboEmpresa from '../components/combos/ComboEmpresa';
+
+//validações
+import * as yup from 'yup';
+//formulário
+import { useFormik } from 'formik';
 
 // SELECAOEMPRESA COMPONENT READY
 export default function SelecaoEmpresa() {
-  const [empresa, setEmpresa] = useState('');
-  const [data, setData] = useState([]);
-
   const styles = useStyles();
   const history = useHistory();
   const dispatch = useDispatch();
 
-  const handleAcessar = () => {
-    const axa = data.find(empr => empr.nome === empresa);
-    console.log('achei ', axa);
+  const cadastroFormSchema = yup.object().shape({
+    empresa: yup.object().nullable().required('Empresa obrigatória.'),
+  })
+
+  const formik = useFormik({
+    initialValues: {},
+    validationSchema: cadastroFormSchema,
+    enableReinitialize: true,
+    onSubmit: (values) => {
+      console.log(values);
+      formik.setSubmitting(false);
+      handleAcessar(values);
+    },
+  });  
+
+  const handleAcessar = (values) => {    
+    const { empresa } = values;
     dispatch(selectCompany(empresa));
-    
     let userData = JSON.parse(localStorage.getItem('user'));
     userData = { ...userData, empresa };
     localStorage.setItem('user', JSON.stringify(userData));
@@ -47,7 +63,6 @@ export default function SelecaoEmpresa() {
     const dados = JSON.parse(token.dados);
     dispatch(setOrigin(dados.origem[0].id));
     console.log(dados.origem[0].id);
-    setData(dados.origem[0].empresa);
     console.log('empresa ', dados.origem[0].empresa);
   }, [dispatch]);
 
@@ -63,34 +78,28 @@ export default function SelecaoEmpresa() {
       <div className={styles.content}>
         <h2 className={styles.title}>Selecionar Empresa</h2>
         <div>
+        <form noValidate onSubmit={formik.handleSubmit}>
           <Grid container spacing={2} >
             <Grid item xs={12} md={6}>
-              <Autocomplete
-                options={data}
-                value={empresa || null}
-                onChange={(event, newValue) => {
-                  setEmpresa(newValue);
-                }}
-                getOptionLabel={(option) => option.id + " - " + option.nome}
-                renderInput={(params) => (
-                  <TextField {...params} label="Empresa" variant="outlined" />
-                )}
-              />
+                <ComboEmpresa
+                  onChange={(e, value) => formik.setFieldValue("empresa", value)}
+                  error={formik.touched.empresa && Boolean(formik.errors.empresa)}
+                  
+                  helperText={formik.touched.empresa && formik.errors.empresa}
+                />
             </Grid>
             <Grid item xs={12} md={6}>
-              <Button
+            <Button
+                type="submit"
                 className={styles.button}
-                variant="outlined"
-                color="primary"
-                onClick={handleAcessar}
-                disabled={!empresa}
+                disabled={formik.isSubmitting}
               >
-                Acessar
+                Entrar
               </Button>
             </Grid>
           </Grid>
+          </form>
         </div>
-
       </div>
     </div>
   )
